@@ -7,6 +7,7 @@ import Image from "next/image";
 import SidebarItem from "@/components/Sidebar/SidebarItem";
 import ClickOutside from "@/components/ClickOutside";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import MenuGroupsData from "@/config/MENU_DATA";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -310,7 +311,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             : "-translate-x-full"
         }`}
       >
-        {/* <!-- SIDEBAR HEADER --> */}
         <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5 xl:py-10">
           <Link href="/">
             <Image
@@ -352,12 +352,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             </svg>
           </button>
         </div>
-        {/* <!-- SIDEBAR HEADER --> */}
 
         <div className="no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear">
-          {/* <!-- Sidebar Menu --> */}
           <nav className="mt-1 px-4 lg:px-6">
-            {menuGroups.map((group, groupIndex) => (
+            {MenuGroupsData.map((group, groupIndex) => (
               <div key={groupIndex}>
                 <h3 className="mb-5 text-sm font-medium text-dark-4 dark:text-dark-6">
                   {group.name}
@@ -376,7 +374,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </div>
             ))}
           </nav>
-          {/* <!-- Sidebar Menu --> */}
         </div>
       </aside>
     </ClickOutside>
