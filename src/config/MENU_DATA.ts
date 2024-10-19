@@ -1,3 +1,10 @@
+import dashboard from "@/assets/images/icon/dashboard-svgrepo-com.svg"
+import orders from "@/assets/images/icon/order.svg"
+import payments from "@/assets/images/icon/payment.svg"
+import services from "@/assets/images/icon/service.svg"
+import customers from "@/assets/images/icon/customer.svg"
+import employees from "@/assets/images/icon/employee.svg"
+
 interface MenuItem {
     icon?: string;
     label: string;
@@ -15,32 +22,32 @@ const MenuGroupsData: MenuGroup[] = [
         name: "MAIN MENU",
         menuItems: [
             {
-                icon: '/images/icon/dashboard-svgrepo-com.svg',
+                icon: dashboard,
                 label: "Dashboard",
                 route: "/dashboard",
             },
             {
-                icon: '/images/icon/order.svg',
+                icon: orders,
                 label: "Orders",
                 route: "/orders",
             },
             {
-                icon: '/images/icon/payment.svg',
+                icon: payments,
                 label: "Payments",
                 route: "/payments",
             },
             {
-                icon: '/images/icon/service.svg',
+                icon: services,
                 label: "Services",
                 route: "/services",
             },
             {
-                icon: '/images/icon/customer.svg',
+                icon: customers,
                 label: "Customer",
                 route: "/customers",
             },
             {
-                icon: '/images/icon/employee.svg',
+                icon: employees,
                 label: "Employees",
                 route: "/employees",
             },
