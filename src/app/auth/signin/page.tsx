@@ -6,6 +6,9 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLaout";
 import Signin from "@/components/Auth/Signin";
 import { useRouter } from "next/navigation";
+import dark_logo from "@/assets/images/logo/logo-dark.svg";
+import logo from "@/assets/images/logo/logo.svg";
+import grid from "@/assets/images/grids/grid-02.svg";
 
 export const metadata: Metadata = {
   title: "Next.js Login Page | NextAdmin - Next.js Dashboard Kit",
@@ -28,14 +31,14 @@ const SignIn: React.FC = () => {
               <Link className="mb-10 inline-block" href="/">
                 <Image
                   className="hidden dark:block"
-                  src={"/images/logo/logo.svg"}
+                  src={logo}
                   alt="Logo"
                   width={176}
                   height={32}
                 />
                 <Image
                   className="dark:hidden"
-                  src={"/images/logo/logo-dark.svg"}
+                  src={dark_logo}
                   alt="Logo"
                   width={176}
                   height={32}
@@ -56,7 +59,7 @@ const SignIn: React.FC = () => {
 
               <div className="mt-31">
                 <Image
-                  src={"/images/grids/grid-02.svg"}
+                  src={grid}
                   alt="Logo"
                   width={405}
                   height={325}
