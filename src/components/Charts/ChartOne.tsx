@@ -2,16 +2,16 @@ import { ApexOptions } from "apexcharts";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import DefaultSelectOption from "@/components/SelectOption/DefaultSelectOption";
-
+import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 const ChartOne: React.FC = () => {
   const series = [
     {
       name: "Received Amount",
-      data: [0, 20, 35, 45, 35, 55, 65, 50, 65, 75, 60, 75],
+      data: [0, 20, 35, 45, 35, 55, 65],
     },
     {
       name: "Due Amount",
-      data: [15, 9, 17, 32, 25, 68, 80, 68, 84, 94, 74, 62],
+      data: [15, 9, 17, 32, 25, 68, 80,],
     },
   ];
 
@@ -98,18 +98,14 @@ const ChartOne: React.FC = () => {
     xaxis: {
       type: "category",
       categories: [
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun",
+        
       ],
       axisBorder: {
         show: false,
@@ -128,18 +124,34 @@ const ChartOne: React.FC = () => {
   };
 
   return (
-    <div className="col-span-12 rounded-[10px] bg-white px-7.5 pb-6 pt-7.5 shadow-1 dark:bg-gray-dark dark:shadow-card xl:col-span-7">
+    <div className="col-span-12 rounded-[10px] bg-white px-7.5 pb-6 pt-7.5  dark:bg-gray-dark dark:shadow-card xl:col-span-7 shadow-lg shadow-gray-4">
       <div className="mb-3.5 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h4 className="text-body-2xlg font-bold text-dark dark:text-white">
-            Payments Overview
+          <h4 className="text-body-2xlg font-bold text-slate-600 dark:text-white " style={{font:"Inter"}}>
+          Orders Chart
           </h4>
         </div>
+        <div className="flex space-x-4">
+          < label className="inline-flex items-center">
+                <input type="radio"
+                className="form-radio text-blue-600 h-4 w-4"
+                name="week"
+                value="Last Week"
+                />
+                <span className="ml-2 text-slate-400">Last Week</span>
+          </label>
+          <label className="inline-flex items-center">
+                <input type="radio"
+                   className="form-radio text-blue-600 h-4 w-4"
+                   name="week"
+                   value="This Week"/>
+                <span className="ml-2 text-slate-400">This Week</span>
+          </label>
+        </div>
         <div className="flex items-center gap-2.5">
-          <p className="font-medium uppercase text-dark dark:text-dark-6">
-            Short by:
-          </p>
-          <DefaultSelectOption options={["Monthly", "Yearly"]} />
+        <a href="#" className="text-slate-400 hover:underline text-[25px] flex  mb-6  " style={{font:"Inter"}}>View orders
+            <MdKeyboardDoubleArrowRight className='h-6 w-6' />
+            </a>
         </div>
       </div>
       <div>
@@ -154,18 +166,7 @@ const ChartOne: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-2 text-center xsm:flex-row xsm:gap-0">
-        <div className="border-stroke dark:border-dark-3 xsm:w-1/2 xsm:border-r">
-          <p className="font-medium">Received Amount</p>
-          <h4 className="mt-1 text-xl font-bold text-dark dark:text-white">
-            $45,070.00
-          </h4>
-        </div>
-        <div className="xsm:w-1/2">
-          <p className="font-medium">Due Amount</p>
-          <h4 className="mt-1 text-xl font-bold text-dark dark:text-white">
-            $32,400.00
-          </h4>
-        </div>
+        
       </div>
     </div>
   );
