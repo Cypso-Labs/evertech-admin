@@ -1,12 +1,13 @@
 
 import DefaultLayout from '@/components/Layouts/DefaultLaout'
-import Services from '@/components/Services/Services'
+import NewService from '@/components/Services/NewService'
+
 import React from 'react'
 
 const page = () => {
     return (
         <DefaultLayout>
-            <Services/>
+            <NewService/>
         </DefaultLayout>
     )
 }

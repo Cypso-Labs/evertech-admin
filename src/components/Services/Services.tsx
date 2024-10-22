@@ -1,11 +1,22 @@
-"use client";
-import React, { useState } from "react";
-import { BiSolidCategory } from "react-icons/bi";
-import { FiSearch, FiChevronDown } from "react-icons/fi";
-import { Switch } from '@headlessui/react';
-import { FiTrash2 } from 'react-icons/fi';
+'use client'
 
+import React, { useState } from "react"
+import { BiSolidCategory } from "react-icons/bi"
+import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi"
+import { Switch } from '@headlessui/react'
+import Link from "next/link"
+import { useRouter } from 'next/navigation'
 const Services = () => {
+
+  const router = useRouter();
+
+  interface Category {
+    id: string;
+    service: string;
+    category: string;
+    price: string;
+  }
+  
   const services = [
     { id: 'Service #00142', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98" },
     { id: 'Service #00143', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99" },
@@ -32,6 +43,22 @@ const Services = () => {
     
   ];
 
+
+
+ 
+
+  
+ // Handle row click and route to another page
+ const handleRowClick = (service: Category) => {
+  const queryParams = new URLSearchParams({
+    id: service.id,
+    service: service.service,
+    category: service.category,
+    price: service.price,
+  }).toString();
+  
+  router.push(`/services/editServices?${queryParams}`);
+};
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -75,13 +102,19 @@ const Services = () => {
           Services
         </h1>
         <div className="flex space-x-4  ">
-          <button className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-gray-100 dark:text-white dark:bg-[#122031]  px-4 py-2 text-[20px] font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-200 ">
-            Categories
-            <BiSolidCategory className="ml-2 text-gray-500" size={24} />
-          </button>
+        <Link href="/services/category" className="inline-block">
+      <button 
+        className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-gray-100 px-4 py-2 text-xl font-medium text-gray-700 transition-colors duration-300 hover:bg-gray-200 dark:bg-[#122031] dark:text-white"
+      >
+        Categories
+        <BiSolidCategory className="ml-2 text-gray-500" size={24} />
+      </button>
+    </Link>
+    <Link href="/services/newService" className="inline-block">
           <button className="h-[58px] w-[181px] rounded-md border border-blue-600 dark:bg-blue-400 dark:text-white   bg-blue-100 px-4 py-2 text-[20px] font-medium text-blue-500 transition-colors duration-300 hover:bg-blue-200  ">
             New Service +
           </button>
+      </Link>    
         </div>
       </div>
 
@@ -106,6 +139,7 @@ const Services = () => {
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-separate border-spacing-y-3 ">
+        
           <thead>
             <tr className="text-center dark:text-white border-slate-400 py-2 text-[16px] font-extrabold text-slate-600" style={{ font: "Inter" }}>
               <th>ID</th>
@@ -116,14 +150,20 @@ const Services = () => {
               <th>ACTION</th>
             </tr>
           </thead>
+         
           <tbody>
+          
             {currentServices.map((service, index) => (
                 
-              <tr key={index} className="text-center    py-2 text-[16px] font-medium text-slate-700 bg-white rounded-lg shadow-md dark:text-white dark:bg-[#122031]   " style={{ font: "Inter" }}>
+              <tr key={index} 
+              onClick={() => handleRowClick(service)}
+              className="text-center    py-2 text-[16px] font-medium text-slate-700 bg-white rounded-lg shadow-md dark:text-white dark:bg-[#122031]  cursor-pointer  " style={{ font: "Inter" }}>
+               
                 <td className="py-6 px-4 rounded-l-xl">{service.id}</td>
                 <td className="py-2 px-4">{service.service}</td>
                 <td className="py-2 px-4">{service.category}</td>
                 <td className="py-2 px-4">{service.price}</td>
+                
                 <td className="">
                   <div className="flex justify-center">
                     <Switch
@@ -146,8 +186,10 @@ const Services = () => {
                     <FiTrash2 size={20} />
                   </button>
                 </td>
+                
               </tr>
             ))}
+         
           </tbody>
         </table>
 
