@@ -5,113 +5,97 @@ import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 
-
-const Orders = () => {
+const Customers = () => {
   const [orderData] = useState([
     {
       id: 1,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 2,
       name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 3,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 4,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 5,
       name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 6,
       name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 7,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 8,
       name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 9,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 10,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 11,
       name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 12,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 13,
       name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
     {
       id: 14,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Inactive",
+      contact: "+94 1230 9323",
     },
     {
       id: 15,
       name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
+      order: "Active",
+      contact: "+94 1230 9323",
     },
   ]);
 
@@ -121,21 +105,18 @@ const Orders = () => {
 
   // Filtered orders based on search input
   const filteredOrders = orderData.filter((order) =>
-    order.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    order.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Calculate the current orders to display
   const indexOfLastOrder = currentPage * itemsPerPage;
   const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
-  const currentOrders = filteredOrders.slice(
-    indexOfFirstOrder,
-    indexOfLastOrder,
-  );
+  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  // Pagination functions
+  // Pagination 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -151,20 +132,21 @@ const Orders = () => {
   return (
     <div>
       <div className="flex items-center justify-between text-3xl font-bold text-gray-700 dark:text-white">
-        <span>Orders</span>
-        <Link href="orders/neworder">
+        <span>Customers</span>
+        <Link href="/">
           <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] p-2 text-xl text-[#3584FA] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-            New Order +
-          </button>{" "}
+            New Customer +
+          </button>
         </Link>
       </div>
+
       <div className="mt-4 flex items-center p-4">
         {/* Search bar */}
         <div className="text-md flex h-[30px] w-[227px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <MdOutlineSearch className="mr-4 justify-start" />
           <input
             type="text"
-            placeholder="Search Orders"
+            placeholder="Search Customers"
             className="w-full border-none outline-none dark:border-dark-3 dark:bg-dark-2"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -178,41 +160,33 @@ const Orders = () => {
       </div>
 
       <table className="w-full table-auto border-separate border-spacing-y-3 font-bold">
-        <thead className=" uppercase dark:text-white">
+        <thead className="uppercase dark:text-white">
           <tr>
             <th className="p-4 text-left">ID</th>
             <th className="p-4 text-left">Customer Name</th>
-            <th className="p-4 text-left">Status</th>
-            <th className="p-4 text-left">Service</th>
-            <th className="p-4 text-left">Price</th>
+            <th className="p-4 text-left">Order</th>
+            <th className="p-4 text-left">Contact</th>
             <th className="p-4"></th>
             <th className="p-4"></th>
           </tr>
         </thead>
         <tbody>
           {currentOrders.map((order) => (
-            <tr
-              key={order.id}
-              className="rounded-md bg-white shadow-md dark:bg-dark-2 dark:text-gray-3 hover:bg-slate-100 cursor-pointer dark:hover:bg-dark-4"
-              onClick={() => window.location.href = `orders/orderd/${order.id}`}
-            >
-              <td className="p-4">
-                Order #{order.id.toString().padStart(5, "0")}
-              </td>
+            <tr key={order.id} className="rounded-md bg-white shadow-md dark:bg-dark-2 dark:text-gray-300">
+              <td className="p-4">Order #{order.id.toString().padStart(5, "0")}</td>
               <td className="p-4">{order.name}</td>
               <td className="p-4">
                 <span
                   className={`rounded-md font-semibold ${
-                    order.status === "Paid"
+                    order.order === "Active"
                       ? "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
-                      : "border-2 border-[#F70D1A] bg-[#FFCED1] px-3 py-1 text-[#F70D1A]"
+                      : "border-2 border-[#000000] bg-[#CBD5E1] px-5 py-1 text-[#000000]"
                   }`}
                 >
-                  {order.status}
+                  {order.order}
                 </span>
               </td>
-              <td className="p-4">{order.service}</td>
-              <td className="p-4">{order.price}</td>
+              <td className="p-4">{order.contact}</td>
               <td className="p-4 text-right">
                 <button className="text-center text-red-500 hover:text-red-700">
                   <FaTrashAlt />
@@ -240,7 +214,7 @@ const Orders = () => {
                 key={index + 1}
                 className={`mx-1 rounded-md border border-gray-300 px-3 py-1 ${
                   currentPage === index + 1
-                    ? "bg-blue text-white"
+                    ? "bg-[#3584FA] text-white"
                     : "text-black dark:text-white"
                 }`}
                 onClick={() => setCurrentPage(index + 1)}
@@ -262,4 +236,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default Customers;
