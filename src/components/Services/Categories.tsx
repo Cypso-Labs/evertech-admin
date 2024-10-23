@@ -13,8 +13,9 @@ const Categories = () => {
     category: string;
     description: string;
   }
-
-  const Category = [
+ 
+  
+  const initialCategory: Category[] = [
     {
       id: " #00142",
       service: "Lorem ipsum",
@@ -58,7 +59,7 @@ const Categories = () => {
       description: "Lorem ipsum dolor sit amet consectetur...",
     },
   ];
-
+  const [Category, setCategory] = useState(initialCategory);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
@@ -78,9 +79,11 @@ const Categories = () => {
   };
 
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click event
-    // Add your delete logic here
+  const handleDelete = (categoryId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCategory(prevServices =>
+      prevServices.filter(category => category.id !== categoryId)
+    );
   };
 
   // Filtered categories based on search input
@@ -176,7 +179,7 @@ const Categories = () => {
                 <td className="px-2 py-2">{Categorys.description}</td>
                 <td className="rounded-r-xl px-4 py-2 ">
                   <button className="text-red-500  hover:text-[#3584FA]"
-                  onClick={handleDelete}>
+                      onClick={(e) => handleDelete(Categorys.id, e)}>
                     <FiTrash2 size={20} />
                   </button>
                 </td>
