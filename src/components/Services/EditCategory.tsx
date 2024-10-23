@@ -1,9 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent } from "react"
 import { useSearchParams, useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
-
+import Swal from 'sweetalert2'
 const EditCategory = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -34,20 +34,65 @@ const EditCategory = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // Handle the update logic here
-    console.log("Updated category:", formData);
-    // Navigate back to categories page after update
-    router.push("/services/category");
-  };
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    try {
+      // Here you would typically make your API call to update the service
+      // await updateService(formData);
+      
+      await Swal.fire({
+        title: 'Success!',
+        text: 'Category has been edited successfully',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#08762D',
+        customClass: {
+          popup: 'dark:bg-[#122031] dark:text-white',
+          confirmButton: 'bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]'
+        }
+      })
 
+      router.push('/services/category')
+    } catch (error) {
+      Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong while editing the category',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#FF2323',
+        customClass: {
+          popup: 'dark:bg-[#122031] dark:text-white'
+        }
+      })
+    }
+  }
+
+  const handleCancel = () => {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You'll lose all entered data!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, cancel',
+      cancelButtonText: 'No, keep editing',
+      confirmButtonColor: '#FF2323',
+      cancelButtonColor: '#08762D',
+      customClass: {
+        popup: 'dark:bg-[#122031] dark:text-white'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push('/services/category')
+      }
+    })
+  }
   return (
     <div>
       <div className="flex items-center gap-4 mb-15 relative space-x-[400px]">
       <h1 className="font-inter flex items-center space-x-2 text-4xl font-medium text-slate-600 dark:text-white" style={{ font: "Inter" }}>
           <Link href="/services/category" className="inline-block">
-            <IoIosArrowDropleft className="w-10 h-10 cursor-pointer" />
+            <IoIosArrowDropleft className="w-10 h-10 cursor-pointer hover:text-[#3584FA]" />
           </Link>
           <span >Edit Category {formData.id}</span>
         </h1>
@@ -98,14 +143,14 @@ const EditCategory = () => {
   <div className="flex justify-end space-x-4">
     <button
       type="button"
-      
-      className="rounded-md w-[100px] h-[40px] bg-red-100 px-4 py-2 text-red-dark dark:text-white hover:bg-red-200 border border-red-400  dark:bg-red-600 dark:hover:bg-red-700"
+      onClick={handleCancel}
+      className="rounded-md w-[100px] h-[40px] bg-[#FFCDCD] px-4 py-2 text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:text-white  border border-red-400  dark:bg-red-600 dark:hover:bg-red-700"
     >
       Discard
     </button>
     <button
       type="submit"
-      className="rounded-md w-[100px] h-[40px] bg-green-100 px-4 py-2 text-green-dark  dark:text-white hover:bg-green-200 border border-green-400 dark:bg-green-600 dark:hover:bg-green-700"
+      className="rounded-md w-[100px] h-[40px]  px-4 py-2 text-[#08762D] bg-[#BCFFC8] hover:text-[#BCFFC8] hover:bg-[#08762D]  dark:text-white  border border-green-400 dark:bg-green-600 dark:hover:bg-green-700"
     >
       Save
     </button>

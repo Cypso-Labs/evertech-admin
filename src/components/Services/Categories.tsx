@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
-import { FaEdit } from "react-icons/fa";
+//import { FaEdit } from "react-icons/fa";
 const Categories = () => {
   const router = useRouter();
   interface Category {
@@ -63,15 +63,24 @@ const Categories = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const handleEdit = (category: Category) => {
+  // Handle row click and route to another page
+  const handleRowClick = (Categorys: Category) => {
     const queryParams = new URLSearchParams({
-      id: category.id,
-      service: category.service,
-      category: category.category,
-      description: category.description,
+      id: Categorys.id,
+      service: Categorys.service,
+      category: Categorys.category,
+      description: Categorys.description,
+     
+      
     }).toString();
 
     router.push(`/services/category/editCategory?${queryParams}`);
+  };
+
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click event
+    // Add your delete logic here
   };
 
   // Filtered categories based on search input
@@ -111,13 +120,13 @@ const Categories = () => {
         <div className="flex items-center gap-4">
           <h1 className="font-inter flex items-center space-x-2 text-4xl font-medium text-slate-600 dark:text-white">
             <Link href="/services" className="inline-block">
-              <IoIosArrowDropleft className="h-10 w-10 cursor-pointer" />
+              <IoIosArrowDropleft className="h-10 w-10 cursor-pointer hover:text-[#3584FA]" />
             </Link>
             <span>Categories</span>
           </h1>
         </div>
         <div className="flex  space-x-4">
-          <button className=" h-[58px] w-[200px] rounded-md border border-blue-600 dark:hover:bg-blue-700 bg-blue-100 px-4 py-2 text-xl font-medium text-blue-500 transition-colors duration-300 hover:bg-blue-200 dark:bg-blue-400 dark:text-white">
+          <button className=" h-[58px] w-[200px] rounded-md border border-blue-600 dark:hover:bg-blue-700 bg-blue-100 px-4 py-2 text-xl font-medium text-blue-500 transition-colors duration-300  dark:bg-blue-400 dark:text-white hover:bg-[#3584FA] hover:text-[#E0EDFF]">
           <Link href="/services/category/newCategory" className="inline-block">
             New Caregories +
            </Link> 
@@ -144,35 +153,30 @@ const Categories = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-separate border-spacing-y-3">
+        <table className="container mx-auto border-separate border-spacing-y-3 ">
           <thead>
             <tr className="font-inter text-center text-base font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
               <th>SERVICE</th>
               <th>CATEGORY</th>
               <th>Description</th>
+              <th>ACTION</th>
             </tr>
           </thead>
           <tbody>
             {currentCategorys.map((Categorys, index) => (
               <tr
                 key={index}
-                className="font-inter rounded-lg bg-white py-2 text-center text-base font-medium text-slate-700 shadow-md dark:bg-[#122031] dark:text-white "
+                onClick={() => handleRowClick(Categorys)}
+                className="font-inter rounded-lg bg-white py-2 text-center text-base font-medium text-slate-700 shadow-md dark:bg-[#122031] dark:text-white cursor-pointer hover:bg-[#E0EDFF] "
               >
                 <td className="rounded-l-xl px-4 py-6 ">{Categorys.id}</td>
                 <td className="px-4 py-2">{Categorys.service}</td>
                 <td className="px-4 py-2">{Categorys.category}</td>
                 <td className="px-2 py-2">{Categorys.description}</td>
-                <td className="px-4 py-2 ">
-                  <button
-                    onClick={() => handleEdit(Categorys)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FaEdit size={20} />
-                  </button>
-                </td>
-                <td className="rounded-r-xl px-4 py-2">
-                  <button className="text-red-500 hover:text-red-700">
+                <td className="rounded-r-xl px-4 py-2 ">
+                  <button className="text-red-500  hover:text-[#3584FA]"
+                  onClick={handleDelete}>
                     <FiTrash2 size={20} />
                   </button>
                 </td>
