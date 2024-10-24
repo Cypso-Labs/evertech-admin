@@ -60,7 +60,7 @@ const DataStatsOne: React.FC<dataStats> = () => {
         {dataStatsList.map((item, index) => (
           <div
             key={index}
-            className="rounded-[10px] bg-white p-6 shadow-lg shadow-gray-4 dark:shadow-gray-dark dark:bg-gray-dark"
+            className="rounded-[10px] bg-white p-6 shadow-lg  dark:bg-gray-dark"
           >
             <div
               className="flex h-14.5 w-14.5 items-center justify-center rounded-full"

@@ -38,7 +38,7 @@ const Roles = () => {
       employees: role.employees,
       
     }).toString();
-    router.push(`/employees/role/editeRole?${queryParams}`);
+    router.push(`/employees/role/editRole?${queryParams}`);
   };
 
   const handleDelete = (roleId: string, e: React.MouseEvent) => {

@@ -5,28 +5,56 @@ import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import { BiSolidCategory } from "react-icons/bi";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 const Employee = () => {
-  const initialEmployeeData = [
-    { id: 1, name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
-    { id: 2, name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Leave" },
-    { id: 3, name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
-    { id: 4, name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Leave" },
-    { id: 5, name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
-    { id: 6, name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
+  const router = useRouter();
+
+  interface employee {
+    id: string;
+    name: string;
+    role: string;
+    status: string;
+  }
+
+
+  const initialEmployeeData :employee[]= [
+    { id: "1", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
+    { id: "2", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Leave" },
+    { id: "3", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
+    { id: "4", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Leave" },
+    { id: "5", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
+    { id: "6", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
   ];
 
-  const [employee, setEmployee] = useState(initialEmployeeData); // fixed initialization
+  const [employee, setEmployee] = useState(initialEmployeeData); 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const handleDelete = (employeeId: number, e: React.MouseEvent) => { // fixed type of employeeId
-    e.stopPropagation();
-    setEmployee((prevEmployee) =>
-      prevEmployee.filter((employee) => employee.id !== employeeId)
-    );
-  };
+
+ // Handle row click and route to another page
+ const handleRowClick = (employee: employee) => {
+  const queryParams = new URLSearchParams({
+    id: employee.id,
+    employeeName: employee.name,
+    role: employee.role,
+    status: employee.status,
+    
+  }).toString();
+  router.push(`/employees/editeEmployee?${queryParams}`);
+};
+
+
+
+
+
+const handleDelete = (employeeId: string, e: React.MouseEvent) => {
+  e.stopPropagation();
+  setEmployee((prevEmployee) => prevEmployee.filter((employee) => employee.id !== employeeId));
+};
+
+
+ 
 
   // Filtered employees based on search input
   const filteredEmployees = employee.filter((employee) =>
@@ -116,6 +144,7 @@ const Employee = () => {
             {currentEmployees.map((employee) => (
               <tr
                 key={employee.id}
+                onClick={() => handleRowClick(employee)}
                 className="text-center py-2 text-[16px] hover:bg-[#E0EDFF] font-medium text-slate-700 bg-white rounded-lg shadow-md dark:text-white dark:bg-[#122031] cursor-pointer"
                 style={{ font: "Inter" }}
               >

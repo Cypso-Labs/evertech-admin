@@ -10,7 +10,7 @@ interface FormData {
   roleName: string;
 }
 
-const EditeRole = () => {
+const EditRole = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOn, setIsOn] = useState(false);
@@ -341,4 +341,4 @@ const EditeRole = () => {
   );
 };
 
-export default EditeRole;
+export default EditRole;
