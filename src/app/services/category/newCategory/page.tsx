@@ -1,12 +1,15 @@
 
 import DefaultLayout from '@/components/Layouts/DefaultLaout'
-import Services from '@/components/Services/Services'
+import NewCategories from '@/components/Services/NewCategories'
+
+
+
 import React from 'react'
 
-const page = () => {
+const page = ({}) => {
     return (
         <DefaultLayout>
-            <Services/>
+            <NewCategories/>
         </DefaultLayout>
     )
 }

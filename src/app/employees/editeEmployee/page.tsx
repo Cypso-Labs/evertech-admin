@@ -1,12 +1,15 @@
 
-import DefaultLayout from '@/components/Layouts/DefaultLaout'
-import Services from '@/components/Services/Services'
-import React from 'react'
 
+import EditEmployee from '@/components/Employees/EditEmployee'
+import DefaultLayout from '@/components/Layouts/DefaultLaout'
+
+import React from 'react'
 const page = () => {
     return (
         <DefaultLayout>
-            <Services/>
+
+            <EditEmployee/>
+            
         </DefaultLayout>
     )
 }
