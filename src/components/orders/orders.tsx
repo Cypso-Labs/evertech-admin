@@ -4,112 +4,115 @@ import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
-
+import { useRouter } from "next/navigation";
 
 const Orders = () => {
+  const router = useRouter();
+
   const [orderData] = useState([
     {
-      id: 1,
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: 2,
+      id: "#0001",
       name: "Lorem Ipsum",
       status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 3,
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: 4,
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: 5,
+      id: "#0002",
       name: "Lorem Ipsum",
       status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 6,
+      id: "#0003",
+      name: "Lorem Ipsum",
+      status: "Paid",
+      service: "Lorem Ipsum Dolor Sit Amet",
+      price: "$99.98",
+    },
+
+    {
+      id: "#0004",
+      name: "Lorem Ipsum",
+      status: "UnPaid",
+      service: "Lorem Ipsum Dolor Sit Amet",
+      price: "$99.98",
+    },
+    {
+      id: "#0005",
       name: "Lorem Ipsum",
       status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 7,
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: 8,
+      id: "#0006",
       name: "Lorem Ipsum",
       status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 9,
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: 10,
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: 11,
+      id: "#0007",
       name: "Lorem Ipsum",
       status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 12,
+      id: "#0008",
       name: "Lorem Ipsum",
       status: "UnPaid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 13,
+      id: "#0009",
       name: "Lorem Ipsum",
       status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 14,
+      id: "#0010",
+      name: "Lorem Ipsum",
+      status: "Paid",
+      service: "Lorem Ipsum Dolor Sit Amet",
+      price: "$99.98",
+    },
+    {
+      id: "#0011",
+      name: "Lorem Ipsum",
+      status: "Paid",
+      service: "Lorem Ipsum Dolor Sit Amet",
+      price: "$99.98",
+    },
+    {
+      id: "#0012",
+      name: "Lorem Ipsum",
+      status: "Paid",
+      service: "Lorem Ipsum Dolor Sit Amet",
+      price: "$99.98",
+    },
+    {
+      id: "#0013",
       name: "Lorem Ipsum",
       status: "UnPaid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
     {
-      id: 15,
+      id: "#0014",
       name: "Lorem Ipsum",
-      status: "UnPaid",
+      status: "Paid",
+      service: "Lorem Ipsum Dolor Sit Amet",
+      price: "$99.98",
+    },
+    {
+      id: "#0015",
+      name: "Lorem Ipsum",
+      status: "Paid",
       service: "Lorem Ipsum Dolor Sit Amet",
       price: "$99.98",
     },
@@ -119,23 +122,38 @@ const Orders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Filtered orders based on search input
+  interface Order {
+    id: number;
+    service: string;
+    status: string;
+    name: string;
+    price: string;
+  }
+
+  const handleRowClick = (order: Order) => {
+    const queryParams = new URLSearchParams({
+      id: order.id.toString(),
+      service: order.service,
+      status: order.status,
+      name: order.name,
+      price: order.price,
+    }).toString();
+
+    router.push(`orders/ordered?${queryParams}`);
+  };
+
   const filteredOrders = orderData.filter((order) =>
     order.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Calculate the current orders to display
   const indexOfLastOrder = currentPage * itemsPerPage;
   const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
   const currentOrders = filteredOrders.slice(
     indexOfFirstOrder,
     indexOfLastOrder,
   );
-
-  // Calculate total pages
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  // Pagination functions
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -159,7 +177,6 @@ const Orders = () => {
         </Link>
       </div>
       <div className="mt-4 flex items-center p-4">
-        {/* Search bar */}
         <div className="text-md flex h-[30px] w-[227px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <MdOutlineSearch className="mr-4 justify-start" />
           <input
@@ -170,7 +187,6 @@ const Orders = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
         <div className="text-md ml-8 flex h-[30px] w-[141px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <RiExpandUpDownFill className="cursor-pointer justify-start" />
           <span> Sort by order </span>
@@ -178,7 +194,7 @@ const Orders = () => {
       </div>
 
       <table className="w-full table-auto border-separate border-spacing-y-3 font-bold">
-        <thead className=" uppercase dark:text-white">
+        <thead className="uppercase dark:text-white">
           <tr>
             <th className="p-4 text-left">ID</th>
             <th className="p-4 text-left">Customer Name</th>
@@ -193,12 +209,10 @@ const Orders = () => {
           {currentOrders.map((order) => (
             <tr
               key={order.id}
-              className="rounded-md bg-white shadow-md dark:bg-dark-2 dark:text-gray-3 hover:bg-slate-100 cursor-pointer dark:hover:bg-dark-4"
-              onClick={() => window.location.href = `orders/orderd/${order.id}`}
+              className="cursor-pointer rounded-md bg-white shadow-md hover:bg-slate-100 dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
+              onClick={() => handleRowClick(order)}
             >
-              <td className="p-4">
-                Order #{order.id.toString().padStart(5, "0")}
-              </td>
+              <td className="p-4">Order {order.id}</td>
               <td className="p-4">{order.name}</td>
               <td className="p-4">
                 <span

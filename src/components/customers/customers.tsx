@@ -103,20 +103,19 @@ const Customers = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Filtered orders based on search input
   const filteredOrders = orderData.filter((order) =>
-    order.name.toLowerCase().includes(searchTerm.toLowerCase())
+    order.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Calculate the current orders to display
   const indexOfLastOrder = currentPage * itemsPerPage;
   const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
-  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const currentOrders = filteredOrders.slice(
+    indexOfFirstOrder,
+    indexOfLastOrder,
+  );
 
-  // Calculate total pages
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  // Pagination 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -133,7 +132,7 @@ const Customers = () => {
     <div>
       <div className="flex items-center justify-between text-3xl font-bold text-gray-700 dark:text-white">
         <span>Customers</span>
-        <Link href="/">
+        <Link href="/custnew">
           <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] p-2 text-xl text-[#3584FA] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             New Customer +
           </button>
@@ -141,7 +140,6 @@ const Customers = () => {
       </div>
 
       <div className="mt-4 flex items-center p-4">
-        {/* Search bar */}
         <div className="text-md flex h-[30px] w-[227px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <MdOutlineSearch className="mr-4 justify-start" />
           <input
@@ -172,8 +170,13 @@ const Customers = () => {
         </thead>
         <tbody>
           {currentOrders.map((order) => (
-            <tr key={order.id} className="rounded-md bg-white shadow-md dark:bg-dark-2 dark:text-gray-300">
-              <td className="p-4">Order #{order.id.toString().padStart(5, "0")}</td>
+            <tr
+              key={order.id}
+              className="rounded-md bg-white shadow-md dark:bg-dark-2 dark:text-gray-300"
+            >
+              <td className="p-4">
+                Order #{order.id.toString().padStart(5, "0")}
+              </td>
               <td className="p-4">{order.name}</td>
               <td className="p-4">
                 <span

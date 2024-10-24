@@ -1,12 +1,33 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { MdOutlineAddCircle } from "react-icons/md";
 import { IoIosArrowDropleft } from "react-icons/io";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-const Neworder = () => {
+const Orderedit = () => {
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    id: "",
+    service: "",
+    status: "",
+    name: "",
+    price: "",
+  });
+
+  useEffect(() => {
+    if (searchParams) {
+      setFormData({
+        id: searchParams.get("id") || "0001",
+        service: searchParams.get("service") || "",
+        status: searchParams.get("status") || "",
+        name: searchParams.get("name") || "",
+        price: searchParams.get("price") || "",
+      });
+    }
+  }, [searchParams]);
 
   const [orderData] = useState([
     {
@@ -41,7 +62,7 @@ const Neworder = () => {
         >
           <IoIosArrowDropleft className="h-10 w-10 cursor-pointer hover:text-[#3584FA]" />
         </button>
-        New Order
+        Edit Order {formData.id || "0001"}
       </div>
 
       <div className="grid grid-cols-4 gap-x-4 ">
@@ -53,7 +74,7 @@ const Neworder = () => {
           <div className="mb-2 w-full text-2xl font-bold">
             <div className="flex w-[900px] items-center justify-between pt-4">
               <div>Services</div>
-              <MdOutlineAddCircle className="size-14 text-[#5E91FF] dark:text-dark-5" />
+              <MdOutlineAddCircle className="w-[57px]  h-[57px] text-[#5E91FF] dark:text-dark-5" />
             </div>
           </div>
         </div>
@@ -66,10 +87,10 @@ const Neworder = () => {
       </div>
 
       <div className="relative col-span-4 mt-4">
-        <div className="w-[900px] rounded-md border bg-white shadow-md dark:bg-dark-2">
-          <table className="w-full table-auto border-separate border-spacing-y-3 p-4">
+        <div className="w-[900px] rounded-md border bg-white shadow-md dark:bg-dark-2 ">
+          <table className="w-full table-auto border-separate border-spacing-y-3 p-4 ">
             <thead>
-              <tr className="text-sm uppercase text-gray-700 dark:text-white">
+              <tr className="text-sm uppercase text-gray-700 dark:text-white ">
                 <th className="pb-2 text-left font-semibold">ID</th>
                 <th className="pb-2 text-left font-semibold">Service</th>
                 <th className="pb-2 text-left font-semibold">QTY</th>
@@ -81,10 +102,10 @@ const Neworder = () => {
             <tbody>
               {orderData.map((order, index) => (
                 <tr key={index} className="dark:text-white">
-                  <td className="border-b border-l border-t border-gray-300 p-2 ">
+                  <td className="border-b border-l border-t border-gray-300 p-2">
                     {order.id}
                   </td>
-                  <td className="border-b border-t border-gray-300 p-2 ">
+                  <td className="border-b border-t border-gray-300 p-2">
                     {order.name}
                   </td>
                   <td className="border-b border-t border-gray-300 p-2">
@@ -114,12 +135,12 @@ const Neworder = () => {
           </div>
         </div>
 
-        <div className="flex justify-center space-x-8">
+        <div className="mt-4 flex justify-center space-x-8">
           <button className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] bg-[#FFCDCD] font-medium text-[#FF2323]">
-            Cancel Order
+            Discard
           </button>
           <button className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] font-medium text-[#08762D]">
-            Place Order
+            Save Order
           </button>
         </div>
       </div>
@@ -127,4 +148,4 @@ const Neworder = () => {
   );
 };
 
-export default Neworder;
+export default Orderedit;
