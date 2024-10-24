@@ -17,7 +17,6 @@ const Employee = () => {
   }
 
 
-  
   const initialEmployeeData :employee[]= [
     { id: "1", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
     { id: "2", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Leave" },
@@ -32,6 +31,7 @@ const Employee = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
+  
 
  // Handle row click and route to another page
  const handleRowClick = (employee: employee) => {

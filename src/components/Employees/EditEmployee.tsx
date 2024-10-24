@@ -18,6 +18,7 @@ interface FormData {
 }
 
 
+
 const EditEmployee = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,8 +32,6 @@ const EditEmployee = () => {
     birthDate: "",
     Registereddate: "",
   });
-
-
 
 
 

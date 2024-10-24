@@ -9,6 +9,7 @@ const page = () => {
     return (
         <DefaultLayout>
             <NewEmployee/>
+            
         </DefaultLayout>
     )
 }

@@ -19,7 +19,6 @@ interface FormData {
   Reason: string;
 }
 
-
 const Leaves = () => {
   const searchParams = useSearchParams();
   
@@ -30,6 +29,7 @@ const Leaves = () => {
     Reason: "",
   });
 
+  
   const initialLeaveData: Leave[] = [
     {id: "1", date: "01", Type: "Leaves", Reason: "Sit Amet Consectetur Sit"},
     {id: "2", date: "01", Type: "Leaves", Reason: "Sit Amet Consectetur Sit"},

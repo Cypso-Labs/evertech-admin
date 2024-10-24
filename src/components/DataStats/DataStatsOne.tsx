@@ -53,7 +53,6 @@ const dataStatsList = [
   },
 ];
 
-
 const DataStatsOne: React.FC<dataStats> = () => {
   return (
     <>

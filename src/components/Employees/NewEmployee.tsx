@@ -15,7 +15,6 @@ interface FormData {
   birthDate: string;
 }
 
-
 const NewEmployee = () => {
   const router = useRouter();
 
@@ -38,6 +37,7 @@ const NewEmployee = () => {
       [name]: value,
     }));
   };
+  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -10,7 +10,6 @@ interface FormData {
   roleName: string;
 }
 
-
 const NewRole = () => {
   const router = useRouter();
   const [isOn, setIsOn] = useState(false);
@@ -35,6 +34,7 @@ const NewRole = () => {
     }));
   };
 
+  
   // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

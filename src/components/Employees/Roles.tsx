@@ -15,7 +15,6 @@ const Roles = () => {
     employees: string;
   }
 
-  
   const initialRoles: Role[] = [
     { id: "1", name: "Lorem Ipsum Dolor Sit", employees: "5" },
     { id: "2", name: "Lorem Ipsum Dolor Sit", employees: "12" },
@@ -26,6 +25,7 @@ const Roles = () => {
     { id: "7", name: "Lorem Ipsum Dolor Sit", employees: "5" },
   ];
 
+  
   const [roles, setRoles] = useState(initialRoles);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

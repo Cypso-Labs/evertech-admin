@@ -8,6 +8,7 @@ const page = () => {
     return (
         <DefaultLayout>
             <Employee/>
+            
         </DefaultLayout>
     )
 }

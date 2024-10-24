@@ -10,6 +10,7 @@ const page = () => {
     return (
         <DefaultLayout>
            <NewRole/>
+           
         </DefaultLayout>
     )
 }
