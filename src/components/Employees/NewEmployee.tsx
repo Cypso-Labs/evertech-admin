@@ -15,6 +15,7 @@ interface FormData {
   birthDate: string;
 }
 
+
 const NewEmployee = () => {
   const router = useRouter();
 

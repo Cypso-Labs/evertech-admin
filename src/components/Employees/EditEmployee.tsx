@@ -17,6 +17,7 @@ interface FormData {
   Registereddate: string;
 }
 
+
 const EditEmployee = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

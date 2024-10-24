@@ -17,6 +17,7 @@ const Employee = () => {
   }
 
 
+  
   const initialEmployeeData :employee[]= [
     { id: "1", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Active" },
     { id: "2", name: "Lorem Ipsum Dolor Sit", role: "Amet Consectetur", status: "Leave" },

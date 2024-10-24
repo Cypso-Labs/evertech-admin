@@ -10,6 +10,7 @@ interface FormData {
   roleName: string;
 }
 
+
 const NewRole = () => {
   const router = useRouter();
   const [isOn, setIsOn] = useState(false);
