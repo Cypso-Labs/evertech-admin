@@ -5,6 +5,7 @@ import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 const Orders = () => {
   const router = useRouter();
@@ -166,10 +167,35 @@ const Orders = () => {
     }
   };
 
+  const handleDelete = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won’t be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#2E84D3",
+      cancelButtonColor: "#D93132",
+      customClass: {
+        popup: "dark:bg-[#122031] dark:text-white",
+        confirmButton: "text-white bg-blue-600 hover:bg-blue-700 w-[133px] h-[47px] py-2 px-4 text-lg rounded-md", 
+        cancelButton: "text-white bg-red-600 hover:bg-red-700 w-[133px] h-[47px] py-2 px-4 text-lg rounded-md",   
+        text:"text-black text-[23px]"
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        router.push("/orders");
+      }
+    });
+  };
+  
+
+
   return (
     <div>
       <div className="flex items-center justify-between text-3xl font-bold text-gray-700 dark:text-white">
-        <span>Orders</span>
+        <span className="text-[40px] font-medium">Orders</span>
         <Link href="orders/neworder">
           <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] p-2 text-xl text-[#3584FA] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             New Order +
@@ -193,7 +219,7 @@ const Orders = () => {
         </div>
       </div>
 
-      <table className="w-full table-auto border-separate border-spacing-y-3 font-bold">
+      <table className="w-full table-auto border-separate border-spacing-y-3 h-[91px] font-bold">
         <thead className="uppercase dark:text-white">
           <tr>
             <th className="p-4 text-left">ID</th>
@@ -228,7 +254,13 @@ const Orders = () => {
               <td className="p-4">{order.service}</td>
               <td className="p-4">{order.price}</td>
               <td className="p-4 text-right">
-                <button className="text-center text-red-500 hover:text-red-700">
+              <button
+                  className="text-center text-red-500 hover:text-red-700"
+                  onClick={(e) => {
+                    e.stopPropagation(); 
+                    handleDelete();
+                  }}
+                >
                   <FaTrashAlt />
                 </button>
               </td>

@@ -140,16 +140,16 @@ const Orderd = () => {
           </div>
           <div className="ml-6 mr-10 mt-5 flex justify-between">
             <span>Contact Number:</span>
-            <span className="flex-1 text-center">+123456789</span>
+            <span className="flex-1 text-center"></span>
           </div>
           <div className="ml-6 mr-10 mt-5 flex justify-between">
             <span>Order Date:</span>
-            <span className="flex-1 text-center">20 Aug 2024</span>
+            <span className="flex-1 text-center"></span>
           </div>
           <div className="ml-6 mr-10 mt-5 flex justify-between">
             <span>Grand Total:</span>
             <span className="flex-1 text-center">
-              {formData.price || "$0.00"}
+              {}
             </span>
           </div>
           <div className="ml-6 mr-10 mt-5 flex justify-between">
