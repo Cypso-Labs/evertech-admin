@@ -4,95 +4,98 @@ import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const Customers = () => {
+  const router = useRouter();
+
   const [orderData] = useState([
     {
-      id: 1,
+      id: "0001",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 2,
+      id: "0002",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 3,
+      id: "0003",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 4,
+      id: "0004",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 5,
+      id: "0005",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 6,
+      id: "0006",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 7,
+      id: "0007",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 8,
+      id: "0008",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 9,
+      id: "0009",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 10,
+      id: "0010",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 11,
+      id: "0011",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 12,
+      id: "0012",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 13,
+      id: "0013",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
     },
     {
-      id: 14,
+      id: "0014",
       name: "Lorem Ipsum",
       order: "Inactive",
       contact: "+94 1230 9323",
     },
     {
-      id: 15,
+      id: "0015",
       name: "Lorem Ipsum",
       order: "Active",
       contact: "+94 1230 9323",
@@ -128,12 +131,32 @@ const Customers = () => {
     }
   };
 
+  interface Customer {
+    id: string;
+    name: string;
+    order: string;
+    contact: string;
+  }
+  
+  const handleRowClick = (customer: Customer) => {
+    const queryParams = new URLSearchParams({
+      id: customer.id.toString(), 
+      service: customer.name,
+      status: customer.order,
+      name: customer.contact,
+    }).toString();
+  
+    router.push(`customers/editcustomer?${queryParams}`);
+  };
+  
+  
+
   return (
     <div>
       <div className="flex items-center justify-between text-3xl font-bold text-gray-700 dark:text-white">
-        <span>Customers</span>
-        <Link href="/custnew">
-          <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] p-2 text-xl text-[#3584FA] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
+        <span className="text-[40px] text-[#475569] font-medium">Customers</span>
+        <Link href="/customers/newcustomer">
+          <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] hover:bg-[#3584FA] hover:text-[#E0EDFF] p-2 text-xl text-[20px] text-[#3584FA] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             New Customer +
           </button>
         </Link>
@@ -158,44 +181,45 @@ const Customers = () => {
       </div>
 
       <table className="w-full table-auto border-separate border-spacing-y-3 font-bold">
-        <thead className="uppercase dark:text-white">
+        <thead className="uppercase text-center dark:text-white text-[#475569] text-[16px]">
           <tr>
-            <th className="p-4 text-left">ID</th>
-            <th className="p-4 text-left">Customer Name</th>
-            <th className="p-4 text-left">Order</th>
-            <th className="p-4 text-left">Contact</th>
+            <th className="p-4 ">ID</th>
+            <th className="p-4 ">Customer Name</th>
+            <th className="p-4 ">Order</th>
+            <th className="p-4 ">Contact</th>
             <th className="p-4"></th>
             <th className="p-4"></th>
           </tr>
         </thead>
         <tbody>
-          {currentOrders.map((order) => (
+          {currentOrders.map((customers) => (
             <tr
-              key={order.id}
-              className="rounded-md bg-white shadow-md dark:bg-dark-2 dark:text-gray-300"
+              key={customers.id}
+              className="rounded-md bg-white hover:bg-[#E0EDFF] cursor-pointer shadow-md dark:bg-dark-2 dark:text-gray-300"
+              onClick={() => handleRowClick(customers)}
             >
-              <td className="p-4">
-                Order #{order.id.toString().padStart(5, "0")}
+              <td className="p-2 text-center">
+                Customers #{customers.id}
               </td>
-              <td className="p-4">{order.name}</td>
-              <td className="p-4">
+              <td className="p-4 text-center">{customers.name}</td>
+              <td className="p-4 text-center">
                 <span
                   className={`rounded-md font-semibold ${
-                    order.order === "Active"
-                      ? "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
-                      : "border-2 border-[#000000] bg-[#CBD5E1] px-5 py-1 text-[#000000]"
+                    customers.order === "Active"
+                      ? "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826] w-[78px] h-[30px]"
+                      : "border-2 border-[#000000] bg-[#CBD5E1] px-5 py-1 text-[#000000] w-[78px] h-[30px]"
                   }`}
                 >
-                  {order.order}
+                  {customers.order}
                 </span>
               </td>
-              <td className="p-4">{order.contact}</td>
-              <td className="p-4 text-right">
-                <button className="text-center text-red-500 hover:text-red-700">
+              <td className="p-4 text-center">{customers.contact}</td>
+              <td className="p-4 text-center">
+                <button className="text-center text-[#FF0000] hover:text-[#3584FA]">
                   <FaTrashAlt />
                 </button>
               </td>
-              <td className="p-4"></td>
+              <td className="p-4 "></td>
             </tr>
           ))}
         </tbody>
