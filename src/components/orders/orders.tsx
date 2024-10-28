@@ -124,7 +124,7 @@ const Orders = () => {
   const itemsPerPage = 6;
 
   interface Order {
-    id: number;
+    id: string;
     service: string;
     status: string;
     name: string;
@@ -181,7 +181,7 @@ const Orders = () => {
         popup: "dark:bg-[#122031] dark:text-white",
         confirmButton: "text-white bg-blue-600 hover:bg-blue-700 w-[133px] h-[47px] py-2 px-4 text-lg rounded-md", 
         cancelButton: "text-white bg-red-600 hover:bg-red-700 w-[133px] h-[47px] py-2 px-4 text-lg rounded-md",   
-        text:"text-black text-[23px]"
+        
       },
     }).then((result) => {
       if (result.isConfirmed) {
@@ -197,7 +197,7 @@ const Orders = () => {
       <div className="flex items-center justify-between text-3xl font-bold text-gray-700 dark:text-white">
         <span className="text-[40px] font-medium">Orders</span>
         <Link href="orders/neworder">
-          <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] p-2 text-xl text-[#3584FA] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
+          <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] hover:bg-[#3584FA] p-2 text-xl text-[#3584FA] hover:text-[#E0EDFF] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             New Order +
           </button>{" "}
         </Link>
@@ -235,7 +235,7 @@ const Orders = () => {
           {currentOrders.map((order) => (
             <tr
               key={order.id}
-              className="cursor-pointer rounded-md bg-white shadow-md hover:bg-slate-100 dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
+              className="cursor-pointer rounded-md bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
               onClick={() => handleRowClick(order)}
             >
               <td className="p-4">Order {order.id}</td>

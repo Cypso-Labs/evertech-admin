@@ -5,6 +5,7 @@ import Image from "next/image";
 import { CheckCircle2, Circle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
+import { MdKeyboardArrowLeft } from "react-icons/md";
 import circle from "@/assets/image/circle.png";
 
 interface Order {
@@ -114,7 +115,7 @@ const Orderd = () => {
             className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
             onClick={() => router.back()}
           >
-            <IoIosArrowDropleft className="h-10 w-10 cursor-pointer hover:text-[#3584FA]" />
+            <MdKeyboardArrowLeft className=" cursor-pointer hover:text-[#3584FA] bg-white rounded-full h-[51px] w-[51px] border-2 border-gray-4" />
           </button>
           Order {formData.id || "0001"}
         </div>
@@ -201,9 +202,11 @@ const Orderd = () => {
       </div>
 
       {/* Order Items Table */}
-      <div className="mt-8 flex gap-20">
-        <div className="w-[900px] rounded-md border bg-white shadow-md dark:bg-dark-2">
-          <table className="w-full border-separate border-spacing-y-3 p-4">
+      <div className="relative col-span-4 mt-4 flex gap-20">
+        <div className="w-[900px] rounded-2xl border bg-white shadow-md dark:bg-dark-2">
+        <div className="text-[20px] font-medium p-4 h-[30px] text-[#475569]">Services</div>
+          <table className="w-full table-auto border-separate border-spacing-y-3 p-4">
+           
             <thead>
               <tr className="text-sm uppercase text-gray-700 dark:text-white">
                 <th className="pb-2 text-left font-semibold">ID</th>
@@ -211,27 +214,17 @@ const Orderd = () => {
                 <th className="pb-2 text-left font-semibold">QTY</th>
                 <th className="pb-2 text-left font-semibold">Each</th>
                 <th className="pb-2 text-left font-semibold">Sub Total</th>
-                <th className=""></th>
+                <th className="pb-2"></th>
               </tr>
             </thead>
             <tbody>
               {orderData.map((order, index) => (
                 <tr key={index} className="dark:text-white">
-                  <td className="border-b border-l border-t border-gray-300 p-2">
-                    {order.id}
-                  </td>
-                  <td className="border-b border-t border-gray-300 p-2">
-                    {order.name}
-                  </td>
-                  <td className="border-b border-t border-gray-300 p-2">
-                    {order.qty}
-                  </td>
-                  <td className="border-b border-t border-gray-300 p-2">
-                    {order.each}
-                  </td>
-                  <td className="border-b border-t border-gray-300 p-2">
-                    {order.subtotal}
-                  </td>
+                  <td className="border-b border-l border-t border-gray-300 p-2">{order.id}</td>
+                  <td className="border-b border-t border-gray-300 p-2">{order.name}</td>
+                  <td className="border-b border-t border-gray-300 p-2">{order.qty}</td>
+                  <td className="border-b border-t border-gray-300 p-2">{order.each}</td>
+                  <td className="border-b border-t border-gray-300 p-2">{order.subtotal}</td>
                   <td className="border-b border-r border-t border-gray-300 p-2 text-center">
                     <button className="text-red-500 hover:text-red-700">
                       <FaTrashAlt size={16} />
@@ -244,11 +237,11 @@ const Orderd = () => {
         </div>
 
         {/* Order Status */}
-        <div className="h-[310px] w-[250px] rounded-lg bg-white p-4 shadow-xl dark:bg-dark-3 dark:text-white">
+        <div className=" w-[250px] rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-3 dark:text-white">
           <div className="text-2xl font-semibold">Order Status</div>
           <div className="mt-4">Payment Status</div>
           <button className="mt-4 h-[48px] w-[190px] rounded-lg border-2 border-[#FF2323] bg-[#FFCDCD] p-4 font-medium text-[#F70D1A]">
-            Unpaid
+            UnPaid
           </button>
           <div className="mt-6">Order Status</div>
           <button className="mt-5 flex h-[48px] w-[190px] items-center justify-center border-2 border-[#FFFFFF] bg-[#000000] px-4 text-[#FFFFFF]">
