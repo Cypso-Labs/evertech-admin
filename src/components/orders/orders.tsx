@@ -219,14 +219,14 @@ const Orders = () => {
         </div>
       </div>
 
-      <table className="w-full table-auto border-separate border-spacing-y-3 h-[91px] font-bold">
+      <table className="w-full table-auto border-separate border-spacing-y-3 h-[91px] font-bold roun">
         <thead className="uppercase dark:text-white">
           <tr>
-            <th className="p-4 text-left">ID</th>
-            <th className="p-4 text-left">Customer Name</th>
-            <th className="p-4 text-left">Status</th>
-            <th className="p-4 text-left">Service</th>
-            <th className="p-4 text-left">Price</th>
+            <th className="p-4 text-center">ID</th>
+            <th className="p-4 text-center">Customer Name</th>
+            <th className="p-4 text-center">Status</th>
+            <th className="p-4 text-center">Service</th>
+            <th className="p-4 text-center">Price</th>
             <th className="p-4"></th>
             <th className="p-4"></th>
           </tr>
@@ -235,14 +235,14 @@ const Orders = () => {
           {currentOrders.map((order) => (
             <tr
               key={order.id}
-              className="cursor-pointer rounded-md bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
+              className="cursor-pointer rounded-l bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
               onClick={() => handleRowClick(order)}
             >
-              <td className="p-4">Order {order.id}</td>
-              <td className="p-4">{order.name}</td>
-              <td className="p-4">
+              <td className="px-4 py-6 rounded-lg text-center">Order {order.id}</td>
+              <td className="p-4 text-center">{order.name}</td>
+              <td className="p-4 text-center">
                 <span
-                  className={`rounded-md font-semibold ${
+                  className={`font-semibold ${
                     order.status === "Paid"
                       ? "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
                       : "border-2 border-[#F70D1A] bg-[#FFCED1] px-3 py-1 text-[#F70D1A]"
@@ -251,9 +251,9 @@ const Orders = () => {
                   {order.status}
                 </span>
               </td>
-              <td className="p-4">{order.service}</td>
-              <td className="p-4">{order.price}</td>
-              <td className="p-4 text-right">
+              <td className="p-4 text-center">{order.service}</td>
+              <td className="p-4 text-center">{order.price}</td>
+              <td className="p-4 text-center">
               <button
                   className="text-center text-red-500 hover:text-red-700"
                   onClick={(e) => {
@@ -264,7 +264,7 @@ const Orders = () => {
                   <FaTrashAlt />
                 </button>
               </td>
-              <td className="p-4"></td>
+              <td className="p-4 rounded-lg"></td>
             </tr>
           ))}
         </tbody>

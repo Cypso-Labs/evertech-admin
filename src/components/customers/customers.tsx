@@ -195,13 +195,13 @@ const Customers = () => {
           {currentOrders.map((customers) => (
             <tr
               key={customers.id}
-              className="rounded-md bg-white hover:bg-[#E0EDFF] cursor-pointer shadow-md dark:bg-dark-2 dark:text-gray-300"
+              className="rounded-md shadow-md bg-white hover:bg-[#E0EDFF] cursor-pointer dark:bg-dark-2 dark:text-gray-300"
               onClick={() => handleRowClick(customers)}
             >
-              <td className="p-2 text-center">
+              <td className="p-2 px-4 py-6 rounded-lg text-center">
                 Customers #{customers.id}
               </td>
-              <td className="p-4 text-center">{customers.name}</td>
+              <td className=" text-center">{customers.name}</td>
               <td className="p-4 text-center">
                 <span
                   className={`rounded-md font-semibold ${
@@ -219,7 +219,7 @@ const Customers = () => {
                   <FaTrashAlt />
                 </button>
               </td>
-              <td className="p-4 "></td>
+              <td className="p-4 rounded-lg"></td>
             </tr>
           ))}
         </tbody>
