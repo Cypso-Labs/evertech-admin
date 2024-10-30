@@ -121,7 +121,7 @@ const Orderd = () => {
         </div>
         <button
           onClick={() => handleClick(formData)}
-          className="flex rounded-md border-2 border-[#000000] bg-[#CBD5E1] p-2 text-xl text-[#000000] dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+          className="flex rounded-md border-2 border-[#000000] bg-[#CBD5E1] hover:bg-[#000000] hover:text-[#CBD5E1] hover:border-[#CBD5E1] p-2 text-xl text-[#000000] dark:border-dark-3 dark:bg-dark-2 dark:text-white"
         >
           Edit Order <FaRegEdit className="ml-3" />
         </button>
