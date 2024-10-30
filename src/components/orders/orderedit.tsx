@@ -194,7 +194,7 @@ const Orderedit = () => {
 
         <div className="mt-4 flex justify-center space-x-8">
           <button
-            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] bg-[#FFCDCD] font-medium text-[#FF2323]"
+            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] hover:bg-[#FF2323] hover:border-[#FFCDCD] hover:text-[#FFCDCD] bg-[#FFCDCD] font-medium text-[#FF2323]"
             onClick={(e) => {
               e.stopPropagation();
               handleDiscard();
@@ -203,7 +203,7 @@ const Orderedit = () => {
             Discard
           </button>
           <button
-            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] font-medium text-[#08762D]"
+            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] hover:bg-[#08762D] hover:border-[#BCFFC8] hover:text-[#BCFFC8] font-medium text-[#08762D]"
             onClick={(e) => {
               e.stopPropagation();
               handleSave();
@@ -213,6 +213,7 @@ const Orderedit = () => {
           </button>
         </div>
       </div>
+
 
       
       {/* Add Service Modal */}

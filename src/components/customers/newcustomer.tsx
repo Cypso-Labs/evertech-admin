@@ -97,7 +97,7 @@ const Newcustomer = () => {
             />
           </div>
           <div className="mt-10 flex justify-end space-x-6 w-[520px]">
-            <button className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] bg-[#FFCDCD] font-medium text-[#FF2323]"
+            <button className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] bg-[#FFCDCD] hover:bg-[#FF2323] hover:border-[#FFCDCD] hover:text-[#FFCDCD] font-medium text-[#FF2323]"
             onClick={(e) => {
               e.stopPropagation();
               handleCancel();
@@ -105,10 +105,11 @@ const Newcustomer = () => {
             >
               
               
+              
               Discard
             </button>
             <button
-              className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] font-medium text-[#08762D]"
+              className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] hover:bg-[#08762D] hover:border-[#BCFFC8] hover:text-[#BCFFC8] font-medium text-[#08762D]"
               onClick={(e) => {
                 e.stopPropagation();
                 handleSave();
