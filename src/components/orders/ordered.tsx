@@ -236,6 +236,7 @@ const Orderd = () => {
           </table>
         </div>
 
+
         {/* Order Status */}
         <div className=" w-[250px] rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-3 dark:text-white">
           <div className="text-2xl font-semibold">Order Status</div>

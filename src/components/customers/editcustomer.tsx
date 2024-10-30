@@ -161,6 +161,7 @@ const Editcustomer = () => {
                 handleCancel();
               }}
             
+              
             >
               Discard
             </button>

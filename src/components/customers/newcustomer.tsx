@@ -105,6 +105,7 @@ const Newcustomer = () => {
             >
               
               
+              
               Discard
             </button>
             <button
