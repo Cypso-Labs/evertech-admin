@@ -15,7 +15,7 @@ const initialState: DataStatsState = {
 export const fetchTotalCustomers = createAsyncThunk(
   "dataStats/fetchTotalCustomers",
   async () => {
-    const response = await fetch("/api/customers/count");
+    const response = await fetch("../services/customerService");
     const data = await response.json();
     return data.totalCustomers;
   }
