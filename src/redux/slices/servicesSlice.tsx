@@ -1,65 +1,52 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
 
-interface Service {
-  id: string;
-  service: string;
-  category: string;
-  price: string;
-  isEnabled: boolean;
+// Define the possible status values
+type Status = "loading" | "succeeded" | "failed" | null;
+
+export const fetchServices = createAsyncThunk(
+  "services/fetchServices",
+  async () => {
+    const response = await axios.get("/api/services");
+    return response.data;
+  },
+);
+
+export const createService = createAsyncThunk(
+  "services/createService",
+  async (data: any) => {
+    // Define the type for the data being passed
+    const response = await axios.post("/api/services", data);
+    return response.data;
+  },
+);
+
+// Define the initial state type
+interface ServiceState {
+  services: any[]; // Define the type for services based on your actual data structure
+  status: Status; // Use the Status type for status
 }
 
-interface ServicesState {
-  services: Service[];
-  searchTerm: string;
-  currentPage: number;
-}
-
-const initialState: ServicesState = {
-  services: [
-    {
-      id: "Service #00142",
-      service: "Lorem ipsum dolor sit amet",
-      category: "Lorem ipsum",
-      price: "$ 99.98",
-      isEnabled: true,
-    },
-    // Add more sample data as needed
-  ],
-  searchTerm: "",
-  currentPage: 1,
-};
-
-const servicesSlice = createSlice({
+export const serviceSlice = createSlice({
   name: "services",
-  initialState,
-  reducers: {
-    setServices(state, action: PayloadAction<Service[]>) {
-      state.services = action.payload;
-    },
-    setSearchTerm(state, action: PayloadAction<string>) {
-      state.searchTerm = action.payload;
-    },
-    setCurrentPage(state, action: PayloadAction<number>) {
-      state.currentPage = action.payload;
-    },
-    toggleServiceEnabled(state, action: PayloadAction<string>) {
-      const service = state.services.find((s) => s.id === action.payload);
-      if (service) {
-        service.isEnabled = !service.isEnabled;
-      }
-    },
-    deleteService(state, action: PayloadAction<string>) {
-      state.services = state.services.filter((s) => s.id !== action.payload);
-    },
+  initialState: { services: [], status: null } as ServiceState, // Ensure initial state matches the ServiceState type
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchServices.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(fetchServices.fulfilled, (state, action) => {
+        state.status = "succeeded";
+        state.services = action.payload;
+      })
+      .addCase(fetchServices.rejected, (state) => {
+        state.status = "failed";
+      });
+    builder.addCase(createService.fulfilled, (state, action) => {
+      state.services.push(action.payload);
+    });
   },
 });
 
-export const {
-  setServices,
-  setSearchTerm,
-  setCurrentPage,
-  toggleServiceEnabled,
-  deleteService,
-} = servicesSlice.actions;
-
-export default servicesSlice.reducer;
+export default serviceSlice.reducer;
