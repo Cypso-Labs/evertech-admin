@@ -1,4 +1,4 @@
-// authSlice.ts
+"use client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../store/store";
 
@@ -6,7 +6,6 @@ interface Employee {
   name: string;
   username: string;
   email: string;
-  
 }
 
 interface AuthState {
@@ -17,13 +16,32 @@ interface AuthState {
   error: string | null;
 }
 
-const initialState: AuthState = {
-  token: null,
-  isAuthenticated: false,
-  employee: null,
-  loading: false,
-  error: null,
+const getStoredAuth = (): AuthState => {
+  const storedAuth = localStorage.getItem("auth");
+  if (storedAuth) {
+    try {
+      const parsedAuth = JSON.parse(storedAuth);
+      return {
+        token: parsedAuth.token,
+        isAuthenticated: !!parsedAuth.token,
+        employee: parsedAuth.employee,
+        loading: false,
+        error: null,
+      };
+    } catch (error) {
+      console.error("Error parsing auth data from localStorage", error);
+    }
+  }
+  return {
+    token: null,
+    isAuthenticated: false,
+    employee: null,
+    loading: false,
+    error: null,
+  };
 };
+
+const initialState: AuthState = getStoredAuth();
 
 const authSlice = createSlice({
   name: "auth",
@@ -39,7 +57,6 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
 
-      // Store in localStorage
       localStorage.setItem(
         "auth",
         JSON.stringify({
@@ -61,7 +78,6 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
 
-      // Clear localStorage
       localStorage.removeItem("auth");
     },
   },
