@@ -1,8 +1,9 @@
 "use client";
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { RootState } from "../store/store";
 
-// Define types based on your backend model
+// Define Employee type
 interface Employee {
   _id: string;
   name: string;
@@ -19,74 +20,83 @@ interface Employee {
   updatedAt: string;
 }
 
+// Define the state for the slice
 interface EmployeeState {
   entities: Employee[];
+  selectedEmployee: Employee | null;
   loading: "idle" | "pending" | "succeeded" | "failed";
   error: string | null;
-  selectedEmployee: Employee | null;
 }
 
-interface ApiResponse {
-  status: string;
-  data: {
-    employees: Employee[];
-  };
-}
+// Initial state
+const initialState: EmployeeState = {
+  entities: [],
+  selectedEmployee: null,
+  loading: "idle",
+  error: null,
+};
 
-// Create interface for update payload
-interface UpdateEmployeePayload {
-  id: string;
-  employeeData: Partial<Employee>;
-}
+// Helper to get token from state
+const getToken = (state: RootState): string | null =>
+  state.auth?.token ||
+  (localStorage.getItem("auth") &&
+    JSON.parse(localStorage.getItem("auth") || "{}").token);
 
-export const fetchEmployees = createAsyncThunk(
-  "employees/fetchEmployees",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/employees/", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Add Bearer token
-          "Content-Type": "application/json",
-        },
-      });
+// Async thunk for fetching employees
+export const fetchEmployees = createAsyncThunk<
+  Employee[],
+  void,
+  { rejectValue: string; state: RootState }
+>("employees/fetchEmployees", async (_, { getState, rejectWithValue }) => {
+  const token = getToken(getState());
+  if (!token) return rejectWithValue("No token provided");
 
-      const data: ApiResponse = await response.json();
+  try {
+    const response = await fetch("http://localhost:5000/api/employees/", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      if (data.status !== "success") {
-        throw new Error("Failed to fetch employees");
-      }
+    if (!response.ok) throw new Error("Failed to fetch employees");
+    const data = await response.json();
+    return data.data.employees;
+  } catch (error) {
+    return rejectWithValue((error as Error).message);
+  }
+});
 
-      return data.data.employees;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
-  },
-);
+// Async thunk for fetching a specific employee by ID
+export const fetchEmployeeById = createAsyncThunk<
+  Employee,
+  string,
+  { rejectValue: string; state: RootState }
+>("employees/fetchEmployeeById", async (id, { getState, rejectWithValue }) => {
+  const token = getToken(getState());
+  if (!token) return rejectWithValue("No token provided");
 
-// Fetch an employee by ID
-export const fetchEmployeeById = createAsyncThunk<Employee, string>(
-  "employees/fetchEmployeeById",
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/employees/${id}`);
-      
-      const data = await response.json();
+  try {
+    const response = await fetch(`http://localhost:5000/api/employees/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      if (!data) {
-        throw new Error("Employee not found");
-      }
+    if (!response.ok) throw new Error("Failed to fetch employee");
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    return rejectWithValue((error as Error).message);
+  }
+});
 
-      return data;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
-  },
-);
-
-// Update an employee's information
-export const updateEmployee = createAsyncThunk<Employee, UpdateEmployeePayload>(
+// Async thunk for updating an employee
+export const updateEmployee = createAsyncThunk<
+  Employee,
+  { id: string; employeeData: Partial<Employee> },
+  { rejectValue: string; state: RootState }
+>(
   "employees/updateEmployee",
-  async ({ id, employeeData }, { rejectWithValue }) => {
+  async ({ id, employeeData }, { getState, rejectWithValue }) => {
+    const token = getToken(getState());
+    if (!token) return rejectWithValue("No token provided");
+
     try {
       const response = await fetch(
         `http://localhost:5000/api/employees/${id}`,
@@ -94,17 +104,14 @@ export const updateEmployee = createAsyncThunk<Employee, UpdateEmployeePayload>(
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(employeeData),
         },
       );
 
+      if (!response.ok) throw new Error("Failed to update employee");
       const data = await response.json();
-
-      if (!data) {
-        throw new Error("Failed to update employee");
-      }
-
       return data;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -112,36 +119,29 @@ export const updateEmployee = createAsyncThunk<Employee, UpdateEmployeePayload>(
   },
 );
 
-// Delete an employee
-export const deleteEmployee = createAsyncThunk<string, string>(
-  "employees/deleteEmployee",
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/employees/${id}`,
-        {
-          method: "DELETE",
-        },
-      );
+// Async thunk for deleting an employee
+export const deleteEmployee = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string; state: RootState }
+>("employees/deleteEmployee", async (id, { getState, rejectWithValue }) => {
+  const token = getToken(getState());
+  if (!token) return rejectWithValue("No token provided");
 
-      if (!response.ok) {
-        throw new Error("Failed to delete employee");
-      }
+  try {
+    const response = await fetch(`http://localhost:5000/api/employees/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      return id;
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
-  },
-);
+    if (!response.ok) throw new Error("Failed to delete employee");
+    return id;
+  } catch (error) {
+    return rejectWithValue((error as Error).message);
+  }
+});
 
-const initialState: EmployeeState = {
-  entities: [],
-  loading: "idle",
-  error: null,
-  selectedEmployee: null,
-};
-
+// Slice definition
 const employeeSlice = createSlice({
   name: "employees",
   initialState,
@@ -154,7 +154,7 @@ const employeeSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Fetch all employees
+    // Handle fetchEmployees
     builder
       .addCase(fetchEmployees.pending, (state) => {
         state.loading = "pending";
@@ -166,10 +166,10 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
         state.loading = "failed";
-        state.error = action.payload as string;
+        state.error = action.payload || "Failed to fetch employees";
       });
 
-    // Fetch an employee by ID
+    // Handle fetchEmployeeById
     builder
       .addCase(fetchEmployeeById.pending, (state) => {
         state.loading = "pending";
@@ -178,21 +178,13 @@ const employeeSlice = createSlice({
       .addCase(fetchEmployeeById.fulfilled, (state, action) => {
         state.loading = "succeeded";
         state.selectedEmployee = action.payload;
-        const index = state.entities.findIndex(
-          (e) => e._id === action.payload._id,
-        );
-        if (index === -1) {
-          state.entities.push(action.payload);
-        } else {
-          state.entities[index] = action.payload;
-        }
       })
       .addCase(fetchEmployeeById.rejected, (state, action) => {
         state.loading = "failed";
-        state.error = action.payload as string;
+        state.error = action.payload || "Failed to fetch employee";
       });
 
-    // Update an employee
+    // Handle updateEmployee
     builder
       .addCase(updateEmployee.pending, (state) => {
         state.loading = "pending";
@@ -206,16 +198,13 @@ const employeeSlice = createSlice({
         if (index !== -1) {
           state.entities[index] = action.payload;
         }
-        if (state.selectedEmployee?._id === action.payload._id) {
-          state.selectedEmployee = action.payload;
-        }
       })
       .addCase(updateEmployee.rejected, (state, action) => {
         state.loading = "failed";
-        state.error = action.payload as string;
+        state.error = action.payload || "Failed to update employee";
       });
 
-    // Delete an employee
+    // Handle deleteEmployee
     builder
       .addCase(deleteEmployee.pending, (state) => {
         state.loading = "pending";
@@ -224,16 +213,14 @@ const employeeSlice = createSlice({
       .addCase(deleteEmployee.fulfilled, (state, action) => {
         state.loading = "succeeded";
         state.entities = state.entities.filter((e) => e._id !== action.payload);
-        if (state.selectedEmployee?._id === action.payload) {
-          state.selectedEmployee = null;
-        }
       })
       .addCase(deleteEmployee.rejected, (state, action) => {
         state.loading = "failed";
-        state.error = action.payload as string;
+        state.error = action.payload || "Failed to delete employee";
       });
   },
 });
 
 export const { setSelectedEmployee, clearError } = employeeSlice.actions;
+export const selectEmployees = (state: RootState) => state.employees;
 export default employeeSlice.reducer;
