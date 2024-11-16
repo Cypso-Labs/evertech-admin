@@ -1,51 +1,53 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-hot-toast";
-import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../../app/redux/hooks";
 import {
-  setEmployee,
-  // setLoading,
-  // setError,
-} from "../../app/redux/authSlice";
-import { useLoginMutation } from "../../app/redux/authApi";
+  setCredentials,
+  setError,
+  setLoading,
+  selectAuth,
+} from "../../app/redux/slices/authSlice";
+import { useLoginMutation } from "../../app/redux/features/authApi";
 
 export default function SigninWithPassword() {
-  const [formData, setFormData] = useState({
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+  const { loading, error } = useAppSelector(selectAuth);
+  const [login, { isLoading }] = useLoginMutation();
+
+  const [credentials, setCredentialsState] = useState({
     email: "",
     password: "",
   });
 
-  const dispatch = useDispatch();
-  const [login, { isLoading }] = useLoginMutation();
-  const router = useRouter();
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setCredentialsState({ ...credentials, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    dispatch(setLoading(true));
 
-   
+    try {
+      const result = await login(credentials).unwrap();
 
-    login(formData)
-      .unwrap()
-      .then((res) => {
-        toast.success("Login successful!");
-        dispatch(setEmployee({ token: res.token, user: res.user }));
+      if (result && result.token) {
+        dispatch(
+          setCredentials({
+            token: result.token,
+            employee: result.employee,
+          }),
+        );
         router.push("/dashboard");
-      })
-      .catch((err: any) => {
-        console.log(err);
-        const errorMessage =
-          err?.data?.message || "Login failed. Please check your credentials.";
-       // dispatch(setError(errorMessage)); // Set the error state in Redux
-        toast.error(errorMessage);
-      })
-      .finally(() => {
-       // dispatch(setLoading(false));
-      });
+      } else {
+        dispatch(setError("Invalid token received. Please try again."));
+      }
+    } catch (err: any) {
+      dispatch(setError("Login failed. Please check your credentials."));
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (
@@ -58,7 +60,7 @@ export default function SigninWithPassword() {
           type="email"
           name="email"
           placeholder="Enter your email"
-          value={formData.email}
+          value={credentials.email}
           onChange={handleChange}
           className="w-full rounded border p-2"
           required
@@ -73,7 +75,7 @@ export default function SigninWithPassword() {
           type="password"
           name="password"
           placeholder="Enter your password"
-          value={formData.password}
+          value={credentials.password}
           onChange={handleChange}
           className="w-full rounded border p-2"
           required
@@ -83,10 +85,12 @@ export default function SigninWithPassword() {
       <button
         type="submit"
         className="w-full rounded bg-blue-500 p-2 text-white"
-        disabled={isLoading} // Disable the button when loading
+        disabled={loading || isLoading}
       >
-        {isLoading ? "Loading..." : "Login"}
+        {loading || isLoading ? "Signing In..." : "Sign In"}
       </button>
+
+      {error && <p className="mt-2 text-red-500">{error}</p>}
     </form>
   );
 }
