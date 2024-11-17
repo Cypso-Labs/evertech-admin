@@ -1,12 +1,13 @@
 "use client";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { RootState } from "../store/store";
+import { BASE_URL } from "@/app/utils/apiConfig";
 
 // Define the authApi with updated login mutation
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://localhost:5000/api/employees/",
+    baseUrl: BASE_URL + "/employees/",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
       if (token) {
@@ -16,6 +17,14 @@ export const authApi = createApi({
     },
   }),
   endpoints: (builder) => ({
+    register: builder.mutation({
+      query: (formData) => ({
+        url: "register",
+        method: "POST",
+        body: formData,
+      }),
+    }),
+
     login: builder.mutation<
       {
         token: string;
@@ -28,6 +37,7 @@ export const authApi = createApi({
         method: "POST",
         body: credentials,
       }),
+
       transformResponse: (response: {
         status: string;
         data: {
@@ -54,4 +64,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation , useRegisterMutation } = authApi;

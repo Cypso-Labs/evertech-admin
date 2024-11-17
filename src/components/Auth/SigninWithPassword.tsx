@@ -25,6 +25,12 @@ export default function SigninWithPassword() {
     setCredentialsState({ ...credentials, [e.target.name]: e.target.value });
   };
 
+ 
+  if (useAppSelector(selectAuth).token) {
+    router.push("/dashboard");
+  }
+ 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     dispatch(setLoading(true));
@@ -48,6 +54,9 @@ export default function SigninWithPassword() {
     } finally {
       dispatch(setLoading(false));
     }
+
+    
+
   };
 
   return (

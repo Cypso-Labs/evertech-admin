@@ -1,4 +1,5 @@
 "use client";
+
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../store/store";
 
@@ -12,12 +13,33 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   employee: Employee | null;
+  catogories: string[];
   loading: boolean;
   error: string | null;
 }
 
+// Move localStorage operations to a separate utility to handle SSR
+const storage = {
+  getItem: (key: string) => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(key);
+    }
+    return null;
+  },
+  setItem: (key: string, value: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(key, value);
+    }
+  },
+  removeItem: (key: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(key);
+    }
+  },
+};
+
 const getStoredAuth = (): AuthState => {
-  const storedAuth = localStorage.getItem("auth");
+  const storedAuth = storage.getItem("auth");
   if (storedAuth) {
     try {
       const parsedAuth = JSON.parse(storedAuth);
@@ -25,6 +47,7 @@ const getStoredAuth = (): AuthState => {
         token: parsedAuth.token,
         isAuthenticated: !!parsedAuth.token,
         employee: parsedAuth.employee,
+        catogories: [],
         loading: false,
         error: null,
       };
@@ -36,12 +59,24 @@ const getStoredAuth = (): AuthState => {
     token: null,
     isAuthenticated: false,
     employee: null,
+    catogories: [],
     loading: false,
     error: null,
   };
 };
 
-const initialState: AuthState = getStoredAuth();
+// Ensure initial state is only computed once
+const initialState: AuthState =
+  typeof window !== "undefined"
+    ? getStoredAuth()
+    : {
+        token: null,
+        isAuthenticated: false,
+        employee: null,
+        catogories: [],
+        loading: false,
+        error: null,
+      };
 
 const authSlice = createSlice({
   name: "auth",
@@ -51,17 +86,18 @@ const authSlice = createSlice({
       state,
       action: PayloadAction<{ token: string; employee: Employee }>,
     ) => {
-      state.token = action.payload.token;
-      state.employee = action.payload.employee;
+      const { token, employee } = action.payload;
+      state.token = token;
+      state.employee = employee;
       state.isAuthenticated = true;
       state.loading = false;
       state.error = null;
 
-      localStorage.setItem(
+      storage.setItem(
         "auth",
         JSON.stringify({
-          token: action.payload.token,
-          employee: action.payload.employee,
+          token,
+          employee,
         }),
       );
     },
@@ -70,6 +106,8 @@ const authSlice = createSlice({
     },
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
+      // Reset loading state when error occurs
+      state.loading = false;
     },
     logout: (state) => {
       state.token = null;
@@ -78,12 +116,15 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
 
-      localStorage.removeItem("auth");
+      storage.removeItem("auth");
     },
   },
 });
 
 export const { setCredentials, setLoading, setError, logout } =
   authSlice.actions;
+
+// Memoized selector
 export const selectAuth = (state: RootState) => state.auth;
+
 export default authSlice.reducer;

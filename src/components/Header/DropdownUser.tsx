@@ -7,8 +7,10 @@ import user from "@/assets/images/user/user-03.png";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../app/redux/store/store";
 import { logout } from "../../app/redux/slices/authSlice";
+import { useRouter } from "next/navigation";
 
 const DropdownUser = () => {
+  const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dispatch = useDispatch();
   const { employee, isAuthenticated } = useSelector(
@@ -17,9 +19,11 @@ const DropdownUser = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+
   };
 
   if (!isAuthenticated) {
+    router.push("/");
     return <div>Please log in to view user details.</div>;
   }
 

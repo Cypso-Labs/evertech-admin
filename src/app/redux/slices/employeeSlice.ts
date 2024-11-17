@@ -2,6 +2,7 @@
 
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store/store";
+import { BASE_URL } from "@/app/utils/apiConfig";
 
 // Define Employee type
 interface Employee {
@@ -52,7 +53,7 @@ export const fetchEmployees = createAsyncThunk<
   if (!token) return rejectWithValue("No token provided");
 
   try {
-    const response = await fetch("http://localhost:5000/api/employees/", {
+    const response = await fetch(   BASE_URL + "/employees/", {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -64,6 +65,7 @@ export const fetchEmployees = createAsyncThunk<
   }
 });
 
+
 // Async thunk for fetching a specific employee by ID
 export const fetchEmployeeById = createAsyncThunk<
   Employee,
@@ -74,7 +76,7 @@ export const fetchEmployeeById = createAsyncThunk<
   if (!token) return rejectWithValue("No token provided");
 
   try {
-    const response = await fetch(`http://localhost:5000/api/employees/${id}`, {
+    const response = await fetch(BASE_URL +`/employees/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -98,17 +100,14 @@ export const updateEmployee = createAsyncThunk<
     if (!token) return rejectWithValue("No token provided");
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/employees/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(employeeData),
+      const response = await fetch( BASE_URL +`/employees/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-      );
+        body: JSON.stringify(employeeData),
+      });
 
       if (!response.ok) throw new Error("Failed to update employee");
       const data = await response.json();
@@ -129,7 +128,7 @@ export const deleteEmployee = createAsyncThunk<
   if (!token) return rejectWithValue("No token provided");
 
   try {
-    const response = await fetch(`http://localhost:5000/api/employees/${id}`, {
+    const response = await fetch(BASE_URL + `/employees/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });

@@ -11,6 +11,7 @@ import {
   deleteEmployee,
 } from "../../app/redux/slices/employeeSlice";
 import { AppDispatch, RootState } from "../../app/redux/store/store";
+import { fetchRoles } from "../../app/redux/slices/roleSlice";
 
 const Employee = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,12 +21,17 @@ const Employee = () => {
     error,
   } = useSelector((state: RootState) => state.employees);
 
+  const { roles, loading: roleLoading } = useSelector(
+    (state: RootState) => state.roles,
+  );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   useEffect(() => {
     dispatch(fetchEmployees());
+    dispatch(fetchRoles());
   }, [dispatch]);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
@@ -39,6 +45,13 @@ const Employee = () => {
   const filteredEmployees = employees.filter((employee) =>
     employee.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  // Get role name from role ID
+  const getRoleName = (roleId: string) => {
+    const role = roles.find((role) => role._id === roleId);
+    return role ? role.name : "Unknown Role";
+  };
+
 
   // Calculate the current employees to display
   const indexOfLastEmployee = currentPage * itemsPerPage;
@@ -125,7 +138,7 @@ const Employee = () => {
                   Employee #{employee._id.slice(-5)}
                 </td>
                 <td className="px-4 py-2">{employee.name}</td>
-                <td className="px-4 py-2">{employee.role}</td>
+                <td className="px-4 py-2"> {getRoleName(employee.role)}</td>
                 <td className="px-4 py-2">{employee.email}</td>
                 <td className="rounded-r-xl px-4 py-2">
                   <button
