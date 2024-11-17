@@ -1,149 +1,29 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { fetchOrders } from "../../redux/slices/ordersSlice";
+import { RootState, AppDispatch } from "../../redux/store";
 
-const Orders = () => {
-  const router = useRouter();
-
-  const [orderData] = useState([
-    {
-      id: "#0001",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0002",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0003",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-
-    {
-      id: "#0004",
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0005",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0006",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0007",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0008",
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0009",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0010",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0011",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0012",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0013",
-      name: "Lorem Ipsum",
-      status: "UnPaid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0014",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-    {
-      id: "#0015",
-      name: "Lorem Ipsum",
-      status: "Paid",
-      service: "Lorem Ipsum Dolor Sit Amet",
-      price: "$99.98",
-    },
-  ]);
+const Orders: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { orders } = useSelector((state: RootState) => state.orders);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const router = useRouter();
 
-  interface Order {
-    id: string;
-    service: string;
-    status: string;
-    name: string;
-    price: string;
-  }
+  useEffect(() => {
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
-  const handleRowClick = (order: Order) => {
-    const queryParams = new URLSearchParams({
-      id: order.id.toString(),
-      service: order.service,
-      status: order.status,
-      name: order.name,
-      price: order.price,
-    }).toString();
-
-    router.push(`orders/ordered?${queryParams}`);
-  };
-
-  const filteredOrders = orderData.filter((order) =>
+  const filteredOrders = orders.filter((order) =>
     order.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -155,49 +35,50 @@ const Orders = () => {
   );
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
+  const handleRowClick = (order: (typeof orders)[0]) => {
+    const queryParams = new URLSearchParams({
+      id: order.id.toString(),
+      service: order.service,
+      status: order.status,
+      name: order.name,
+      price: order.price.toString(),
+    }).toString();
+
+    router.push(`orders/ordered?${queryParams}`);
+  };
+
   const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prevPage) => prevPage + 1);
-    }
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
   const handlePreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
-    }
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (orderId: number) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won’t be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes",
+      confirmButtonText: "Yes, delete it!",
       cancelButtonText: "Cancel",
       confirmButtonColor: "#2E84D3",
       cancelButtonColor: "#D93132",
-      customClass: {
-        popup: "dark:bg-[#122031] dark:text-white",
-        confirmButton: "text-white bg-blue-600 hover:bg-blue-700 w-[133px] h-[47px] py-2 px-4 text-lg rounded-md", 
-        cancelButton: "text-white bg-red-600 hover:bg-red-700 w-[133px] h-[47px] py-2 px-4 text-lg rounded-md",   
-        
-      },
     }).then((result) => {
       if (result.isConfirmed) {
+        console.log(`Order ${orderId} deleted`);
         router.push("/orders");
       }
     });
   };
-  
-
 
   return (
     <div>
       <div className="flex items-center justify-between text-3xl font-bold text-gray-700 dark:text-white">
         <span className="text-[40px] font-medium">Orders</span>
         <Link href="orders/neworder">
-          <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] hover:bg-[#3584FA] p-2 text-xl text-[#3584FA] hover:text-[#E0EDFF] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
+          <button className="rounded-md border-2 border-[#3584FA] bg-[#E0EDFF] p-2 text-xl text-[#3584FA] hover:bg-[#3584FA] hover:text-[#E0EDFF] dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             New Order +
           </button>{" "}
         </Link>
@@ -219,7 +100,7 @@ const Orders = () => {
         </div>
       </div>
 
-      <table className="w-full table-auto border-separate border-spacing-y-3 h-[91px] font-bold roun">
+      <table className="roun h-[91px] w-full table-auto border-separate border-spacing-y-3 font-bold">
         <thead className="uppercase dark:text-white">
           <tr>
             <th className="p-4 text-center">ID</th>
@@ -238,7 +119,9 @@ const Orders = () => {
               className="cursor-pointer rounded-l bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
               onClick={() => handleRowClick(order)}
             >
-              <td className="px-4 py-6 rounded-lg text-center">Order {order.id}</td>
+              <td className="rounded-lg px-4 py-6 text-center">
+                Order {order.id}
+              </td>
               <td className="p-4 text-center">{order.name}</td>
               <td className="p-4 text-center">
                 <span
@@ -254,17 +137,17 @@ const Orders = () => {
               <td className="p-4 text-center">{order.service}</td>
               <td className="p-4 text-center">{order.price}</td>
               <td className="p-4 text-center">
-              <button
+                <button
                   className="text-center text-red-500 hover:text-red-700"
                   onClick={(e) => {
-                    e.stopPropagation(); 
-                    handleDelete();
+                    e.stopPropagation();
+                    handleDelete(order.id);
                   }}
                 >
                   <FaTrashAlt />
                 </button>
               </td>
-              <td className="p-4 rounded-lg"></td>
+              <td className="rounded-lg p-4"></td>
             </tr>
           ))}
         </tbody>

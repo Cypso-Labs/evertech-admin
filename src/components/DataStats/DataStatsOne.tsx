@@ -1,66 +1,71 @@
 import React from "react";
-import { dataStats } from "@/types/dataStats";
-import orders from "@/assets/images/icon/order.svg"
-import payments from "@/assets/images/icon/payment.svg"
-import services from "@/assets/images/icon/service.svg"
-import customers from "@/assets/images/icon/customer.svg"
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store"; // Import the store type
+import orders from "@/assets/images/icon/order.svg";
+import payments from "@/assets/images/icon/payment.svg";
+import services from "@/assets/images/icon/service.svg";
+import customers from "@/assets/images/icon/customer.svg";
 import Image from "next/image";
 
-const dataStatsList = [
-  {
-    icon: (
-      <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
-        <Image src={orders} alt="Orders Icon" width={26} height={26} />
-      </div>
-    ),
-    color: "#3FD97F",
-    title: "Pending Orders",
-    value: "3.456K",
-    growthRate: 0.43,
-  },
-  {
-    icon: (
-      <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
-        <Image src={payments} alt="Payments Icon" width={26} height={26} />
-      </div>
-    ),
-    color: "#FF9C55",
-    title: "Total Payment",
-    value: "$42.2K",
-    growthRate: 4.35,
-  },
-  {
-    icon: (
-      <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
-        <Image src={services} alt="Services Icon" width={26} height={26} />
-      </div>
-    ),
-    color: "#8155FF",
-    title: "Total Services",
-    value: "2.450",
-    growthRate: 2.59,
-  },
-  {
-    icon: (
-      <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
-        <Image src={customers} alt="Customers Icon" width={26} height={26} />
-      </div>
-    ),
-    color: "#18BFFF",
-    title: "Total Customers",
-    value: "3.465",
-    growthRate: -0.95,
-  },
-];
+const DataStatsOne: React.FC = () => {
+  // Select unpaidOrdersCount from the Redux store
+  const unpaidOrdersCount = useSelector((state: RootState) => state.orders.unpaidOrdersCount);
 
-const DataStatsOne: React.FC<dataStats> = () => {
+  // Data with the dynamically fetched unpaid orders count
+  const dataStatsList = [
+    {
+      icon: (
+        <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
+          <Image src={orders} alt="Orders Icon" width={26} height={26} />
+        </div>
+      ),
+      color: "#3FD97F",
+      title: "Pending Orders",
+      value: unpaidOrdersCount.toString(), // Use the unpaidOrdersCount from Redux
+      growthRate: 0.43,
+    },
+    {
+      icon: (
+        <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
+          <Image src={payments} alt="Payments Icon" width={26} height={26} />
+        </div>
+      ),
+      color: "#FF9C55",
+      title: "Total Payment",
+      value: "$42.2K",
+      growthRate: 4.35,
+    },
+    {
+      icon: (
+        <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
+          <Image src={services} alt="Services Icon" width={26} height={26} />
+        </div>
+      ),
+      color: "#8155FF",
+      title: "Total Services",
+      value: "2.450",
+      growthRate: 2.59,
+    },
+    {
+      icon: (
+        <div style={{ filter: "brightness(0) saturate(100%) invert(0%)" }}>
+          <Image src={customers} alt="Customers Icon" width={26} height={26} />
+        </div>
+      ),
+      color: "#18BFFF",
+      title: "Total Customers",
+      value: "3.465",
+      growthRate: -0.95,
+    },
+  ];
+
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-4 2xl:gap-7.5">
         {dataStatsList.map((item, index) => (
           <div
             key={index}
-            className="rounded-[10px] bg-white p-6 shadow-lg  dark:bg-gray-dark"
+            className="rounded-[10px] bg-white p-6 shadow-lg dark:bg-gray-dark"
           >
             <div
               className="flex h-14.5 w-14.5 items-center justify-center rounded-full"

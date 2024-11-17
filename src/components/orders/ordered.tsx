@@ -238,24 +238,31 @@ const Orderd = () => {
 
 
         {/* Order Status */}
-        <div className=" w-[250px] rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-3 dark:text-white">
-          <div className="text-2xl font-semibold">Order Status</div>
-          <div className="mt-4">Payment Status</div>
-          <button className="mt-4 h-[48px] w-[190px] rounded-lg border-2 border-[#FF2323] bg-[#FFCDCD] p-4 font-medium text-[#F70D1A]">
-            UnPaid
-          </button>
-          <div className="mt-6">Order Status</div>
-          <button className="mt-5 flex h-[48px] w-[190px] items-center justify-center border-2 border-[#FFFFFF] bg-[#000000] px-4 text-[#FFFFFF]">
-            <span>Processing</span>
-            <Image
-              className="ml-2"
-              src={circle}
-              alt="circle"
-              width={12}
-              height={12}
-            />
-          </button>
-        </div>
+        <div className="w-[250px] rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-3 dark:text-white">
+  <div className="text-2xl font-semibold">Order Status</div>
+  <div className="mt-4">Payment Status</div>
+  <button
+    className={`mt-4 h-[48px] w-[190px] rounded-lg border-2 p-4 font-medium ${
+      formData.status === "Paid"
+        ? "border-[#025826] bg-[#C3FFDA] text-[#025826]"
+        : "border-[#F70D1A] bg-[#FFCED1] text-[#F70D1A]"
+    }`}
+  >
+    {formData.status === "Paid" ? "Paid" : "Unpaid"}
+  </button>
+  <div className="mt-6">Order Status</div>
+  <button className="mt-5 flex h-[48px] w-[190px] items-center justify-center border-2 border-[#FFFFFF] bg-[#000000] px-4 text-[#FFFFFF]">
+    <span>Processing</span>
+    <Image
+      className="ml-2"
+      src={circle}
+      alt="circle"
+      width={12}
+      height={12}
+    />
+  </button>
+</div>
+
       </div>
     </div>
   );
