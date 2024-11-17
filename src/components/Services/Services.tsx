@@ -15,6 +15,7 @@ import { Switch } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+
 // Define the Service type
 type Service = {
   id: string;
