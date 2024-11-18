@@ -19,10 +19,7 @@ const Services = () => {
     dispatch(getService());
   }, [dispatch]);
 
-  const allservice = getAllServicers?.length;
 
-  console.log(allservice)
-  
   const router = useRouter();
   
   
@@ -30,25 +27,9 @@ const Services = () => {
     id: string;
     service: string;
     category: string;
-    price: string;
     isEnabled?: boolean;
   }
   
-  // const initialServices: Service[] = [
-  //   { id: 'Service #', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-  //   { id: 'Service #00143', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-  //   { id: 'Service #00144', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-  //   { id: 'Service #00145', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-  //   { id: 'Service #00146', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-  //   { id: 'Service #00147', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-  //   { id: 'Service #00148', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-  //   { id: 'Service #00149', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-  //   { id: 'Service #00110', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-
-    
-  // ];
-
-  // const [services, setServices] = useState(initialServices);
 
   const [services, setServices] = useState<Service[]>([]); // Initialize state for services
 
@@ -61,11 +42,10 @@ const Services = () => {
     if (getAllServicers) {
     
       const mappedServices = getAllServicers.map((item: any) => ({
-        id: item.id || "Service #",
-        service: item.service || "Default Service Name",
-        category: item.category || "Default Category",
-        price: item.price ? `$ ${item.price}` : "$ 0.00",
-        isEnabled: item.isEnabled !== undefined ? item.isEnabled : true,
+        id: item._id || "Service #",
+        service: item.name || "Default Service Name",
+        category: item.category_id || "Default Category",
+        isEnabled: item.timestamps !== undefined ? item.timestamps : true,
       }));
       setServices(mappedServices);
     }
@@ -78,7 +58,6 @@ const Services = () => {
       id: service.id,
       service: service.service,
       category: service.category,
-      price: service.price,
     }).toString();
     
     router.push(`/services/editServices?${queryParams}`);
@@ -184,7 +163,6 @@ const Services = () => {
               <th>ID</th>
               <th>SERVICE</th>
               <th>CATEGORY</th>
-              <th>PRICE</th>
               <th>EXP</th>
               <th>ACTION</th>
             </tr>
@@ -198,7 +176,6 @@ const Services = () => {
                 <td className="py-6 px-4 rounded-l-xl">{service.id}</td>
                 <td className="py-2 px-4">{service.service}</td>
                 <td className="py-2 px-4">{service.category}</td>
-                <td className="py-2 px-4">{service.price}</td>
                 <td className="">
                   <div className="flex justify-center">
                   <Switch
