@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Loader from "@/components/common/Loader";
 import { Provider } from "react-redux";
-import { store } from "./store";
+import { store } from "./store/store";
 
 interface ProvidersProps {
   children: React.ReactNode;

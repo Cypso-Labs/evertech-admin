@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "@/app/redux/hooks";
 import { getCustomer } from "@/app/redux/customerSlice";
 import { useEffect } from "react";
-import { AppDispatch, RootState } from "@/app/redux/store";
+import { AppDispatch, RootState } from "@/app/redux/store/store";
 
 
 

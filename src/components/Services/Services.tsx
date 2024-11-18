@@ -20,7 +20,7 @@ const Services = () => {
   }
   
   const initialServices: Service[] = [
-    { id: 'Service #00142', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
+    { id: 'Service #', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
     { id: 'Service #00143', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
     { id: 'Service #00144', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
     { id: 'Service #00145', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
