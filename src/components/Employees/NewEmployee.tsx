@@ -26,7 +26,6 @@ const initialFormData: EmployeeFormData = {
   join_date: "",
 };
 
-
 const NewEmployee = () => {
   const router = useRouter();
   const [registerEmployee] = useRegisterMutation();

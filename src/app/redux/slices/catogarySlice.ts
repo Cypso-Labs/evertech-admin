@@ -1,9 +1,14 @@
 "use client";
-
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store/store";
-import { BASE_URL } from "@/app/utils/apiConfig";
-// Types
+import {
+  fetchCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "../features/categoryApi";
+
+// Category Type Definition
 export interface Category {
   _id: string;
   name: string;
@@ -12,122 +17,25 @@ export interface Category {
   updatedAt?: string;
 }
 
+// Category State Definition
 interface CategoryState {
   categories: Category[];
   selectedCategory: Category | null;
   loading: "idle" | "pending" | "succeeded" | "failed";
   error: string | null;
+  deletingIds: string[];
 }
 
-// Helper function to get token
-const getToken = (state: RootState) => state.auth?.token;
-
-// Async Thunks
-export const fetchCategories = createAsyncThunk<
-  Category[],
-  void,
-  { rejectValue: string; state: RootState }
->("categories/fetchCategories", async (_, { getState, rejectWithValue }) => {
-  const token = getToken(getState());
-  if (!token) return rejectWithValue("No token provided");
-
-  try {
-    const response = await fetch(`${BASE_URL}/categories`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!response.ok) throw new Error("Failed to fetch categories");
-    return await response.json();
-  } catch (error) {
-    return rejectWithValue((error as Error).message);
-  }
-});
-
-export const createCategory = createAsyncThunk<
-  Category,
-  Omit<Category, "_id">,
-  { rejectValue: string; state: RootState }
->(
-  "categories/createCategory",
-  async (categoryData, { getState, rejectWithValue }) => {
-    const token = getToken(getState());
-    if (!token) return rejectWithValue("No token provided");
-
-    try {
-      const response = await fetch(`${BASE_URL}/categories`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(categoryData),
-      });
-
-      if (!response.ok) throw new Error("Failed to create category");
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
-  },
-);
-
-export const updateCategory = createAsyncThunk<
-  Category,
-  { id: string; data: Partial<Category> },
-  { rejectValue: string; state: RootState }
->(
-  "categories/updateCategory",
-  async ({ id, data }, { getState, rejectWithValue }) => {
-    const token = getToken(getState());
-    if (!token) return rejectWithValue("No token provided");
-
-    try {
-      const response = await fetch(`${BASE_URL}/categories/${id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error("Failed to update category");
-      return await response.json();
-    } catch (error) {
-      return rejectWithValue((error as Error).message);
-    }
-  },
-);
-
-export const deleteCategory = createAsyncThunk<
-  string,
-  string,
-  { rejectValue: string; state: RootState }
->("categories/deleteCategory", async (id, { getState, rejectWithValue }) => {
-  const token = getToken(getState());
-  if (!token) return rejectWithValue("No token provided");
-
-  try {
-    const response = await fetch(`${BASE_URL}/categories/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!response.ok) throw new Error("Failed to delete category");
-    return id;
-  } catch (error) {
-    return rejectWithValue((error as Error).message);
-  }
-});
-
-// Slice
+// Initial State
 const initialState: CategoryState = {
   categories: [],
   selectedCategory: null,
   loading: "idle",
   error: null,
+  deletingIds: [],
 };
 
+// Slice Definition
 const categorySlice = createSlice({
   name: "categories",
   initialState,
@@ -186,21 +94,25 @@ const categorySlice = createSlice({
         state.error = action.payload ?? "Failed to update category";
       })
       // Delete Category
-      .addCase(deleteCategory.pending, (state) => {
-        state.loading = "pending";
+      .addCase(deleteCategory.pending, (state, action) => {
+        state.deletingIds.push(action.meta.arg);
         state.error = null;
       })
       .addCase(deleteCategory.fulfilled, (state, action) => {
-        state.loading = "succeeded";
         state.categories = state.categories.filter(
-          (cat) => cat._id !== action.payload,
+          (cat) => cat._id !== action.payload.id,
         );
-        if (state.selectedCategory?._id === action.payload) {
+        state.deletingIds = state.deletingIds.filter(
+          (id) => id !== action.payload.id,
+        );
+        if (state.selectedCategory?._id === action.payload.id) {
           state.selectedCategory = null;
         }
       })
       .addCase(deleteCategory.rejected, (state, action) => {
-        state.loading = "failed";
+        state.deletingIds = state.deletingIds.filter(
+          (id) => id !== action.meta.arg,
+        );
         state.error = action.payload ?? "Failed to delete category";
       });
   },
@@ -208,5 +120,7 @@ const categorySlice = createSlice({
 
 // Actions
 export const { setSelectedCategory, clearError } = categorySlice.actions;
-export const selectCategory = (state: RootState) => state.roles;
+export const selectCategories = (state: RootState) => state.categories;
+
+// Export Reducer
 export default categorySlice.reducer;

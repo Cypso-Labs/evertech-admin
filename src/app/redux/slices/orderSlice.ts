@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../store/store";
 import { BASE_URL } from "@/app/utils/apiConfig";
 
-// Define OrderStatus as a union type for better type safety
+
 export type OrderStatus =
   | "placed"
   | "cancelled"

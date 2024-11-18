@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployees } from "../../app/redux/slices/employeeSlice";
+import { fetchEmployees } from "../../app/redux/features/employeeApi";
 import { fetchRoles } from "../../app/redux/slices/roleSlice";
 import { AppDispatch, RootState } from "../../app/redux/store/store";
 import { fetchOrders, OrderStatus } from "@/app/redux/slices/orderSlice";

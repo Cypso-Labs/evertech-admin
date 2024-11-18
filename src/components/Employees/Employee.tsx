@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchEmployees,
   deleteEmployee,
-} from "../../app/redux/slices/employeeSlice";
+} from "../../app/redux/features/employeeApi";
 import { AppDispatch, RootState } from "../../app/redux/store/store";
 import { fetchRoles } from "../../app/redux/slices/roleSlice";
 

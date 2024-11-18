@@ -11,14 +11,14 @@ import { AppDispatch, RootState } from "../../app/redux/store/store";
 import {
   fetchCategories,
   deleteCategory,
-  Category,
-} from "../../app/redux/slices/catogarySlice";
+} from "../../app/redux/features/categoryApi";
+import { Category } from "@/app/redux/slices/catogarySlice";
 import { fetchServices } from "@/app/redux/slices/serviceSlice";
 
 const Categories = () => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const { categories, loading } = useSelector(
+  const { categories, loading, deletingIds } = useSelector(
     (state: RootState) => state.categories,
   );
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,7 +37,11 @@ const Categories = () => {
   const handleDelete = async (categoryId: string, e: React.MouseEvent) => {
     e.stopPropagation();
 
-    // Show confirmation dialog using SweetAlert2
+    // Check if already deleting
+    if (deletingIds.includes(categoryId)) {
+      return;
+    }
+
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -49,11 +53,9 @@ const Categories = () => {
       cancelButtonText: "Cancel",
     });
 
-    // If user confirms deletion
     if (result.isConfirmed) {
       try {
         await dispatch(deleteCategory(categoryId)).unwrap();
-        // Show success message
         await Swal.fire({
           title: "Deleted!",
           text: "Category has been deleted successfully.",
@@ -61,10 +63,12 @@ const Categories = () => {
           timer: 1500,
         });
       } catch (error) {
-        // Show error message if deletion fails
         await Swal.fire({
           title: "Error!",
-          text: "Failed to delete the category.",
+          text:
+            typeof error === "string"
+              ? error
+              : "Failed to delete the category.",
           icon: "error",
         });
         console.error("Failed to delete category:", error);
@@ -72,18 +76,24 @@ const Categories = () => {
     }
   };
 
-  // Filter categories based on search input
   const filteredCategories =
-    categories?.filter(
-      (category) =>
-        category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        category.description
-          ?.toLowerCase()
-          .includes(searchTerm.toLowerCase()) ||
-        category._id.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) ?? [];
+    categories?.filter((category) => {
+      if (!searchTerm) return true;
 
-  // Pagination logic
+      const searchTermLower = searchTerm.toLowerCase();
+      const nameMatch = category.name
+        ? category.name.toLowerCase().includes(searchTermLower)
+        : false;
+      const descriptionMatch = category.description
+        ? category.description.toLowerCase().includes(searchTermLower)
+        : false;
+      const idMatch = category._id
+        ? category._id.toLowerCase().includes(searchTermLower)
+        : false;
+
+      return nameMatch || descriptionMatch || idMatch;
+    }) ?? [];
+
   const indexOfLastCategory = currentPage * itemsPerPage;
   const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
   const currentCategories = filteredCategories.slice(
@@ -102,52 +112,54 @@ const Categories = () => {
 
   const getServiceNameByCategoryId = (categoryId: string) => {
     const service = categories.find((category) => category._id === categoryId);
-    return service ? service.name : "Unknown Service";
+    return service?.name || "Unknown Service";
   };
 
   return (
     <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-8 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="flex items-center text-4xl font-medium text-slate-600 dark:text-white">
+          <h1 className="flex items-center text-4xl font-medium text-slate-700 dark:text-white">
             <Link href="/services">
-              <IoIosArrowDropleft className="h-10 w-10 cursor-pointer hover:text-blue-500" />
+              <IoIosArrowDropleft className="h-10 w-10 transform cursor-pointer transition-transform duration-200 hover:scale-110 hover:text-blue-500" />
             </Link>
             Categories
           </h1>
         </div>
         <Link href="/services/category/newCategory">
-          <button className="rounded-md bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600">
+          <button className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-2.5 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-600 hover:to-blue-700 hover:shadow-blue-200 dark:hover:shadow-blue-900">
             New Category +
           </button>
         </Link>
       </div>
 
       <div className="mb-10 flex space-x-4">
-        <div className="relative">
+        <div className="relative w-full max-w-md">
           <input
             type="text"
             placeholder="Search Categories"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-10 w-64 rounded-md border pl-10 pr-4 focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            className="h-12 w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-blue-900"
           />
-          <FiSearch className="absolute left-3 top-3 text-gray-400" />
+          <FiSearch className="absolute left-4 top-4 text-gray-400" />
         </div>
       </div>
 
       {loading === "pending" ? (
-        <div className="py-4 text-center">Loading...</div>
+        <div className="flex h-40 items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-separate border-spacing-y-3">
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <table className="w-full border-separate border-spacing-y-2">
             <thead>
-              <tr className="text-center text-lg font-bold text-slate-600 dark:text-white">
-                <th className="px-4">ID</th>
-                <th className="px-4">Service</th>
-                <th className="px-4">Name</th>
-                <th className="px-4">Description</th>
-                <th className="px-4">Action</th>
+              <tr className="bg-gray-50 text-left text-lg font-semibold text-slate-700 dark:bg-slate-800 dark:text-white">
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Service</th>
+                <th className="px-6 py-4">Name</th>
+                <th className="px-6 py-4">Description</th>
+                <th className="px-6 py-4 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -155,45 +167,52 @@ const Categories = () => {
                 <tr
                   key={category._id}
                   onClick={() => handleRowClick(category)}
-                  className="cursor-pointer bg-white transition-colors hover:bg-blue-100 dark:bg-[#122031] dark:hover:bg-blue-800"
+                  className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
-                  <td className="px-4 py-2 text-center">
-                    Category #{category._id.slice(-5)}
+                  <td className="px-6 py-4">
+                    Category #{category._id?.slice(-5) ?? "N/A"}
                   </td>
-                  <td className="px-4 py-2 text-center">
+                  <td className="px-6 py-4">
                     {getServiceNameByCategoryId(category._id)}
                   </td>
-                  <td className="px-4 py-2 text-center">{category.name}</td>
-                  <td className="px-4 py-2 text-center">
-                    {category.description}
-                  </td>
-                  <td className="px-4 py-2 text-center">
+                  <td className="px-6 py-4">{category.name ?? "N/A"}</td>
+                  <td className="px-6 py-4">{category.description ?? "N/A"}</td>
+                  <td className="px-6 py-4 text-center">
                     <button
-                      className="text-red-500 transition-colors hover:text-red-700"
+                      className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
+                        deletingIds.includes(category._id)
+                          ? "cursor-not-allowed opacity-50"
+                          : ""
+                      }`}
                       onClick={(e) => handleDelete(category._id, e)}
+                      disabled={deletingIds.includes(category._id)}
                     >
-                      <FiTrash2 size={20} />
+                      {deletingIds.includes(category._id) ? (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                      ) : (
+                        <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600" />
+                      )}
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="mt-4 flex items-center justify-center gap-4">
+          <div className="mt-6 flex items-center justify-center gap-4 pb-4">
             <button
               onClick={handlePreviousPage}
               disabled={currentPage === 1}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-2.5 text-slate-700 shadow-sm transition-all duration-200 hover:scale-105 hover:from-gray-100 hover:to-gray-200 disabled:cursor-not-allowed disabled:opacity-50 dark:from-slate-700 dark:to-slate-800 dark:text-white dark:hover:from-slate-600 dark:hover:to-slate-700"
             >
               Previous
             </button>
-            <span className="text-slate-600 dark:text-white">
+            <span className="text-lg font-medium text-slate-600 dark:text-white">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={handleNextPage}
               disabled={currentPage === totalPages}
-              className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-300"
+              className="rounded-lg bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-2.5 text-slate-700 shadow-sm transition-all duration-200 hover:scale-105 hover:from-gray-100 hover:to-gray-200 disabled:cursor-not-allowed disabled:opacity-50 dark:from-slate-700 dark:to-slate-800 dark:text-white dark:hover:from-slate-600 dark:hover:to-slate-700"
             >
               Next
             </button>
