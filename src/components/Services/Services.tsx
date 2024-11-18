@@ -6,8 +6,23 @@ import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi"
 import { Switch } from '@headlessui/react'
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
+import { useAppDispatch, useAppSelector } from "@/app/redux/hooks";
+import { AppDispatch, RootState } from "@/app/redux/store/store";
+import { getService } from "@/app/redux/serviceSlice"
+import { useEffect } from "react"
 const Services = () => {
 
+  const dispatch: AppDispatch = useAppDispatch();
+  const getAllServicers = useAppSelector((state: RootState) => state.servicers.data);
+
+  useEffect(() => {
+    dispatch(getService());
+  }, [dispatch]);
+
+  const allservice = getAllServicers?.length;
+
+  console.log(allservice)
+  
   const router = useRouter();
   
   
@@ -19,26 +34,42 @@ const Services = () => {
     isEnabled?: boolean;
   }
   
-  const initialServices: Service[] = [
-    { id: 'Service #', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-    { id: 'Service #00143', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-    { id: 'Service #00144', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-    { id: 'Service #00145', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-    { id: 'Service #00146', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-    { id: 'Service #00147', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-    { id: 'Service #00148', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-    { id: 'Service #00149', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-    { id: 'Service #00110', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
+  // const initialServices: Service[] = [
+  //   { id: 'Service #', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
+  //   { id: 'Service #00143', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
+  //   { id: 'Service #00144', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
+  //   { id: 'Service #00145', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
+  //   { id: 'Service #00146', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
+  //   { id: 'Service #00147', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
+  //   { id: 'Service #00148', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
+  //   { id: 'Service #00149', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
+  //   { id: 'Service #00110', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
 
     
-  ];
+  // ];
 
-  const [services, setServices] = useState(initialServices);
+  // const [services, setServices] = useState(initialServices);
+
+  const [services, setServices] = useState<Service[]>([]); // Initialize state for services
+
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
  
+  useEffect(() => {
+    if (getAllServicers) {
+    
+      const mappedServices = getAllServicers.map((item: any) => ({
+        id: item.id || "Service #",
+        service: item.service || "Default Service Name",
+        category: item.category || "Default Category",
+        price: item.price ? `$ ${item.price}` : "$ 0.00",
+        isEnabled: item.isEnabled !== undefined ? item.isEnabled : true,
+      }));
+      setServices(mappedServices);
+    }
+  }, [getAllServicers]);
 
   
    // Handle row click and route to another page
