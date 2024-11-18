@@ -1,10 +1,12 @@
 "use client";
 import { configureStore } from '@reduxjs/toolkit'
 import userReducer from '../customerSlice'
+import serviceReducer from '../serviceSlice'
 
 export const store = configureStore({
   reducer: {
-    user:userReducer
+    user:userReducer,
+    servicers:serviceReducer
   },
 })
 
