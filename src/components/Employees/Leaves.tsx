@@ -29,7 +29,6 @@ const Leaves = () => {
     Reason: "",
   });
 
-  
   const initialLeaveData: Leave[] = [
     {id: "1", date: "01", Type: "Leaves", Reason: "Sit Amet Consectetur Sit"},
     {id: "2", date: "01", Type: "Leaves", Reason: "Sit Amet Consectetur Sit"},
@@ -41,7 +40,7 @@ const Leaves = () => {
   const [leaves, setLeaves] = useState<Leave[]>(initialLeaveData);
 
   useEffect(() => {
-    // Check if searchParams exists and then get values
+   
     const id = searchParams?.get("id");
     const service = searchParams?.get("service");
     
@@ -54,7 +53,6 @@ const Leaves = () => {
     }
   }, [searchParams]);
 
-  // Rest of the component remains the same...
   const handleDelete = (leaveId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setLeaves((prevLeaves) => prevLeaves.filter((leave) => leave.id !== leaveId));
@@ -62,7 +60,6 @@ const Leaves = () => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Add form submission logic here
   };
 
   const handleInputChange = (
@@ -86,7 +83,7 @@ const Leaves = () => {
 
   return (
     <div className="p-6">
-      {/* Header */}
+   
       <div className="mb-20 flex items-center">
         <Link href="/employees/editeEmployee" className="mr-4">
           <IoIosArrowDropleft className="h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
@@ -96,9 +93,9 @@ const Leaves = () => {
         </h1>
       </div>
 
-      {/* Main Content */}
+    
       <div className="grid grid-cols-2 gap-6">
-        {/* Left Panel - Apply For Leaves */}
+      
         <div className="rounded-xl bg-white dark:bg-[#122031] p-6 shadow-sm">
           <h2 className="mb-8 text-[20px] font-medium text-slate-500 dark:text-white" style={{ fontFamily: "Inter" }}>
             Apply For Leaves
@@ -165,8 +162,6 @@ const Leaves = () => {
             </div>
           </form>
         </div>
-
-        {/* Right Panel - Leave History */}
         <div className="rounded-xl bg-white p-6 shadow-sm dark:bg-[#122031] dark:text-white">
           <h2 className="mb-8 text-[20px] font-medium text-slate-500 dark:text-white" style={{ fontFamily: "Inter" }}>
             Leave History

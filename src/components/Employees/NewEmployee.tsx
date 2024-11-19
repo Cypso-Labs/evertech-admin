@@ -4,32 +4,27 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { useRegisterMutation } from "../../app/redux/features/authApi";
+import { useRegisterMutation } from "../../app/redux/features/authApiSlice";
+import { Employee } from "@/types";
 
-interface EmployeeFormData {
-  _id: string;
-  name: string;
-  role: string;
-  contact: string;
-  address: string;
-  gender: string;
-  join_date: string;
-}
-
-const initialFormData: EmployeeFormData = {
-  _id: "",
-  name: "",
-  role: "",
+const initialFormData: Employee = {
+  _id: " ",
+  name: " ",
+  address: " ",
+  gender: " ",
+  age: " ",
+  join_date: new Date(),
+  email: "",
   contact: "",
-  address: "",
-  gender: "",
-  join_date: "",
-};
+  username: "",
+  password: "",
+  role: "",
+}
 
 const NewEmployee = () => {
   const router = useRouter();
   const [registerEmployee] = useRegisterMutation();
-  const [formData, setFormData] = useState<EmployeeFormData>(initialFormData);
+  const [formData, setFormData] = useState<Employee>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
@@ -43,7 +38,6 @@ const NewEmployee = () => {
     e.preventDefault();
     if (isSubmitting) return;
 
-    // Basic form validation
     const requiredFields = [
       "name",
       "role",
@@ -53,7 +47,7 @@ const NewEmployee = () => {
       "join_date",
     ];
     const missingFields = requiredFields.filter(
-      (field) => !formData[field as keyof EmployeeFormData],
+      (field) => !formData[field as keyof Employee],
     );
 
     if (missingFields.length > 0) {
@@ -231,12 +225,12 @@ const NewEmployee = () => {
               value={formData.role}
               options={ROLES}
             />
-            <FormField
-              label="Contact"
-              name="contact"
-              type="tel"
-              value={formData.contact}
-            />
+           <FormField
+             label="Contact"
+             name="contact"
+             type="tel"
+             value={formData.contact ?? ''}
+           />
           </div>
 
           <div className="space-y-6">
@@ -258,7 +252,7 @@ const NewEmployee = () => {
               label="Join Date"
               name="join_date"
               type="date"
-              value={formData.join_date}
+              value={formData.join_date.toISOString().slice(0, 10)}
             />
 
             <div className="flex justify-end space-x-4">

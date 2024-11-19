@@ -42,8 +42,7 @@ export default function EditService() {
     e.preventDefault()
     
     try {
-      // Here you would typically make your API call to update the service
-      // await updateService(formData);
+     
       
       await Swal.fire({
         title: 'Success!',

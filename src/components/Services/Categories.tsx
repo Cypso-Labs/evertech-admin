@@ -1,34 +1,27 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { FiSearch, FiTrash2 } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
-import { useDispatch, useSelector } from "react-redux";
 import Swal from "sweetalert2";
-import { AppDispatch, RootState } from "../../app/redux/store/store";
 import {
-  fetchCategories,
-  deleteCategory,
-} from "../../app/redux/features/categoryApi";
-import { Category } from "@/app/redux/slices/catogarySlice";
-import { fetchServices } from "@/app/redux/slices/serviceSlice";
+  useGetAllCategoriesQuery,
+  useDeleteCategoryMutation,
+} from "../../app/redux/features/categoryApiSlice";
+import type { Category } from "@/types"; 
 
 const Categories = () => {
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
-  const { categories, loading, deletingIds } = useSelector(
-    (state: RootState) => state.categories,
-  );
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  useEffect(() => {
-    dispatch(fetchCategories());
-    dispatch(fetchServices());
-  }, [dispatch]);
+  const { data: categories = [], isLoading: loading } =
+    useGetAllCategoriesQuery();
+  const [deleteCategory, { isLoading: isDeleting }] =
+    useDeleteCategoryMutation();
 
   const handleRowClick = (category: Category) => {
     router.push(`/services/category/editCategory?id=${category._id}`);
@@ -36,11 +29,6 @@ const Categories = () => {
 
   const handleDelete = async (categoryId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-
-    // Check if already deleting
-    if (deletingIds.includes(categoryId)) {
-      return;
-    }
 
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -55,7 +43,7 @@ const Categories = () => {
 
     if (result.isConfirmed) {
       try {
-        await dispatch(deleteCategory(categoryId)).unwrap();
+        await deleteCategory(categoryId).unwrap();
         await Swal.fire({
           title: "Deleted!",
           text: "Category has been deleted successfully.",
@@ -76,23 +64,16 @@ const Categories = () => {
     }
   };
 
-  const filteredCategories =
-    categories?.filter((category) => {
-      if (!searchTerm) return true;
+  const filteredCategories = categories.filter((category) => {
+    if (!searchTerm) return true;
 
-      const searchTermLower = searchTerm.toLowerCase();
-      const nameMatch = category.name
-        ? category.name.toLowerCase().includes(searchTermLower)
-        : false;
-      const descriptionMatch = category.description
-        ? category.description.toLowerCase().includes(searchTermLower)
-        : false;
-      const idMatch = category._id
-        ? category._id.toLowerCase().includes(searchTermLower)
-        : false;
-
-      return nameMatch || descriptionMatch || idMatch;
-    }) ?? [];
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      category.name?.toLowerCase().includes(searchTermLower) ||
+      category.description?.toLowerCase().includes(searchTermLower) ||
+      category._id?.toLowerCase().includes(searchTermLower)
+    );
+  });
 
   const indexOfLastCategory = currentPage * itemsPerPage;
   const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
@@ -111,8 +92,8 @@ const Categories = () => {
   };
 
   const getServiceNameByCategoryId = (categoryId: string) => {
-    const service = categories.find((category) => category._id === categoryId);
-    return service?.name || "Unknown Service";
+    const category = categories.find((cat) => cat._id === categoryId);
+    return category?.name || "Unknown Service";
   };
 
   return (
@@ -146,7 +127,7 @@ const Categories = () => {
         </div>
       </div>
 
-      {loading === "pending" ? (
+      {loading ? (
         <div className="flex h-40 items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
         </div>
@@ -180,14 +161,12 @@ const Categories = () => {
                   <td className="px-6 py-4 text-center">
                     <button
                       className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
-                        deletingIds.includes(category._id)
-                          ? "cursor-not-allowed opacity-50"
-                          : ""
+                        isDeleting ? "cursor-not-allowed opacity-50" : ""
                       }`}
                       onClick={(e) => handleDelete(category._id, e)}
-                      disabled={deletingIds.includes(category._id)}
+                      disabled={isDeleting}
                     >
-                      {deletingIds.includes(category._id) ? (
+                      {isDeleting ? (
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
                       ) : (
                         <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600" />

@@ -5,17 +5,13 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { useDispatch, useSelector } from "react-redux";
-import { updateCategory } from "../../app/redux/features/categoryApi";
-import { RootState, AppDispatch } from "../../app/redux/store/store";
+import { useUpdateCategoryMutation } from "../../app/redux/features/categoryApiSlice";
 
 const EditCategory = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector(
-    (state: RootState) => state.categories,
-  );
+
+  const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
   const [formData, setFormData] = useState({
     id: "",
@@ -25,15 +21,18 @@ const EditCategory = () => {
   });
 
   useEffect(() => {
-    if (searchParams) {
+    const categoryId = searchParams.get("id");
+    if (categoryId) {
       setFormData({
-        id: searchParams.get("id") || "",
+        id: categoryId,
         service: searchParams.get("service") || "",
         category: searchParams.get("category") || "",
         description: searchParams.get("description") || "",
       });
+    } else {
+      router.push("/services/category"); 
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -44,16 +43,22 @@ const EditCategory = () => {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!formData.category || !formData.description) {
+      return Swal.fire({
+        title: "Error!",
+        text: "Please fill out all fields.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+
     try {
-      const result = await dispatch(
-        updateCategory({
-          id: formData.id,
-          data: {
-            name: formData.category,
-            description: formData.description,
-          },
-        }),
-      ).unwrap();
+      const result = await updateCategory({
+        id: formData.id,
+        name: formData.category,
+        description: formData.description,
+      }).unwrap();
 
       await Swal.fire({
         title: "Success!",
@@ -67,11 +72,11 @@ const EditCategory = () => {
       });
 
       router.push("/services/category");
-    } catch (error) {
+    } catch (error: any) {
       Swal.fire({
         title: "Error!",
         text:
-          error?.toString() ||
+          error?.data?.message ||
           "Something went wrong while editing the category",
         icon: "error",
         confirmButtonText: "OK",
@@ -127,6 +132,7 @@ const EditCategory = () => {
               name="category"
               value={formData.category}
               onChange={handleChange}
+              disabled={isLoading}
               className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
             />
           </div>
@@ -140,6 +146,7 @@ const EditCategory = () => {
               value={formData.description}
               onChange={handleChange}
               rows={4}
+              disabled={isLoading}
               className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
             />
           </div>
@@ -150,23 +157,14 @@ const EditCategory = () => {
               onClick={handleCancel}
               className="group relative flex h-12 w-32 items-center justify-center rounded-lg bg-red-100 text-lg font-medium text-red-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-red-600 hover:text-white dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
             >
-              <span className="absolute inset-0 transform transition-transform duration-200 group-hover:scale-105"></span>
               Discard
             </button>
             <button
               type="submit"
-              disabled={loading === "pending"}
+              disabled={isLoading}
               className="group relative flex h-12 w-32 items-center justify-center rounded-lg bg-green-100 text-lg font-medium text-green-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-green-600 hover:text-white dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white"
             >
-              <span className="absolute inset-0 transform transition-transform duration-200 group-hover:scale-105"></span>
-              {loading === "pending" ? (
-                <div className="flex items-center space-x-2">
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                  <span>Saving...</span>
-                </div>
-              ) : (
-                "Save"
-              )}
+              {isLoading ? "Saving..." : "Save"}
             </button>
           </div>
         </form>

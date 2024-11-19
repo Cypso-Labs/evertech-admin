@@ -5,9 +5,7 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { useAppDispatch, useAppSelector } from "../../app/redux/hooks";
-import { createCategory } from "../../app/redux/features/categoryApi";
-import { RootState } from "../../app/redux/store/store";
+import { useCreateCategoryMutation } from "../../app/redux/features/categoryApiSlice"; 
 
 interface FormData {
   categoryName: string;
@@ -16,8 +14,7 @@ interface FormData {
 
 const NewCategories = () => {
   const router = useRouter();
-  const dispatch = useAppDispatch();
-  const { loading } = useAppSelector((state: RootState) => state.categories);
+  const [createCategory, { isLoading }] = useCreateCategoryMutation(); 
 
   const [formData, setFormData] = useState<FormData>({
     categoryName: "",
@@ -38,12 +35,11 @@ const NewCategories = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const result = await dispatch(
-        createCategory({
-          name: formData.categoryName.trim(),
-          description: formData.categoryDescription.trim(),
-        }),
-      ).unwrap();
+
+      const result = await createCategory({
+        name: formData.categoryName.trim(),
+        description: formData.categoryDescription.trim(),
+      }).unwrap();
 
       await Swal.fire({
         title: "Success!",
@@ -54,16 +50,17 @@ const NewCategories = () => {
           popup: "dark:bg-slate-800 dark:text-white",
         },
       });
-
+  
       setFormData({
         categoryName: "",
         categoryDescription: "",
       });
       router.replace("/services/category");
     } catch (error: any) {
+
       Swal.fire({
         title: "Error",
-        text: error || "An error occurred during category creation",
+        text: error?.message || "An error occurred during category creation",
         icon: "error",
         confirmButtonColor: "#FF2323",
         customClass: {
@@ -116,8 +113,8 @@ const NewCategories = () => {
               onChange={handleChange}
               className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
               required
-              disabled={loading === "pending"}
-              aria-disabled={loading === "pending"}
+              disabled={isLoading}
+              aria-disabled={isLoading}
               placeholder="Enter category name"
             />
           </div>
@@ -133,8 +130,8 @@ const NewCategories = () => {
               rows={4}
               className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
               required
-              disabled={loading === "pending"}
-              aria-disabled={loading === "pending"}
+              disabled={isLoading}
+              aria-disabled={isLoading}
               placeholder="Enter category description"
             />
           </div>
@@ -150,11 +147,11 @@ const NewCategories = () => {
             </button>
             <button
               type="submit"
-              disabled={loading === "pending"}
+              disabled={isLoading}
               className="group relative flex h-12 w-48 items-center justify-center rounded-lg bg-green-100 text-lg font-medium text-green-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-green-600 hover:text-white disabled:cursor-not-allowed disabled:opacity-60 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white"
             >
               <span className="absolute inset-0 transform transition-transform duration-200 group-hover:scale-105"></span>
-              {loading === "pending" ? (
+              {isLoading ? (
                 <div className="flex items-center space-x-2">
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
                   <span>Creating...</span>

@@ -23,7 +23,6 @@ const NewRole = () => {
     roleName: "",
   });
 
-  // Handle input changes
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -34,13 +33,10 @@ const NewRole = () => {
     }));
   };
 
-  
-  // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Show success alert
       await Swal.fire({
         title: "Success!",
         text: "Role has been created successfully",
@@ -53,8 +49,6 @@ const NewRole = () => {
             "bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]",
         },
       });
-
-      // Reset form or redirect
       setFormData({
         roleID: "",
         roleName: "",
@@ -74,7 +68,6 @@ const NewRole = () => {
     }
   };
 
-  // Handle cancel
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -110,7 +103,6 @@ const NewRole = () => {
       </div>
 
       <form className="w-1/2 space-y-6" onSubmit={handleSubmit}>
-        {/* Role ID */}
         <div className="grid grid-cols-2 items-center space-y-4 ">
           <label
             className="block text-[24px] font-medium text-gray-500 dark:text-white"
@@ -128,7 +120,6 @@ const NewRole = () => {
           />
         </div>
 
-        {/* Role Name */}
         <div className="grid grid-cols-2 items-center space-y-4 ">
           <label
             className="block text-[24px] font-medium text-gray-500 dark:text-white"
@@ -146,15 +137,12 @@ const NewRole = () => {
         </div>
             
 
-
-        {/* Access Privileges */}
-
         <div className="space-y-14 ">  <h1 className="text-[#475569] dark:text-white text-[26px] font-medium mt-20" style={{ font: "Inter" }}>Access Privileges</h1>
         
         
         <div className="grid grid-cols-2 gap-22  ">
            <div className="grid space-y-6">
-            {/* Privilege 1 */}
+
           <div className=" flex gap-20  ">
             <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -177,7 +165,6 @@ const NewRole = () => {
             </button>
           </div>
 
-            {/* Privilege 2 */}
             <div className=" flex gap-20 ">
             <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -200,7 +187,6 @@ const NewRole = () => {
             </button>
           </div>
 
-            {/* Privilege 3 */}
             <div className=" flex gap-20 ">
             <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -227,7 +213,6 @@ const NewRole = () => {
 
 
           <div className="grid space-y-6">
-            {/* Privilege 4 */}
             <div className="flex gap-20 ">
             <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -249,8 +234,6 @@ const NewRole = () => {
               ></div>
             </button>
             </div>
-
-            {/* Privilege 5 */}
             <div className="flex gap-20 ">
             <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -272,8 +255,6 @@ const NewRole = () => {
               ></div>
             </button>
             </div>
-
-            {/* Privilege 6 */}
             <div className="flex gap-20 ">
             <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -304,7 +285,6 @@ const NewRole = () => {
 
         
         <div className="ml-20 flex justify-end space-x-4">
-          {/* Discard Button */}
           <button
             type="button"
             onClick={handleCancel}
@@ -312,7 +292,6 @@ const NewRole = () => {
           >
             Discard
           </button>
-          {/* Create Role Button */}
           <button
             type="submit"
             className="h-[40px] w-[150px] rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"

@@ -13,7 +13,7 @@ interface FormData {
 
 const EditService = () => {
    const router = useRouter()
-  // State for form data
+
   const [formData, setFormData] = useState<FormData>({
     serviceName: '',
     category: '',
@@ -21,7 +21,6 @@ const EditService = () => {
     price: ''
   });
 
-  // Handle input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -30,15 +29,11 @@ const EditService = () => {
     }));
   };
 
-  // Handle form submission
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     try {
-      // Here you would typically make your API call to create the service
-      // await createService(formData);
-      
-      // Show success alert
       await Swal.fire({
         title: 'Success!',
         text: 'Service has been created successfully',
@@ -50,8 +45,6 @@ const EditService = () => {
           confirmButton: 'bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]'
         }
       });
-
-      // Reset form or redirect
       setFormData({
         serviceName: '',
         category: '',
@@ -72,8 +65,6 @@ const EditService = () => {
       });
     }
   };
-
-  // Handle cancel
   const handleCancel = () => {
     Swal.fire({
       title: 'Are you sure?',
@@ -142,7 +133,6 @@ const EditService = () => {
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           >
             <option value="">Select Category</option>
-            {/* Add your category options here */}
           </select>
         </div>
 

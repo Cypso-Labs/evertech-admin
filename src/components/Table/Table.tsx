@@ -1,102 +1,91 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
+import Link from "next/link";
 import { MdKeyboardDoubleArrowRight } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployees } from "../../app/redux/features/employeeApi";
-import { fetchRoles } from "../../app/redux/slices/roleSlice";
-import { AppDispatch, RootState } from "../../app/redux/store/store";
-import { fetchOrders, OrderStatus } from "@/app/redux/slices/orderSlice";
+import { useDispatch } from "react-redux";
+import { useGetAllOrdersQuery } from "@/app/redux/features/orderApiSlice";
+import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
+import { useGetAllEmployeesQuery } from "@/app/redux/features/employeeApiSlice";
+import { Order, Employee, Role } from "@/types";
 
-const Table = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { entities: employees, loading: employeeLoading } = useSelector(
-    (state: RootState) => state.employees,
-  );
-  const { roles, loading: roleLoading } = useSelector(
-    (state: RootState) => state.roles,
-  );
+const TablePage = () => {
+  const dispatch = useDispatch();
+
   const {
-    orders,
-    loading: orderLoading,
-    error,
-  } = useSelector((state: RootState) => state.orders);
+    data: ordersData,
+    isLoading: isOrdersLoading,
+    isError: isOrdersError,
+  } = useGetAllOrdersQuery();
+  const {
+    data: rolesData,
+    isLoading: isRolesLoading,
+    isError: isRolesError,
+  } = useGetAllRolesQuery();
+  const {
+    data: employeesData,
+    isLoading: isEmployeesLoading,
+    isError: isEmployeesError,
+  } = useGetAllEmployeesQuery();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await Promise.all([
-          dispatch(fetchEmployees()).unwrap(),
-          dispatch(fetchRoles()).unwrap(),
-          dispatch(fetchOrders()).unwrap(),
-        ]);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+  const getStatusColor = (status: string) => {
+    const statusStyles: { [key: string]: string } = {
+      placed: "border border-[#B48701] text-[#B48701]",
+      cancelled: "border border-[#FF0404] text-[#FF0404]",
+      processing: "border border-[#FF6A00] text-[#FF6A00]",
+      processed: "border border-[#3F9C50] text-[#3F9C50]",
+      delivered: "border border-[#002BFF] text-[#002BFF]",
     };
-
-    fetchData();
-  }, [dispatch]);
-
-  const getStatusColor = (status: OrderStatus): string => {
-    switch (status) {
-      case "placed":
-        return "border border-[#B48701] text-[#B48701] px-3 py-1";
-      case "cancelled":
-        return "border border-[#FF0404] text-[#FF0404] px-2 py-1";
-      case "processing":
-        return "border border-[#FF6A00] text-[#FF6A00] px-2 py-1";
-      case "processed":
-        return "border border-[#3F9C50] text-[#3F9C50] px-2 py-1";
-      case "delivered":
-        return "border border-[#002BFF] text-[#002BFF] px-3 py-1";
-    }
+    return statusStyles[status] || "border border-gray-300 text-gray-500";
   };
+
+  if (isOrdersLoading || isEmployeesLoading || isRolesLoading) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (isOrdersError || isEmployeesError || isRolesError) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="rounded-lg bg-red-50 p-6 text-center dark:bg-red-900/30">
+          <h2 className="text-xl font-semibold text-red-700 dark:text-red-400">
+            Error Loading Data
+          </h2>
+          <p className="mt-2 text-red-600 dark:text-red-300">
+            There was an issue loading the data.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const displayedOrders = ordersData?.slice(0, 5);
+  const displayedEmployees = Array.isArray(employeesData)
+    ? employeesData.slice(0, 5)
+    : [];
 
   const getRoleName = (roleId: string) => {
-    const role = roles.find((role) => role._id === roleId);
-    return role ? role.name : "Unknown Role";
+    if (!rolesData) return "Unknown";
+    const role = rolesData.find((role: Role) => role._id === roleId);
+    return role ? role.name : "Unknown";
   };
-
-  const displayedEmployees = employees.slice(0, 5);
-  const displayedOrders = [...orders].reverse().slice(0, 5);
-
-  if (
-    orderLoading === "pending" ||
-    employeeLoading === "pending" ||
-    roleLoading === "pending"
-  ) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-lg text-gray-600 dark:text-gray-300">Loading...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <p className="text-lg text-red-500">Error: {error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-      {/* Orders Table */}
       <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-[#122031]">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-medium text-gray-700 dark:text-white">
-              Latest Orders
-            </h2>
-            <a
-              href="/orders"
-              className="flex items-center gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              View all
-              <MdKeyboardDoubleArrowRight className="h-5 w-5" />
-            </a>
-          </div>
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-medium text-gray-700 dark:text-white">
+            Latest Orders
+          </h2>
+          <Link
+            href="/orders"
+            className="flex items-center gap-1 text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            View all
+            <MdKeyboardDoubleArrowRight className="h-5 w-5" />
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
@@ -114,46 +103,44 @@ const Table = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {displayedOrders.map((order) => (
-                <tr
-                  key={order._id}
-                  className="group hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                >
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                    {order.order_id}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                    {order.unit_price}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm">
-                    <span
-                      className={`inline-flex rounded-md ${getStatusColor(order.status)}`}
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {displayedOrders &&
+                displayedOrders.map((order, index) => (
+                  <tr
+                    key={order._id}
+                    className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  >
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                      {index + 1}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                      ${order.unit_price}
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <span
+                        className={`rounded-md ${getStatusColor(order.status)}`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Employees Table */}
       <div className="rounded-lg bg-white p-6 shadow-lg dark:bg-[#122031]">
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-medium text-gray-700 dark:text-white">
-              Employees
-            </h2>
-            <a
-              href="/employees"
-              className="flex items-center gap-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              View all
-              <MdKeyboardDoubleArrowRight className="h-5 w-5" />
-            </a>
-          </div>
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-medium text-gray-700 dark:text-white">
+            Employees
+          </h2>
+          <Link
+            href="/employees"
+            className="flex items-center gap-1 text-gray-500 transition-colors hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            View all
+            <MdKeyboardDoubleArrowRight className="h-5 w-5" />
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full table-auto">
@@ -171,22 +158,23 @@ const Table = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {displayedEmployees.map((employee) => (
-                <tr
-                  key={employee._id}
-                  className="group hover:bg-gray-50 dark:hover:bg-gray-800/50"
-                >
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                    {employee._id.slice(-5)}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                    {employee.name}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                    {getRoleName(employee.role)}
-                  </td>
-                </tr>
-              ))}
+              {displayedEmployees &&
+                displayedEmployees.map((employee) => (
+                  <tr
+                    key={employee._id}
+                    className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                  >
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                      {employee._id.slice(-5)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                      {employee.name}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
+                      {getRoleName(employee.role)}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
@@ -195,4 +183,4 @@ const Table = () => {
   );
 };
 
-export default Table;
+export default TablePage;

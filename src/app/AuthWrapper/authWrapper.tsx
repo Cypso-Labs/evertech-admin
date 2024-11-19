@@ -1,41 +1,31 @@
 "use client";
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import { selectAuth } from "../../app/redux/slices/authSlice";
+import { selectAuth } from "../redux/features/authSlice";
 
-function AuthWrapper({ children }: { children: React.ReactNode }) {
-  const [loading, setLoading] = useState<boolean>(true);
+interface AuthWrapperProps {
+  children: React.ReactNode;
+}
+
+const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
   const router = useRouter();
-  const pathname = usePathname();
-  const { isAuthenticated } = useSelector(selectAuth);
-
-  useEffect(() => {
-    // Simulate initial loading
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+  const pathname = usePathname() || ""; 
+  const { isAuthenticated, token } = useSelector(selectAuth);
 
   useEffect(() => {
     const protectedRoutes = ["/protected", "/dashboard"];
     const isProtectedRoute = protectedRoutes.some((route) =>
-      pathname?.startsWith(route),
+      pathname.startsWith(route),
     );
 
-    if (isProtectedRoute && !isAuthenticated) {
-      router.push("/"); // Redirect to home if not authenticated
+   
+    if (isProtectedRoute && (!isAuthenticated || !token)) {
+      router.push("/");
     }
-  }, [pathname, router, isAuthenticated]);
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
-    );
-  }
+  }, [pathname, router, isAuthenticated, token]);
 
   return <>{children}</>;
-}
+};
 
 export default AuthWrapper;
