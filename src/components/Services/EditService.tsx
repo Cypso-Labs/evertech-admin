@@ -48,7 +48,8 @@ export default function EditService() {
         category_id: formData.category,
         
       };
-      const response = await fetch('http://localhost:5000/api/services/${formData.id}', {
+      console.log(payload._id)
+      const response = await fetch(`http://localhost:5000/api/services/${payload._id}`, {
         method: 'PUT', 
         headers: {
           'Content-Type': 'application/json', 
@@ -191,7 +192,7 @@ export default function EditService() {
           >
             Cancel
           </button>
-          <button
+          <button 
             type="submit"
             className="rounded-md w-36 h-10 px-4 py-2 text-[#08762D] bg-[#BCFFC8] hover:text-[#BCFFC8] hover:bg-[#08762D] dark:bg-green-600 dark:text-white dark:hover:bg-green-700 transition-colors duration-200"
           >
