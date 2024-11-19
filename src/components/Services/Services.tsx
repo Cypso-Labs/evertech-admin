@@ -81,13 +81,6 @@ const Services = () => {
     );
   };
   
-  // const handleDelete = (serviceId: string, e: React.MouseEvent) => {
-  //   e.stopPropagation();
-  //   // setServices(prevServices =>
-  //   //   prevServices.filter(service => service.id !== serviceId)
-  //   // );
-  // };
-
   const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering other click events
   
@@ -106,7 +99,6 @@ const Services = () => {
   
       if (!confirm.isConfirmed) return;
   
-      // Call the delete API
       const response = await fetch(`http://localhost:5000/api/services/${serviceId}`, {
         method: 'DELETE',
       });
@@ -115,10 +107,8 @@ const Services = () => {
         throw new Error('Failed to delete the service');
       }
   
-      // Update the state to remove the deleted service
       setServices(prevServices => prevServices.filter(service => service.id !== serviceId));
   
-      // Show success alert
       await Swal.fire({
         title: 'Deleted!',
         text: 'The service has been deleted successfully.',
@@ -127,7 +117,7 @@ const Services = () => {
         confirmButtonColor: '#08762D',
       });
     } catch (error: any) {
-      // Show error alert
+
       await Swal.fire({
         title: 'Error!',
         text: error.message || 'Failed to delete the service.',
@@ -138,22 +128,19 @@ const Services = () => {
     }
   };
   
-  // Filtered services based on search input
   const filteredServices = services.filter(
     (service) =>
       service.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // Calculate the current services to display
+
   const indexOfLastService = currentPage * itemsPerPage;
   const indexOfFirstService = indexOfLastService - itemsPerPage;
   const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
 
-  // Calculate total pages
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
 
-  // Pagination functions
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
