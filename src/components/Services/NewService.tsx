@@ -4,21 +4,31 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from 'sweetalert2';
 import { useRouter } from "next/navigation"
+import { timeStamp } from "console";
+
 interface FormData {
   serviceName: string;
   category: string;
   expireDate: string;
-  price: string | number;
+  timestamps:boolean;
 }
 
+const categories = [
+  "Cleaning",
+  "Plumbing",
+  "Electrical",
+  "Painting",
+  "Gardening",
+  "Carpentry",
+];
 const EditService = () => {
    const router = useRouter()
-  // State for form data
   const [formData, setFormData] = useState<FormData>({
     serviceName: '',
     category: '',
     expireDate: '',
-    price: ''
+    timestamps:true
+    
   });
 
   // Handle input changes
@@ -35,9 +45,24 @@ const EditService = () => {
     e.preventDefault();
     
     try {
-      // Here you would typically make your API call to create the service
-      // await createService(formData);
-      
+      const payload = {
+        name: formData.serviceName, 
+        category_id: formData.category, 
+        expireDate: formData.expireDate,
+        timeStamp: formData.timestamps,
+        
+      };
+      const response = await fetch('http://localhost:5000/api/services', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(payload), 
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create the service');
+      }
       // Show success alert
       await Swal.fire({
         title: 'Success!',
@@ -56,7 +81,7 @@ const EditService = () => {
         serviceName: '',
         category: '',
         expireDate: '',
-        price: ''
+        timestamps:true
       });
       router.push('/services')
     } catch (error) {
@@ -142,7 +167,11 @@ const EditService = () => {
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           >
             <option value="">Select Category</option>
-            {/* Add your category options here */}
+      {categories.map((category, index) => (
+        <option key={index} value={category}>
+          {category}
+        </option>
+      ))}
           </select>
         </div>
 
@@ -154,19 +183,6 @@ const EditService = () => {
             type="date"
             name="expireDate"
             value={formData.expireDate}
-            onChange={handleChange}
-            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 items-center space-y-2">
-          <label className="block text-[24px] font-medium text-gray-500 dark:text-white" style={{ font: "Inter" }}>
-            Price
-          </label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
             onChange={handleChange}
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           />
