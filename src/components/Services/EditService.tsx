@@ -14,7 +14,6 @@ export default function EditService() {
     id: "",
     service: "",
     category: "",
-    price: "",
     expireDate: ""
   })
     
@@ -24,7 +23,6 @@ export default function EditService() {
         id: searchParams.get("id") || "",
         service: searchParams.get("service") || "",
         category: searchParams.get("category") || "",
-        price: searchParams.get("price") || "",
         expireDate: searchParams.get("expireDate") || ""
       })
     }
@@ -42,8 +40,32 @@ export default function EditService() {
     e.preventDefault()
     
     try {
-      // Here you would typically make your API call to update the service
-      // await updateService(formData);
+
+      const payload = {
+        _id:formData.id,
+        name: formData.service, 
+        opt_expire_date: formData.expireDate, 
+        category_id: formData.category,
+        
+      };
+      const response = await fetch('http://localhost:5000/api/services/${formData.id}', {
+        method: 'PUT', 
+        headers: {
+          'Content-Type': 'application/json', 
+        },
+        body: JSON.stringify(payload), 
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create the service');
+      }
+      // Reset form or redirect
+      setFormData({
+        id:"",
+        service: '',
+        category: '',
+        expireDate: '',
+      });
       
       await Swal.fire({
         title: 'Success!',
@@ -156,19 +178,6 @@ export default function EditService() {
             type="date"
             name="expireDate"
             value={formData.expireDate}
-            onChange={handleChange}
-            className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 items-center gap-4">
-          <label className="text-2xl font-medium text-gray-500 dark:text-white">
-            Price
-          </label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
             onChange={handleChange}
             className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
           />
