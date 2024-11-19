@@ -31,7 +31,7 @@ const Services = () => {
   }
   
 
-  const [services, setServices] = useState<Service[]>([]); // Initialize state for services
+  const [services, setServices] = useState<Service[]>([]); 
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,7 +45,6 @@ const Services = () => {
         id: item._id || "Service #",
         service: item.name || "Default Service Name",
         category: item.category_id || "Default Category",
-        isEnabled: item.timestamps !== undefined ? item.timestamps : true,
       }));
       setServices(mappedServices);
     }
@@ -63,18 +62,24 @@ const Services = () => {
     router.push(`/services/editServices?${queryParams}`);
   };
 
-  // Updated switch handler
   const handleSwitchChange = (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation(); 
+  
+    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+  
     setServices(prevServices =>
-      prevServices.map(service =>
-        service.id === serviceId
-          ? { ...service, isEnabled: !service.isEnabled }
-          : service
-      )
+      prevServices.map(service => {
+        if (service.id === serviceId) {
+          if (service.id === currentDate) {
+            return { ...service, isEnabled: false }; 
+          }
+          return { ...service, isEnabled: !service.isEnabled };
+        }
+        return service;
+      })
     );
   };
-
+  
   const handleDelete = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setServices(prevServices =>
