@@ -75,9 +75,6 @@ const EditEmployee = () => {
     e.preventDefault();
 
     try {
-      // Here you would typically make your API call to create the employee
-      // await createEmployee(formData);
-
       await Swal.fire({
         title: "Success!",
         text: "Employee has been edited successfully",
@@ -160,7 +157,7 @@ const EditEmployee = () => {
 
       <form onSubmit={handleSubmit} className="w-full max-w-6xl">
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-          {/* Left Column */}
+        
           <div className="space-y-6">
             <div className="flex items-center">
               <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
@@ -233,7 +230,6 @@ const EditEmployee = () => {
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-6">
             <div className="flex items-start">
               <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
@@ -277,7 +273,6 @@ const EditEmployee = () => {
                 className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
-
             <div className="mt-8 flex justify-end space-x-4">
               <button
                 type="button"

@@ -1,162 +1,174 @@
 "use client";
-import React, { useState, useEffect, FormEvent } from "react"
+
+import React, { useState, useEffect, FormEvent } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
+import { useUpdateCategoryMutation } from "../../app/redux/features/categoryApiSlice";
+
 const EditCategory = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
   const [formData, setFormData] = useState({
     id: "",
     service: "",
     category: "",
-    description: ""
+    description: "",
   });
 
   useEffect(() => {
-    if (searchParams) {
+    const categoryId = searchParams.get("id");
+    if (categoryId) {
       setFormData({
-        id: searchParams.get("id") || "",
+        id: categoryId,
         service: searchParams.get("service") || "",
         category: searchParams.get("category") || "",
-        description: searchParams.get("description") || ""
+        description: searchParams.get("description") || "",
       });
+    } else {
+      router.push("/services/category"); 
     }
-  }, [searchParams]);
+  }, [searchParams, router]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    try {
-      // Here you would typically make your API call to update the service
-      // await updateService(formData);
-      
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Category has been edited successfully',
-        icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#08762D',
-        customClass: {
-          popup: 'dark:bg-[#122031] dark:text-white',
-          confirmButton: 'bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]'
-        }
-      })
+    e.preventDefault();
 
-      router.push('/services/category')
-    } catch (error) {
-      Swal.fire({
-        title: 'Error!',
-        text: 'Something went wrong while editing the category',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#FF2323',
-        customClass: {
-          popup: 'dark:bg-[#122031] dark:text-white'
-        }
-      })
+    if (!formData.category || !formData.description) {
+      return Swal.fire({
+        title: "Error!",
+        text: "Please fill out all fields.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
     }
-  }
+
+    try {
+      const result = await updateCategory({
+        id: formData.id,
+        name: formData.category,
+        description: formData.description,
+      }).unwrap();
+
+      await Swal.fire({
+        title: "Success!",
+        text: "Category has been edited successfully",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#08762D",
+        customClass: {
+          popup: "dark:bg-slate-800 dark:text-white",
+        },
+      });
+
+      router.push("/services/category");
+    } catch (error: any) {
+      Swal.fire({
+        title: "Error!",
+        text:
+          error?.data?.message ||
+          "Something went wrong while editing the category",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#FF2323",
+        customClass: {
+          popup: "dark:bg-slate-800 dark:text-white",
+        },
+      });
+    }
+  };
 
   const handleCancel = () => {
     Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You'll lose all entered data!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Yes, cancel',
-      cancelButtonText: 'No, keep editing',
-      confirmButtonColor: '#FF2323',
-      cancelButtonColor: '#08762D',
+      confirmButtonText: "Yes, cancel",
+      cancelButtonText: "No, keep editing",
+      confirmButtonColor: "#FF2323",
+      cancelButtonColor: "#08762D",
       customClass: {
-        popup: 'dark:bg-[#122031] dark:text-white'
-      }
+        popup: "dark:bg-slate-800 dark:text-white",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push('/services/category')
+        router.push("/services/category");
       }
-    })
-  }
-  return (
-    <div>
-      <div className="flex items-center gap-4 mb-15 relative space-x-[400px]">
-      <h1 className="font-inter flex items-center space-x-2 text-4xl font-medium text-slate-600 dark:text-white" style={{ font: "Inter" }}>
-          <Link href="/services/category" className="inline-block">
-            <IoIosArrowDropleft className="w-10 h-10 cursor-pointer hover:text-[#3584FA]" />
-          </Link>
-          <span >Edit Category {formData.id}</span>
-        </h1>
+    });
+  };
 
+  return (
+    <div className="min-h-screen p-8">
+      <div className="mb-12 flex items-center justify-between">
+        <h1 className="flex items-center text-4xl font-medium text-slate-700 dark:text-white">
+          <Link href="/services/category">
+            <span className="inline-block">
+              <IoIosArrowDropleft className="h-10 w-10 transform cursor-pointer transition-all duration-200 hover:scale-110 hover:text-blue-500" />
+            </span>
+          </Link>
+          <span className="ml-2">Edit Category #{formData.id.slice(-5)}</span>
+        </h1>
       </div>
 
-<form onSubmit={handleSubmit} className="w-1/2 space-y-6">
-  <div className=" grid grid-cols-2 items-center  space-y-2 ">
-    <label className="block text-[24px] font-medium text-gray-500 dark:text-white  " style={{ font: "Inter" }}>
-      Category ID
-    </label>
-    <input
-      type="text"
-      name="id"
-      value={formData.id}
-      onChange={handleChange}
-      disabled
-      className="w-[520] h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white "
-    />
-  </div>
+      <div className="rounded-lg bg-white p-8 shadow-lg transition-all duration-300 dark:bg-slate-800">
+        <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
+          <div className="space-y-3">
+            <label className="block text-2xl font-medium text-slate-700 dark:text-white">
+              Category Name
+            </label>
+            <input
+              type="text"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              disabled={isLoading}
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
+            />
+          </div>
 
-  <div className="grid grid-cols-2 items-center space-y-2 ">
-  <label className="block text-[24px] font-medium text-gray-500 dark:text-white  " style={{ font: "Inter" }}>
-      Category Name
-    </label>
-    <input
-      type="text"
-      name="categoryName"
-      value={formData.category}
-      onChange={handleChange}
-      className="w-[520] h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white "
-    />
-  </div>
+          <div className="space-y-3">
+            <label className="block text-2xl font-medium text-slate-700 dark:text-white">
+              Category Description
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              rows={4}
+              disabled={isLoading}
+              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
+            />
+          </div>
 
-  <div className=" grid grid-cols-2 items-center space-y-2">
-  <label className="block text-[24px] font-medium text-gray-500 dark:text-white  " style={{ font: "Inter" }}>
-      Category Description
-    </label>
-    <textarea
-      name="categoryDescription"
-      value={formData.description}
-      onChange={handleChange}
-      rows={4}
-      className="w-[520] h-[183px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white "
-    />
-  </div>
-
-  <div className="flex justify-end space-x-4">
-    <button
-      type="button"
-      onClick={handleCancel}
-      className="rounded-md w-[100px] h-[40px] bg-[#FFCDCD] px-4 py-2 text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:text-white  border border-red-400  dark:bg-red-600 dark:hover:bg-red-700"
-    >
-      Discard
-    </button>
-    <button
-      type="submit"
-      className="rounded-md w-[100px] h-[40px]  px-4 py-2 text-[#08762D] bg-[#BCFFC8] hover:text-[#BCFFC8] hover:bg-[#08762D]  dark:text-white  border border-green-400 dark:bg-green-600 dark:hover:bg-green-700"
-    >
-      Save
-    </button>
-  </div>
-</form>
-
+          <div className="flex justify-end space-x-4 pt-4">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="group relative flex h-12 w-32 items-center justify-center rounded-lg bg-red-100 text-lg font-medium text-red-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-red-600 hover:text-white dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
+            >
+              Discard
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative flex h-12 w-32 items-center justify-center rounded-lg bg-green-100 text-lg font-medium text-green-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-green-600 hover:text-white dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white"
+            >
+              {isLoading ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

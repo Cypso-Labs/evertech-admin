@@ -9,8 +9,6 @@ import { useRouter } from 'next/navigation'
 const Services = () => {
 
   const router = useRouter();
-  
-  
   interface Service {
     id: string;
     service: string;
@@ -38,10 +36,6 @@ const Services = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
- 
-
-  
-   // Handle row click and route to another page
    const handleRowClick = (service: Service) => {
     const queryParams = new URLSearchParams({
       id: service.id,
@@ -53,9 +47,8 @@ const Services = () => {
     router.push(`/services/editServices?${queryParams}`);
   };
 
-  // Updated switch handler
   const handleSwitchChange = (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent row click event
+    e.stopPropagation();
     setServices(prevServices =>
       prevServices.map(service =>
         service.id === serviceId
@@ -71,24 +64,20 @@ const Services = () => {
       prevServices.filter(service => service.id !== serviceId)
     );
   };
-
-
-  // Filtered services based on search input
   const filteredServices = services.filter(
     (service) =>
       service.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
       service.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  // Calculate the current services to display
   const indexOfLastService = currentPage * itemsPerPage;
   const indexOfFirstService = indexOfLastService - itemsPerPage;
   const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
 
-  // Calculate total pages
+
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
 
-  // Pagination functions
+
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -145,7 +134,6 @@ const Services = () => {
         </button>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
       <table className="w-full border-separate border-spacing-y-3 ">
           <thead>
@@ -198,8 +186,6 @@ const Services = () => {
             ))}
           </tbody>
         </table>
-
-        {/* Pagination */}
         <div className="mt-4 flex items-center justify-between">
           <nav className="inline-flex items-center font-semibold">
             <button
