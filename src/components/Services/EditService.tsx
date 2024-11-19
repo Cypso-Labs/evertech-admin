@@ -48,7 +48,6 @@ export default function EditService() {
         category_id: formData.category,
         
       };
-      console.log(payload._id)
       const response = await fetch(`http://localhost:5000/api/services/${payload._id}`, {
         method: 'PUT', 
         headers: {
@@ -60,7 +59,7 @@ export default function EditService() {
       if (!response.ok) {
         throw new Error('Failed to create the service');
       }
-      // Reset form or redirect
+     
       setFormData({
         id:"",
         service: '',
