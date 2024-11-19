@@ -4,32 +4,42 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { newEmployee } from "@/redux/slices/employeeSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/store";
 
 interface FormData {
-  employeeId: string;
-  employeeName: string;
+  _id: string;
+  name: string;
+  age: string;
   role: string;
   contact: string;
   address: string;
   gender: string;
-  birthDate: string;
+  password: string;
+  email: string;
+  username: string;
 }
 
 const NewEmployee = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
-    employeeId: "",
-    employeeName: "",
+    _id: "",
+    name: "",
+    age: "",
     role: "",
     contact: "",
     address: "",
     gender: "",
-    birthDate: "",
+    password: "",
+    email: "",
+    username: "",
   });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -37,14 +47,25 @@ const NewEmployee = () => {
       [name]: value,
     }));
   };
-  
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Here you would typically make your API call to create the employee
-      // await createEmployee(formData);
+      
+      await dispatch(
+        newEmployee({
+          email: formData.email,
+          name: formData.name,
+          username: formData.username,
+          role: formData.role,
+          contact: formData.contact,
+          address: formData.address,
+          gender: formData.gender,
+          age: formData.age, 
+          password: formData.password,
+        }),
+      ).unwrap();
 
       await Swal.fire({
         title: "Success!",
@@ -60,13 +81,16 @@ const NewEmployee = () => {
       });
 
       setFormData({
-        employeeId: "",
-        employeeName: "",
+        _id: "",
+        name: "",
+        age: "",
         role: "",
         contact: "",
         address: "",
         gender: "",
-        birthDate: "",
+        password: "",
+        email: "",
+        username: "",
       });
       router.push("/employees");
     } catch (error) {
@@ -116,32 +140,30 @@ const NewEmployee = () => {
 
       <form onSubmit={handleSubmit} className="w-full max-w-6xl">
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-          {/* Left Column */}
           <div className="space-y-6">
             <div className="flex items-center">
               <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Employee ID
+                User Name
               </label>
               <input
                 type="text"
-                name="employeeId"
-                disabled
-                value={formData.employeeId}
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
             <div className="flex items-center">
               <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Employee Name
+                Name
               </label>
               <input
                 type="text"
-                name="employeeName"
-                value={formData.employeeName}
+                name="name"
+                value={formData.name}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
@@ -153,7 +175,7 @@ const NewEmployee = () => {
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               >
                 <option value="">Select Role</option>
                 <option value="admin">Admin</option>
@@ -167,16 +189,27 @@ const NewEmployee = () => {
                 Contact
               </label>
               <input
-                type="tel"
+                type="text"
                 name="contact"
                 value={formData.contact}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+            <div className="flex items-center">
+              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+                Age
+              </label>
+              <input
+                type="text"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
           </div>
 
-          {/* Right Column */}
           <div className="space-y-6">
             <div className="flex items-start">
               <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
@@ -187,7 +220,7 @@ const NewEmployee = () => {
                 value={formData.address}
                 onChange={handleChange}
                 rows={4}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
@@ -199,7 +232,7 @@ const NewEmployee = () => {
                 name="gender"
                 value={formData.gender}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               >
                 <option value="">Select Gender</option>
                 <option value="male">Male</option>
@@ -210,14 +243,27 @@ const NewEmployee = () => {
 
             <div className="flex items-center  ">
               <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Birth Date
+                Email
               </label>
               <input
-                type="date"
-                name="birthDate"
-                value={formData.birthDate}
+                type="text"
+                name="email"
+                value={formData.email}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 font-normal text-base focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+
+            <div className="flex items-center  ">
+              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
@@ -225,12 +271,13 @@ const NewEmployee = () => {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-md  text-sm font-medium border border-red-400 bg-[#FFCDCD] px-4 py-2 text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
+                className="rounded-md  border border-red-400 bg-[#FFCDCD] px-4 py-2 text-sm font-medium text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
               >
                 Discard
               </button>
               <button
                 type="submit"
+                // onClick={handleSubmit}
                 className="rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
               >
                 Create Employee
