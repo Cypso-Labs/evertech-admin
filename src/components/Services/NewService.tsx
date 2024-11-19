@@ -10,7 +10,6 @@ interface FormData {
   serviceName: string;
   category: string;
   expireDate: string;
-  timestamps:boolean;
 }
 
 const categories = [
@@ -26,8 +25,7 @@ const EditService = () => {
   const [formData, setFormData] = useState<FormData>({
     serviceName: '',
     category: '',
-    expireDate: '',
-    timestamps:true
+    expireDate: ''
     
   });
 
@@ -48,9 +46,7 @@ const EditService = () => {
       const payload = {
         name: formData.serviceName, 
         category_id: formData.category, 
-        expireDate: formData.expireDate,
-        timeStamp: formData.timestamps,
-        
+        opt_expire_date: formData.expireDate,     
       };
       const response = await fetch('http://localhost:5000/api/services', {
         method: 'POST', 
@@ -80,8 +76,7 @@ const EditService = () => {
       setFormData({
         serviceName: '',
         category: '',
-        expireDate: '',
-        timestamps:true
+        expireDate: ''
       });
       router.push('/services')
     } catch (error) {
