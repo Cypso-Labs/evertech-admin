@@ -10,6 +10,7 @@ import { useAppDispatch, useAppSelector } from "@/app/redux/hooks";
 import { AppDispatch, RootState } from "@/app/redux/store/store";
 import { getService } from "@/app/redux/serviceSlice"
 import { useEffect } from "react"
+import Swal from 'sweetalert2';
 const Services = () => {
 
   const dispatch: AppDispatch = useAppDispatch();
@@ -80,14 +81,63 @@ const Services = () => {
     );
   };
   
-  const handleDelete = (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setServices(prevServices =>
-      prevServices.filter(service => service.id !== serviceId)
-    );
+  // const handleDelete = (serviceId: string, e: React.MouseEvent) => {
+  //   e.stopPropagation();
+  //   // setServices(prevServices =>
+  //   //   prevServices.filter(service => service.id !== serviceId)
+  //   // );
+  // };
+
+  const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering other click events
+  
+    try {
+      // Confirm the delete action with the user
+      const confirm = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you want to delete this service? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+      });
+  
+      if (!confirm.isConfirmed) return;
+  
+      // Call the delete API
+      const response = await fetch(`http://localhost:5000/api/services/${serviceId}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to delete the service');
+      }
+  
+      // Update the state to remove the deleted service
+      setServices(prevServices => prevServices.filter(service => service.id !== serviceId));
+  
+      // Show success alert
+      await Swal.fire({
+        title: 'Deleted!',
+        text: 'The service has been deleted successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#08762D',
+      });
+    } catch (error: any) {
+      // Show error alert
+      await Swal.fire({
+        title: 'Error!',
+        text: error.message || 'Failed to delete the service.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#d33',
+      });
+    }
   };
-
-
+  
   // Filtered services based on search input
   const filteredServices = services.filter(
     (service) =>
