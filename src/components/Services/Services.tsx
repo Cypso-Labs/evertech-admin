@@ -28,6 +28,7 @@ const Services = () => {
     id: string;
     service: string;
     category: string;
+    opt_expire_date:string
     isEnabled?: boolean;
   }
   
@@ -38,47 +39,38 @@ const Services = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
- 
   useEffect(() => {
     if (getAllServicers) {
-    
-      const mappedServices = getAllServicers.map((item: any) => ({
-        id: item._id || "Service #",
-        service: item.name || "Default Service Name",
-        category: item.category_id || "Default Category",
-      }));
+      const currentDate = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD format
+  
+      const mappedServices = getAllServicers.map((item: any) => {
+        const serviceExpireDate = item.opt_expire_date || "00-00-0000";
+  
+        // Determine if the switch should be enabled
+        const isEnabled = new Date(serviceExpireDate) >= new Date(currentDate);
+  
+        return {
+          id: item._id || "Service #",
+          service: item.name || "Default Service Name",
+          category: item.category_id || "Default Category",
+          opt_expire_date: serviceExpireDate,
+          isEnabled, // Set the initial state of the switch
+        };
+      });
       setServices(mappedServices);
     }
   }, [getAllServicers]);
-
   
-   // Handle row click and route to another page
+
    const handleRowClick = (service: Service) => {
     const queryParams = new URLSearchParams({
       id: service.id,
       service: service.service,
       category: service.category,
+      opt_expire_date:service.opt_expire_date
     }).toString();
     
     router.push(`/services/editServices?${queryParams}`);
-  };
-
-  const handleSwitchChange = (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); 
-  
-    const currentDate = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
-  
-    setServices(prevServices =>
-      prevServices.map(service => {
-        if (service.id === serviceId) {
-          if (service.id === currentDate) {
-            return { ...service, isEnabled: false }; 
-          }
-          return { ...service, isEnabled: !service.isEnabled };
-        }
-        return service;
-      })
-    );
   };
   
   const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
@@ -223,7 +215,6 @@ const Services = () => {
                   <Switch
                       checked={service.isEnabled}
                       onChange={() => {}}
-                      onClick={(e) => handleSwitchChange(service.id, e)}
                       className={`${
                         service.isEnabled ? "bg-green-600" : "bg-gray-200"
                       } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
