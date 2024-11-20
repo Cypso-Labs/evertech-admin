@@ -8,8 +8,6 @@ import SidebarItem from "@/components/Sidebar/SidebarItem";
 import ClickOutside from "@/components/ClickOutside";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import MenuGroupsData from "@/config/MENU_DATA";
-import dark_logo from "@/assets/images/logo/logo-dark.svg";
-import logo from "@/assets/images/logo/logo.svg";
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -31,26 +29,17 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
             : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5 xl:py-10">
-          <Link href="/">
-            <Image
-              width={176}
-              height={32}
-              src={dark_logo}
-              alt="Logo"
-              priority
-              className="dark:hidden"
-              style={{ width: "auto", height: "auto" }}
-            />
-            <Image
-              width={176}
-              height={32}
-              src={logo}
-              alt="Logo"
-              priority
-              className="hidden dark:block"
-              style={{ width: "auto", height: "auto" }}
-            />
+        <div className="flex items-center justify-between gap-2 px-6 py-5.5">
+          <Link href="/" className="block">
+            <button className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-600 via-blue-500 to-green-400 p-0.5 transition-all duration-300 hover:scale-105 hover:shadow-md">
+              <div className="relative rounded-md bg-black px-4 py-1.5">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-500/20 to-green-400/20 blur-sm transition-all duration-300 group-hover:blur-md" />
+                <h1 className="relative bg-gradient-to-r from-purple-200 via-blue-200 to-green-200 bg-clip-text text-lg font-bold text-transparent">
+                  EVERTECH.LK
+                </h1>
+                <div className="absolute -bottom-0.5 left-1/2 h-0.5 w-0 -translate-x-1/2 bg-gradient-to-r from-purple-400 via-blue-400 to-green-400 transition-all duration-300 group-hover:w-full" />
+              </div>
+            </button>
           </Link>
 
           <button
