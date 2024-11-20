@@ -78,6 +78,7 @@ const Header = (props: {
           <ul className="flex items-center gap-2 2xsm:gap-4">
             <SearchForm />
             <DarkModeSwitcher />
+
           </ul>
           <DropdownUser />
         </div>
