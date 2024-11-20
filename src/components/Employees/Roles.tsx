@@ -10,12 +10,16 @@ import { fetchRoles, deleteRole } from "../../redux/slices/roleSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import { Role } from "../../redux/slices/roleSlice";
+import { selectEmployeeRoleCounts } from "../../redux/slices/employeeSlice";
+
 const Roles = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { roles, loading, error } = useSelector(
     (state: RootState) => state.roles,
   );
   const router = useRouter();
+
+  const roleCounts = useSelector(selectEmployeeRoleCounts);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,14 +42,14 @@ const Roles = () => {
     const queryParams = new URLSearchParams({
       id: role._id,
       name: role.name,
-      employees: role.employees,
+      employees: roleCounts.toString(),
     }).toString();
     router.push(`/employees/role/editRole?${queryParams}`);
   };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this employee?")) {
+    if (window.confirm("Are you sure you want to delete this role?")) {
       await dispatch(deleteRole(id));
     }
   };
@@ -84,7 +88,6 @@ const Roles = () => {
       </div>
 
       <div className="mt-4 flex items-center p-4">
-        {/* Search bar */}
         <div className="text-md flex h-[30px] w-[227px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <MdOutlineSearch className="mr-4 justify-start" />
           <input
@@ -95,21 +98,12 @@ const Roles = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        <div className="text-md ml-8 flex h-[30px] w-[141px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-          <RiExpandUpDownFill className="cursor-pointer justify-start" />
-          <span> Sort by order </span>
-        </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-separate border-spacing-y-3">
           <thead>
-            <tr
-              className="border-slate-400 py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white"
-              style={{ font: "Inter" }}
-            >
+            <tr className="border-slate-400 py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
               <th>NAME</th>
               <th>EMPLOYEES</th>
@@ -122,13 +116,12 @@ const Roles = () => {
                 key={role._id}
                 onClick={() => handleRowClick(role)}
                 className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
-                style={{ font: "Inter" }}
               >
                 <td className="rounded-l-xl px-4 py-6">
                   Role #{role._id.slice(-5)}
                 </td>
                 <td className="px-4 py-2">{role.name}</td>
-                <td className="px-4 py-2">{}</td>
+                <td className="px-4 py-2">{roleCounts[role._id] || 0}</td>
                 <td className="rounded-r-xl px-4 py-2">
                   <button
                     className="text-red-500 hover:text-[#3584FA]"

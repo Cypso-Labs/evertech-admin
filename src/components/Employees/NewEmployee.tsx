@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { newEmployee } from "@/redux/slices/employeeSlice";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../redux/store";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
 interface FormData {
   _id: string;
@@ -24,6 +26,7 @@ interface FormData {
 const NewEmployee = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const { roles } = useSelector((state: RootState) => state.roles);
 
   const [formData, setFormData] = useState<FormData>({
     _id: "",
@@ -51,18 +54,20 @@ const NewEmployee = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const selectedRole = roles.find((role) => role._id === formData.role);
+    const roleName = selectedRole ? selectedRole.name : "";
+
     try {
-      
       await dispatch(
         newEmployee({
           email: formData.email,
           name: formData.name,
           username: formData.username,
-          role: formData.role,
+          role: roleName,
           contact: formData.contact,
           address: formData.address,
           gender: formData.gender,
-          age: formData.age, 
+          age: formData.age,
           password: formData.password,
         }),
       ).unwrap();
@@ -142,7 +147,7 @@ const NewEmployee = () => {
         <div className="grid grid-cols-2 gap-x-8 gap-y-6">
           <div className="space-y-6">
             <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 User Name
               </label>
               <input
@@ -155,7 +160,7 @@ const NewEmployee = () => {
             </div>
 
             <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Name
               </label>
               <input
@@ -168,7 +173,7 @@ const NewEmployee = () => {
             </div>
 
             <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Role
               </label>
               <select
@@ -178,14 +183,16 @@ const NewEmployee = () => {
                 className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               >
                 <option value="">Select Role</option>
-                <option value="admin">Admin</option>
-                <option value="employee">Employee</option>
-                <option value="manager">Manager</option>
+                {roles.map((role) => (
+                  <option key={role._id} value={role._id}>
+                    {role.name}
+                  </option>
+                ))}
               </select>
             </div>
 
             <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Contact
               </label>
               <input
@@ -197,7 +204,7 @@ const NewEmployee = () => {
               />
             </div>
             <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Age
               </label>
               <input
@@ -212,7 +219,7 @@ const NewEmployee = () => {
 
           <div className="space-y-6">
             <div className="flex items-start">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Address
               </label>
               <textarea
@@ -225,7 +232,7 @@ const NewEmployee = () => {
             </div>
 
             <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Gender
               </label>
               <select
@@ -241,8 +248,8 @@ const NewEmployee = () => {
               </select>
             </div>
 
-            <div className="flex items-center  ">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Email
               </label>
               <input
@@ -254,8 +261,8 @@ const NewEmployee = () => {
               />
             </div>
 
-            <div className="flex items-center  ">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Password
               </label>
               <input
@@ -271,13 +278,12 @@ const NewEmployee = () => {
               <button
                 type="button"
                 onClick={handleCancel}
-                className="rounded-md  border border-red-400 bg-[#FFCDCD] px-4 py-2 text-sm font-medium text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
+                className="rounded-md border border-red-400 bg-[#FFCDCD] px-4 py-2 text-sm font-medium text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
               >
                 Discard
               </button>
               <button
                 type="submit"
-                // onClick={handleSubmit}
                 className="rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
               >
                 Create Employee

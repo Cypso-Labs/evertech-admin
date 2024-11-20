@@ -4,14 +4,25 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { Role , fetchRoles ,updateRole} from "@/redux/slices/roleSlice";
+
+
 
 interface FormData {
-  roleID: string;
-  roleName: string;
+  id: string;
+  name: string;
 }
 
 const EditRole = () => {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { roles } = useSelector((state: RootState) => state.roles);
+  const [role, setRole] = useState<Role | null>(null);
+  
+    
+  
   const searchParams = useSearchParams();
   const [isOn, setIsOn] = useState(false);
   const [isOn2, setIsOn2] = useState(false);
@@ -19,29 +30,36 @@ const EditRole = () => {
   const [isOn4, setIsOn4] = useState(false);
   const [isOn5, setIsOn5] = useState(false);
   const [isOn6, setIsOn6] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    roleID: "",
-    roleName: "",
+
+  const [formData, setFormData] = useState({
+    id: " ",
+    name: "",
   });
 
 
-  
-
+  const roleId = searchParams.get("id");
 
   useEffect(() => {
-    if (searchParams) {
-      setFormData({
-        roleID: searchParams.get("id") || "",
-        roleName: searchParams.get("service") || "",
-        
-      });
+    dispatch(fetchRoles());
+  }, [dispatch]);
+
+  useEffect (() => {
+    if (roles.length && roleId) {
+      const foundRole = roles.find((role) => role._id === roleId);
+      if (foundRole) {
+        setRole(foundRole);
+        setFormData ({
+
+          id: foundRole._id || "",
+          name: foundRole.name || "",
+        })
+      }
     }
-  }, [searchParams]);
+  }, [roles, roleId]);
 
 
 
-
-  // Handle input changes
+  
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -52,12 +70,14 @@ const EditRole = () => {
     }));
   };
 
-  // Handle form submission
+
+  
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Show success alert
+      await dispatch(updateRole({ id: formData.id, roleData: formData }));
+
       await Swal.fire({
         title: "Success!",
         text: "Role has been edited successfully",
@@ -71,11 +91,6 @@ const EditRole = () => {
         },
       });
 
-      // Reset form or redirect
-      setFormData({
-        roleID: "",
-        roleName: "",
-      });
       router.push("/employees/role");
     } catch (error) {
       Swal.fire({
@@ -91,7 +106,7 @@ const EditRole = () => {
     }
   };
 
-  // Handle cancel
+  
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -122,12 +137,12 @@ const EditRole = () => {
           <Link href="/employees/role" className="inline-block">
             <IoIosArrowDropleft className="mr-2 h-10 w-10 cursor-pointer hover:text-[#3584FA]" />
           </Link>
-          Edit Role {formData.roleID}
+          Edit Role # {formData.id.toString().slice(-5)}
         </h1>
       </div>
 
       <form className="w-1/2 space-y-6" onSubmit={handleSubmit}>
-        {/* Role ID */}
+        
         <div className="grid grid-cols-2 items-center space-y-4 ">
           <label
             className="block text-[24px] font-medium text-gray-500 dark:text-white"
@@ -137,15 +152,15 @@ const EditRole = () => {
           </label>
           <input
             type="text"
-            name="roleID"
+            name="id"
             disabled
             className="h-[36px] rounded-md border border-gray-300 bg-white p-2 dark:bg-[#122031] dark:text-white"
-            value={formData.roleID}
+            value={formData.id.toString().slice(-5)}
             onChange={handleChange}
           />
         </div>
 
-        {/* Role Name */}
+        
         <div className="grid grid-cols-2 items-center space-y-4 ">
           <label
             className="block text-[24px] font-medium text-gray-500 dark:text-white"
@@ -155,8 +170,8 @@ const EditRole = () => {
           </label>
           <input
             type="text"
-            name="roleName"
-            value={formData.roleName}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             className="h-[36px] rounded-md border border-gray-300 bg-white p-2 dark:bg-[#122031] dark:text-white"
           />
@@ -164,14 +179,14 @@ const EditRole = () => {
             
 
 
-        {/* Access Privileges */}
+        
 
         <div className="space-y-14 ">  <h1 className="text-[#475569] dark:text-white text-[26px] font-medium mt-20" style={{ font: "Inter" }}>Access Privileges</h1>
         
         
         <div className="grid grid-cols-2 gap-22  ">
            <div className="grid space-y-6">
-            {/* Privilege 1 */}
+            
           <div className=" flex gap-20  ">
             <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -194,7 +209,7 @@ const EditRole = () => {
             </button>
           </div>
 
-            {/* Privilege 2 */}
+          
             <div className=" flex gap-20 ">
             <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -217,7 +232,7 @@ const EditRole = () => {
             </button>
           </div>
 
-            {/* Privilege 3 */}
+            
             <div className=" flex gap-20 ">
             <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -244,7 +259,7 @@ const EditRole = () => {
 
 
           <div className="grid space-y-6">
-            {/* Privilege 4 */}
+            
             <div className="flex gap-20 ">
             <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -267,7 +282,7 @@ const EditRole = () => {
             </button>
             </div>
 
-            {/* Privilege 5 */}
+            
             <div className="flex gap-20 ">
             <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -290,7 +305,7 @@ const EditRole = () => {
             </button>
             </div>
 
-            {/* Privilege 6 */}
+            
             <div className="flex gap-20 ">
             <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
               Lorem Ipsum Dolor Sit
@@ -321,7 +336,7 @@ const EditRole = () => {
 
         
         <div className="ml-20 flex justify-end space-x-4">
-          {/* Discard Button */}
+          
           <button
             type="button"
             onClick={handleCancel}
@@ -329,7 +344,7 @@ const EditRole = () => {
           >
             Discard
           </button>
-          {/* Create Role Button */}
+          
           <button
             type="submit"
             className="h-[40px] w-[150px] rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"

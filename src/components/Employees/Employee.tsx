@@ -23,7 +23,9 @@ const Employee = () => {
     error,
   } = useSelector((state: RootState) => state.employees);
 
-  const { roles } = useSelector((state: RootState) => state.roles);
+  const { roles, loading: roleLoading } = useSelector(
+    (state: RootState) => state.roles,
+  );
 
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,14 +35,6 @@ const Employee = () => {
   const handleRowClick = (employees: EmployeeInterface) => {
     const queryParams = new URLSearchParams({
       id: employees._id,
-      employeeName: employees.name,
-      role: employees.role,
-      email: employees.email,
-      address: employees.address,
-      gender: employees.gender,
-      contact: employees.contact,
-      username: employees.username,
-      password: employees.password,
     }).toString();
     router.push(`/employees/editeEmployee?${queryParams}`);
   };
@@ -149,8 +143,11 @@ const Employee = () => {
                 onClick={() => handleRowClick(employee)}
               >
                 <td className="rounded-l-xl px-4 py-6">
-                  Employee #{employee._id.slice(-5)}
+                  {employee?._id
+                    ? `Employee #${employee._id.slice(-5)}`
+                    : "N/A"}
                 </td>
+
                 <td className="px-4 py-2">{employee.name}</td>
                 <td className="px-4 py-2">{getRoleName(employee.role)}</td>
                 <td className="px-4 py-2">{employee.email}</td>

@@ -1,5 +1,6 @@
 import { BASE_URL } from "@/app/utils/apiConfig";
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from "../store";
 
 export interface EmployeeInterface {
@@ -124,6 +125,22 @@ export const newEmployee = createAsyncThunk(
     };
   },
 );
+
+
+export const selectEmployeeRoleCounts = (state: RootState) => {
+  const roleCounts: { [key: string]: number } = {};
+
+  state.employees.entities.forEach((employee) => {
+    const role = employee.role; 
+    if (roleCounts[role]) {
+      roleCounts[role] += 1; 
+    } else {
+      roleCounts[role] = 1; 
+    }
+  });
+
+  return roleCounts;
+};
 
 const employeeSlice = createSlice({
   name: "employees",

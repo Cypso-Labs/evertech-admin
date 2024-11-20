@@ -105,10 +105,10 @@ export const updateRole = createAsyncThunk<
 export const deleteRole = createAsyncThunk<
   string,
   string,
-  { rejectValue: string; state: RootState }
+  { rejectValue: string }
 >("roles/deleteRole", async (id, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${BASE_URL}/role/${id}`, {
+    const response = await fetch(BASE_URL + `/role/${id}`, {
       method: "DELETE",
     });
 
@@ -158,6 +158,30 @@ const roleSlice = createSlice({
       })
       .addCase(deleteRole.fulfilled, (state, action) => {
         state.roles = state.roles.filter((role) => role._id !== action.payload);
+      })
+      .addCase(fetchRoleById.pending, (state) => {
+        state.loading = "pending";
+        state.error = null;
+      })
+      .addCase(fetchRoleById.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        state.selectedRole = action.payload;
+      })
+      .addCase(fetchRoleById.rejected, (state, action) => {
+        state.loading = "failed";
+        state.error = action.payload || "Failed to fetch role";
+      })
+      .addCase(updateRole.pending, (state) => {
+        state.loading = "pending";
+        state.error = null;
+      })
+      .addCase(updateRole.fulfilled, (state, action) => {
+        state.loading = "succeeded";
+        state.selectedRole = action.payload;
+      })
+      .addCase(updateRole.rejected, (state, action) => {
+        state.loading = "failed";
+        state.error = action.payload || "Failed to update role";
       });
   },
 });

@@ -24,7 +24,7 @@ const Orders: React.FC = () => {
   }, [dispatch]);
 
   const filteredOrders = orders.filter((order) =>
-    order.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    order._id.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const indexOfLastOrder = currentPage * itemsPerPage;
@@ -37,11 +37,9 @@ const Orders: React.FC = () => {
 
   const handleRowClick = (order: (typeof orders)[0]) => {
     const queryParams = new URLSearchParams({
-      id: order.id.toString(),
-      service: order.service,
+      id: order._id.toString(),
+
       status: order.status,
-      name: order.name,
-      price: order.price.toString(),
     }).toString();
 
     router.push(`orders/ordered?${queryParams}`);
@@ -115,14 +113,14 @@ const Orders: React.FC = () => {
         <tbody>
           {currentOrders.map((order) => (
             <tr
-              key={order.id}
+              key={order._id}
               className="cursor-pointer rounded-l bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
               onClick={() => handleRowClick(order)}
             >
               <td className="rounded-lg px-4 py-6 text-center">
-                Order {order.id}
+                Order #{order._id.slice(-5)}
               </td>
-              <td className="p-4 text-center">{order.name}</td>
+              <td className="p-4 text-center">{}</td>
               <td className="p-4 text-center">
                 <span
                   className={`font-semibold ${
@@ -134,14 +132,13 @@ const Orders: React.FC = () => {
                   {order.status}
                 </span>
               </td>
-              <td className="p-4 text-center">{order.service}</td>
-              <td className="p-4 text-center">{order.price}</td>
+              <td className="p-4 text-center">{}</td>
+              <td className="p-4 text-center">{}</td>
               <td className="p-4 text-center">
                 <button
                   className="text-center text-red-500 hover:text-red-700"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(order.id);
                   }}
                 >
                   <FaTrashAlt />
@@ -153,7 +150,6 @@ const Orders: React.FC = () => {
         </tbody>
       </table>
 
-      {/* Pagination */}
       <div className="mt-4 flex items-center justify-between">
         <div>
           <nav className="inline-flex items-center font-semibold">

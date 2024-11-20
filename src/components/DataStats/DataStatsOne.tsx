@@ -8,10 +8,10 @@ import customers from "@/assets/images/icon/customer.svg";
 import Image from "next/image";
 
 const DataStatsOne: React.FC = () => {
-  // Select unpaidOrdersCount from the Redux store
-  const unpaidOrdersCount = useSelector((state: RootState) => state.orders.unpaidOrdersCount);
+  const unpaidOrdersCount = useSelector(
+    (state: RootState) => state.orders.unpaidOrdersCount,
+  );
 
-  // Data with the dynamically fetched unpaid orders count
   const dataStatsList = [
     {
       icon: (
@@ -21,7 +21,7 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#3FD97F",
       title: "Pending Orders",
-      value: unpaidOrdersCount.toString(), // Use the unpaidOrdersCount from Redux
+      value: unpaidOrdersCount.toString(),
       growthRate: 0.43,
     },
     {
