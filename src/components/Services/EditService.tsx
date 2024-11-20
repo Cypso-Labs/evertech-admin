@@ -14,7 +14,7 @@ export default function EditService() {
     id: "",
     service: "",
     category: "",
-    expireDate: ""
+    opt_expire_date: ""
   })
     
   useEffect(() => {
@@ -23,11 +23,19 @@ export default function EditService() {
         id: searchParams.get("id") || "",
         service: searchParams.get("service") || "",
         category: searchParams.get("category") || "",
-        expireDate: searchParams.get("expireDate") || ""
-      })
+        opt_expire_date: formatDate(searchParams.get("opt_expire_date") || "") 
+      });
     }
-  }, [searchParams])
-   
+  }, [searchParams]);
+  
+
+  const formatDate = (date: string): string => {
+    if (!date) return "";
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) return ""; 
+    return parsedDate.toISOString().split("T")[0]; 
+  };
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -44,7 +52,7 @@ export default function EditService() {
       const payload = {
         _id:formData.id,
         name: formData.service, 
-        opt_expire_date: formData.expireDate, 
+        opt_expire_date: formData.opt_expire_date, 
         category_id: formData.category,
         
       };
@@ -64,7 +72,7 @@ export default function EditService() {
         id:"",
         service: '',
         category: '',
-        expireDate: '',
+        opt_expire_date: '',
       });
       
       await Swal.fire({
@@ -121,8 +129,8 @@ export default function EditService() {
           <IoIosArrowDropleft className="w-10 h-10 cursor-pointer mr-2 text-slate-600 hover:text-[#3584FA] dark:text-white" />
         </Link>
         <h1 className="font-inter text-4xl font-medium text-slate-600 dark:text-white">
-          Edit Service {formData.id}
-        </h1>
+           Edit Service #{formData.id.slice(-5)}
+      </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
@@ -133,7 +141,7 @@ export default function EditService() {
           <input
             type="text"
             name="id"
-            value={formData.id}
+            value={formData.id.slice(-5)}
             onChange={handleChange}
             disabled
             className="h-10 rounded-md border bg-gray-100 border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
@@ -163,10 +171,9 @@ export default function EditService() {
             onChange={handleChange}
             className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
           >
-            <option value="">Select Category</option>
-            <option value="category1">Category 1</option>
-            <option value="category2">Category 2</option>
-            <option value="category3">Category 3</option>
+           <option key={formData.category} value={formData.category}>
+                {formData.category}
+              </option>
           </select>
         </div>
 
@@ -176,8 +183,8 @@ export default function EditService() {
           </label>
           <input
             type="date"
-            name="expireDate"
-            value={formData.expireDate}
+            name="opt_expire_date"
+            value={formData.opt_expire_date}
             onChange={handleChange}
             className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
           />
