@@ -5,11 +5,23 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { IoIosArrowDropleft } from "react-icons/io"
 import Link from "next/link"
 import Swal from 'sweetalert2'
+import { useAppDispatch, useAppSelector } from "@/app/redux/hooks";
+import { getcategory } from "@/app/redux/getCategorySlice"
+
 
 export default function EditService() {
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  const dispatch = useAppDispatch();
+  const { data: categories, loading, error } = useAppSelector((state) => state.category);
+
  
+  useEffect(() => {
+    dispatch(getcategory());
+  }, [dispatch]);
+
+
   const [formData, setFormData] = useState({
     id: "",
     service: "",
@@ -163,17 +175,34 @@ export default function EditService() {
         
         <div className="grid grid-cols-2 items-center gap-4">
           <label className="text-2xl font-medium text-gray-500 dark:text-white">
+           Currunt Category
+          </label>
+          <input
+            type="text"
+            name="id"
+            value={formData.category}
+            disabled
+            className="h-10 rounded-md border bg-gray-100 border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 items-center gap-4">
+          <label className="text-2xl font-medium text-gray-500 dark:text-white">
             Category
           </label>
           <select
             name="category"
             value={formData.category}
             onChange={handleChange}
-            className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
+            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           >
-           <option key={formData.category} value={formData.category}>
-                {formData.category}
+            <option value="">Select Category</option>
+            {categories.map((category: any) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
               </option>
+           
+            ))}
           </select>
         </div>
 
