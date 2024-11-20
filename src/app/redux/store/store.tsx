@@ -2,11 +2,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import userReducer from '../customerSlice'
 import serviceReducer from '../serviceSlice'
+import getCategoryReducer from '../getCategorySlice'
 
 export const store = configureStore({
   reducer: {
     user:userReducer,
-    servicers:serviceReducer
+    servicers:serviceReducer,
+    category:getCategoryReducer,
   },
 })
 
