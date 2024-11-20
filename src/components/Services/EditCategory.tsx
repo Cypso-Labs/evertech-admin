@@ -1,17 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, FormEvent } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useUpdateCategoryMutation } from "../../app/redux/features/categoryApiSlice";
 
-const EditCategory = () => {
+const EditCategory: React.FC = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
   const [formData, setFormData] = useState({
     id: "",
@@ -20,19 +17,23 @@ const EditCategory = () => {
     description: "",
   });
 
+  const [updateCategory, { isLoading }] = useUpdateCategoryMutation(); 
+
   useEffect(() => {
-    const categoryId = searchParams.get("id");
-    if (categoryId) {
-      setFormData({
-        id: categoryId,
-        service: searchParams.get("service") || "",
-        category: searchParams.get("category") || "",
-        description: searchParams.get("description") || "",
-      });
-    } else {
-      router.push("/services/category"); 
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const id = searchParams.get("id") || "";
+      const service = searchParams.get("service") || "";
+      const category = searchParams.get("category") || "";
+      const description = searchParams.get("description") || "";
+
+      if (!id) {
+        router.push("/services/category");
+      } else {
+        setFormData({ id, service, category, description });
+      }
     }
-  }, [searchParams, router]);
+  }, [router]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -54,36 +55,28 @@ const EditCategory = () => {
     }
 
     try {
-      const result = await updateCategory({
+      await updateCategory({
         id: formData.id,
         name: formData.category,
         description: formData.description,
       }).unwrap();
 
-      await Swal.fire({
+      Swal.fire({
         title: "Success!",
         text: "Category has been edited successfully",
         icon: "success",
         confirmButtonText: "OK",
         confirmButtonColor: "#08762D",
-        customClass: {
-          popup: "dark:bg-slate-800 dark:text-white",
-        },
       });
 
       router.push("/services/category");
     } catch (error: any) {
       Swal.fire({
         title: "Error!",
-        text:
-          error?.data?.message ||
-          "Something went wrong while editing the category",
+        text: error?.data?.message || "Something went wrong.",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#FF2323",
-        customClass: {
-          popup: "dark:bg-slate-800 dark:text-white",
-        },
       });
     }
   };
@@ -98,9 +91,6 @@ const EditCategory = () => {
       cancelButtonText: "No, keep editing",
       confirmButtonColor: "#FF2323",
       cancelButtonColor: "#08762D",
-      customClass: {
-        popup: "dark:bg-slate-800 dark:text-white",
-      },
     }).then((result) => {
       if (result.isConfirmed) {
         router.push("/services/category");
@@ -113,32 +103,28 @@ const EditCategory = () => {
       <div className="mb-12 flex items-center justify-between">
         <h1 className="flex items-center text-4xl font-medium text-slate-700 dark:text-white">
           <Link href="/services/category">
-            <span className="inline-block">
-              <IoIosArrowDropleft className="h-10 w-10 transform cursor-pointer transition-all duration-200 hover:scale-110 hover:text-blue-500" />
-            </span>
+            <IoIosArrowDropleft className="h-10 w-10 cursor-pointer" />
           </Link>
           <span className="ml-2">Edit Category #{formData.id.slice(-5)}</span>
         </h1>
       </div>
 
-      <div className="rounded-lg bg-white p-8 shadow-lg transition-all duration-300 dark:bg-slate-800">
+      <div className="rounded-lg bg-white p-8 shadow-lg dark:bg-slate-800">
         <form onSubmit={handleSubmit} className="max-w-2xl space-y-8">
-          <div className="space-y-3">
-            <label className="block text-2xl font-medium text-slate-700 dark:text-white">
-              Category Name
-            </label>
+          <div>
+            <label className="block text-2xl font-medium">Category Name</label>
             <input
               type="text"
               name="category"
               value={formData.category}
               onChange={handleChange}
               disabled={isLoading}
-              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
+              className="w-full"
             />
           </div>
 
-          <div className="space-y-3">
-            <label className="block text-2xl font-medium text-slate-700 dark:text-white">
+          <div>
+            <label className="block text-2xl font-medium">
               Category Description
             </label>
             <textarea
@@ -147,23 +133,14 @@ const EditCategory = () => {
               onChange={handleChange}
               rows={4}
               disabled={isLoading}
-              className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-lg shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:focus:ring-blue-900"
             />
           </div>
 
-          <div className="flex justify-end space-x-4 pt-4">
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="group relative flex h-12 w-32 items-center justify-center rounded-lg bg-red-100 text-lg font-medium text-red-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-red-600 hover:text-white dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white"
-            >
+          <div className="flex justify-end">
+            <button type="button" onClick={handleCancel}>
               Discard
             </button>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative flex h-12 w-32 items-center justify-center rounded-lg bg-green-100 text-lg font-medium text-green-600 shadow-sm transition-all duration-200 hover:scale-105 hover:bg-green-600 hover:text-white dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-600 dark:hover:text-white"
-            >
+            <button type="submit" disabled={isLoading}>
               {isLoading ? "Saving..." : "Save"}
             </button>
           </div>

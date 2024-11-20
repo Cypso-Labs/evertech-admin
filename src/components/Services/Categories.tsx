@@ -16,7 +16,7 @@ const Categories = () => {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+ 
 
   const { data: categories = [], isLoading: loading } =
     useGetAllCategoriesQuery();
@@ -74,22 +74,28 @@ const Categories = () => {
       category._id?.toLowerCase().includes(searchTermLower)
     );
   });
+  
+const itemsPerPage = 6;
+const indexOfLastCategory = currentPage * itemsPerPage;
+const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
+const currentCategories = filteredCategories.slice(
+  indexOfFirstCategory,
+  indexOfLastCategory,
+);
+const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
 
-  const indexOfLastCategory = currentPage * itemsPerPage;
-  const indexOfFirstCategory = indexOfLastCategory - itemsPerPage;
-  const currentCategories = filteredCategories.slice(
-    indexOfFirstCategory,
-    indexOfLastCategory,
-  );
-  const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
 
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prevPage) => prevPage + 1);
-  };
+const handleNextPage = () => {
+  if (currentCategories.length < itemsPerPage && currentPage < totalPages) {
+    setCurrentPage(currentPage + 1);
+  } else if (currentPage < totalPages) {
+    setCurrentPage(currentPage + 1);
+  }
+};
 
-  const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage((prevPage) => prevPage - 1);
-  };
+const handlePreviousPage = () => {
+  if (currentPage > 1) setCurrentPage(currentPage - 1);
+};
 
   const getServiceNameByCategoryId = (categoryId: string) => {
     const category = categories.find((cat) => cat._id === categoryId);

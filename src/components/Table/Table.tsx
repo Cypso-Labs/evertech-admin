@@ -27,16 +27,25 @@ const TablePage = () => {
     isError: isEmployeesError,
   } = useGetAllEmployeesQuery();
 
-  const getStatusColor = (status: string) => {
-    const statusStyles: { [key: string]: string } = {
-      placed: "border border-[#B48701] text-[#B48701]",
-      cancelled: "border border-[#FF0404] text-[#FF0404]",
-      processing: "border border-[#FF6A00] text-[#FF6A00]",
-      processed: "border border-[#3F9C50] text-[#3F9C50]",
-      delivered: "border border-[#002BFF] text-[#002BFF]",
-    };
-    return statusStyles[status] || "border border-gray-300 text-gray-500";
-  };
+ const getStatusColor = (status: string) => {
+   const statusStyles: { [key: string]: string } = {
+     placed:
+       "w-24 border-2 border-amber-500 bg-amber-50 text-amber-700 font-medium px-3 py-1 rounded-full text-center",
+     cancelled:
+       "w-24 border-2 border-red-500 bg-red-50 text-red-700 font-medium px-3 py-1 rounded-full text-center",
+     processing:
+       "w-24 border-2 border-orange-500 bg-orange-50 text-orange-700 font-medium px-3 py-1 rounded-full text-center",
+     processed:
+       "w-24 border-2 border-green-500 bg-green-50 text-green-700 font-medium px-3 py-1 rounded-full text-center",
+     delivered:
+       "w-24 border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium px-3 py-1 rounded-full text-center",
+   };
+
+   return (
+     statusStyles[status.toLowerCase()] ||
+     "w-24 border-2 border-gray-300 bg-gray-50 text-gray-600 font-medium px-3 py-1 rounded-full text-center"
+   );
+ };
 
   if (isOrdersLoading || isEmployeesLoading || isRolesLoading) {
     return (
@@ -60,8 +69,8 @@ const TablePage = () => {
       </div>
     );
   }
-
-  const displayedOrders = ordersData?.slice(0, 5);
+  
+ const displayedOrders = ordersData?.slice(0, 5).reverse() || [];
   const displayedEmployees = Array.isArray(employeesData)
     ? employeesData.slice(0, 5)
     : [];
@@ -113,7 +122,7 @@ const TablePage = () => {
                       {index + 1}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                      ${order.unit_price}
+                      Rs.{order.unit_price}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <span
@@ -165,7 +174,7 @@ const TablePage = () => {
                     className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
                   >
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                      {employee._id.slice(-5)}
+                      Employee #{employee._id.slice(-5)}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                       {employee.name}

@@ -30,5 +30,4 @@ export const authApiSlice = apiSlice.injectEndpoints({
   overrideExisting: false,
 });
 
-// Export the hooks for use in components
 export const { useRegisterMutation, useLoginMutation } = authApiSlice;

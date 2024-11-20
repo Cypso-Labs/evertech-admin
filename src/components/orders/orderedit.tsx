@@ -2,35 +2,34 @@
 import React, { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { MdOutlineAddCircle } from "react-icons/md";
-import { IoIosArrowDropleft } from "react-icons/io";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useParams } from "next/navigation"; 
 import Swal from "sweetalert2";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 
 const Orderedit = () => {
-  const searchParams = useSearchParams();
+  const { id, service, status, name, price } = useParams(); 
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
-    id: "",
-    service: "",
-    status: "",
-    name: "",
-    price: "",
+    id: id || "0001",
+    service: service || "",
+    status: status || "",
+    name: name || "",
+    price: price || "",
   });
 
   useEffect(() => {
-    if (searchParams) {
+    if (id || service || status || name || price) {
       setFormData({
-        id: searchParams.get("id") || "0001",
-        service: searchParams.get("service") || "",
-        status: searchParams.get("status") || "",
-        name: searchParams.get("name") || "",
-        price: searchParams.get("price") || "",
+        id: id || "0001",
+        service: service || "",
+        status: status || "",
+        name: name || "",
+        price: price || "",
       });
     }
-  }, [searchParams]);
+  }, [id, service, status, name, price]);
 
   const [orderData] = useState([
     {
@@ -59,7 +58,7 @@ const Orderedit = () => {
   const handleDiscard = () => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You will lose all newly entered data!", 
+      text: "You will lose all newly entered data!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, Cancel",
@@ -68,9 +67,11 @@ const Orderedit = () => {
       cancelButtonColor: "#2ED36D",
       customClass: {
         popup: "dark:bg-[#122031] dark:text-white",
-        confirmButton: "text-white bg-[#D93132] hover:bg-blue-700 w-[133px] h-[47px] text-[15px] rounded-md",
-        cancelButton: "text-white bg-[#2ED36D] hover:bg-red-700 w-[150px] h-[47px] text-[15px] text-left rounded-md"
-      }
+        confirmButton:
+          "text-white bg-[#D93132] hover:bg-blue-700 w-[133px] h-[47px] text-[15px] rounded-md",
+        cancelButton:
+          "text-white bg-[#2ED36D] hover:bg-red-700 w-[150px] h-[47px] text-[15px] text-left rounded-md",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         router.push("/orders");
@@ -91,8 +92,10 @@ const Orderedit = () => {
       customClass: {
         title: "font-medium",
         popup: "dark:bg-[#122031] dark:text-white",
-        confirmButton: "bg-[#BCFFC8] text-[#00000] hover:bg-[#08762D] w-[147.5px] h-[47px]",
-        cancelButton: "bg-[#FFD1D1] text-[#00000] hover:bg-[#FF5733] w-[147.5px] h-[47px]",
+        confirmButton:
+          "bg-[#BCFFC8] text-[#00000] hover:bg-[#08762D] w-[147.5px] h-[47px]",
+        cancelButton:
+          "bg-[#FFD1D1] text-[#00000] hover:bg-[#FF5733] w-[147.5px] h-[47px]",
       },
     });
   };
@@ -104,7 +107,7 @@ const Orderedit = () => {
           className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
           onClick={() => router.back()}
         >
-          <MdKeyboardArrowLeft className=" cursor-pointer hover:text-[#3584FA] bg-white rounded-full h-[51px] w-[51px] border-2 border-gray-4" />
+          <MdKeyboardArrowLeft className=" h-[51px] w-[51px] cursor-pointer rounded-full border-2 border-gray-4 bg-white hover:text-[#3584FA]" />
         </button>
         Edit Order {formData.id || "0001"}
       </div>
@@ -119,7 +122,7 @@ const Orderedit = () => {
             <div className="relative flex w-[900px] items-center justify-between pt-4">
               <div>Services</div>
               <MdOutlineAddCircle
-                className="size-14 text-[#5E91FF] dark:text-dark-5 cursor-pointer"
+                className="size-14 cursor-pointer text-[#5E91FF] dark:text-dark-5"
                 onClick={() => setIsModalOpen(true)}
               />
             </div>
@@ -141,7 +144,6 @@ const Orderedit = () => {
           />
         </div>
       </div>
-      
 
       <div className="relative col-span-4 mt-4">
         <div className="w-[900px] rounded-md border bg-white shadow-md dark:bg-dark-2">
@@ -194,7 +196,7 @@ const Orderedit = () => {
 
         <div className="mt-4 flex justify-center space-x-8">
           <button
-            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] hover:bg-[#FF2323] hover:border-[#FFCDCD] hover:text-[#FFCDCD] bg-[#FFCDCD] font-medium text-[#FF2323]"
+            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] bg-[#FFCDCD] font-medium text-[#FF2323] hover:border-[#FFCDCD] hover:bg-[#FF2323] hover:text-[#FFCDCD]"
             onClick={(e) => {
               e.stopPropagation();
               handleDiscard();
@@ -203,7 +205,7 @@ const Orderedit = () => {
             Discard
           </button>
           <button
-            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] hover:bg-[#08762D] hover:border-[#BCFFC8] hover:text-[#BCFFC8] font-medium text-[#08762D]"
+            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] font-medium text-[#08762D] hover:border-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]"
             onClick={(e) => {
               e.stopPropagation();
               handleSave();
@@ -215,21 +217,23 @@ const Orderedit = () => {
       </div>
 
 
-      
-      {/* Add Service Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-10 rounded-lg w-[672px] h-[439px]">
-            <div className="flex items-center gap-4 mb-10">
-              <h1 className="font-extrabold text-[24px] text-black">Add Service</h1>
+          <div className="h-[439px] w-[672px] rounded-lg bg-white p-10">
+            <div className="mb-10 flex items-center gap-4">
+              <h1 className="text-[24px] font-extrabold text-black">
+                Add Service
+              </h1>
             </div>
 
             <form className="space-y-10">
-              <div className="flex justify-between items-center">
-                <label className="text-[20px] font-bold text-gray-600">SERVICE</label>
+              <div className="flex items-center justify-between">
+                <label className="text-[20px] font-bold text-gray-600">
+                  SERVICE
+                </label>
                 <select
                   name="category"
-                  className="h-[36px] w-[347px] rounded-md border bg-white border-gray-300"
+                  className="h-[36px] w-[347px] rounded-md border border-gray-300 bg-white"
                 >
                   <option value="">Select Service</option>
                   <option value="service1">Service 1</option>
@@ -238,29 +242,33 @@ const Orderedit = () => {
                 </select>
               </div>
 
-              <div className="flex justify-between items-center">
-                <label className="text-[20px] font-bold text-gray-600">QUANTITY</label>
+              <div className="flex items-center justify-between">
+                <label className="text-[20px] font-bold text-gray-600">
+                  QUANTITY
+                </label>
                 <input
                   type="number"
                   name="quantity"
-                  className="h-[36px] w-[347px] rounded-md border bg-white border-gray-300"
+                  className="h-[36px] w-[347px] rounded-md border border-gray-300 bg-white"
                 />
               </div>
 
-              <div className="flex justify-between items-center">
-                <label className="text-[20px] font-bold text-gray-600">SUB Total</label>
+              <div className="flex items-center justify-between">
+                <label className="text-[20px] font-bold text-gray-600">
+                  SUB Total
+                </label>
                 <input
                   type="number"
                   name="subtotal"
-                  className="h-[36px] w-[347px] rounded-md border bg-[#E8E8E8] border-gray-300"
+                  className="h-[36px] w-[347px] rounded-md border border-gray-300 bg-[#E8E8E8]"
                 />
               </div>
 
-              <div className="flex justify-end mt-10">
+              <div className="mt-10 flex justify-end">
                 <button
                   type="button"
-                  className="rounded-md w-[154px] h-10 bg-[#BCFFC8] text-[20px] font-bold px-4 py-2 border border-[#08762D] text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] transition-colors duration-200"
-                  onClick={() => setIsModalOpen(false)} 
+                  className="h-10 w-[154px] rounded-md border border-[#08762D] bg-[#BCFFC8] px-4 py-2 text-[20px] font-bold text-[#08762D] transition-colors duration-200 hover:bg-[#08762D] hover:text-[#BCFFC8]"
+                  onClick={() => setIsModalOpen(false)}
                 >
                   ADD
                 </button>
@@ -272,6 +280,5 @@ const Orderedit = () => {
     </div>
   );
 };
-   
 
 export default Orderedit;
