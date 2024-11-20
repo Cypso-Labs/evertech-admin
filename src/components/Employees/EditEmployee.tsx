@@ -128,7 +128,7 @@ const EditEmployee = () => {
       name: formData.name,
       role: formData.role,
     }).toString();
-    router.push(`/employees/editeEmployee/leaves?${queryParams}`);
+    router.push(/employees/editeEmployee/leaves?${queryParams});
   };
 
   return (

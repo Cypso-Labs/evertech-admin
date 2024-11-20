@@ -25,6 +25,7 @@ const Roles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
+
   useEffect(() => {
     dispatch(fetchRoles());
   }, [dispatch]);
@@ -37,6 +38,7 @@ const Roles = () => {
   const indexOfFirstRole = indexOfLastRole - itemsPerPage;
   const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
   const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
+
 
   const handleRowClick = (role: Role) => {
     const queryParams = new URLSearchParams({
@@ -53,6 +55,17 @@ const Roles = () => {
       await dispatch(deleteRole(id));
     }
   };
+
+
+  const filteredRoles = roles.filter((role) =>
+    role.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const indexOfLastRole = currentPage * itemsPerPage;
+  const indexOfFirstRole = indexOfLastRole - itemsPerPage;
+  const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
+
+  const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {

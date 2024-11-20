@@ -1,105 +1,127 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect, FormEvent } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { IoIosArrowDropleft } from "react-icons/io"
-import Link from "next/link"
-import Swal from 'sweetalert2'
+import React, { useState, useEffect, FormEvent } from "react";
+import { useRouter,useParams } from "next/navigation";
+import { IoIosArrowDropleft } from "react-icons/io";
+import Link from "next/link";
+import Swal from "sweetalert2";
+import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
+import {
+  useUpdateServiceMutation,
+  useGetServiceByIdQuery,
+} from "@/app/redux/features/serviceApiSlice";
 
 export default function EditService() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
- 
+  const router = useRouter();
+  const params = useParams();
+  const { id } = params; 
+
+  const { data: categories, isLoading: categoriesLoading } =
+    useGetAllCategoriesQuery();
+  const { data: serviceData } = useGetServiceByIdQuery(id as string, {
+    skip: !id, 
+  });
+  const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
+
   const [formData, setFormData] = useState({
-    id: "",
-    service: "",
-    category: "",
-    price: "",
-    expireDate: ""
-  })
-    
+    _id: "",
+    name: "",
+    category_id: "",
+    opt_expire_date: "",
+  });
+
   useEffect(() => {
-    if (searchParams) {
+    if (serviceData) {
       setFormData({
-        id: searchParams.get("id") || "",
-        service: searchParams.get("service") || "",
-        category: searchParams.get("category") || "",
-        price: searchParams.get("price") || "",
-        expireDate: searchParams.get("expireDate") || ""
-      })
+        _id: serviceData._id,
+        name: serviceData.name,
+        category_id: serviceData.category_id,
+        opt_expire_date: serviceData.opt_expire_date
+          ? new Date(serviceData.opt_expire_date).toISOString().split("T")[0]
+          : "",
+      });
     }
-  }, [searchParams])
-   
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
+  }, [serviceData]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    
-    try {
-      // Here you would typically make your API call to update the service
-      // await updateService(formData);
-      
-      await Swal.fire({
-        title: 'Success!',
-        text: 'Service has been edited successfully',
-        icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#08762D',
-        customClass: {
-          popup: 'dark:bg-[#122031] dark:text-white',
-          confirmButton: 'bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]'
-        }
-      })
+    e.preventDefault();
 
-      router.push('/services')
+    try {
+      await updateService({
+        id: formData._id,
+        name: formData.name,
+        category_id: formData.category_id,
+        opt_expire_date: formData.opt_expire_date
+          ? new Date(formData.opt_expire_date)
+          : undefined,
+      }).unwrap();
+
+      await Swal.fire({
+        title: "Success!",
+        text: "Service has been edited successfully",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#08762D",
+        customClass: {
+          popup: "dark:bg-[#122031] dark:text-white",
+          confirmButton:
+            "bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]",
+        },
+      });
+
+      router.push("/services");
     } catch (error) {
       Swal.fire({
-        title: 'Error!',
-        text: 'Something went wrong while editing the service',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#FF2323',
+        title: "Error!",
+        text: "Something went wrong while editing the service",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#FF2323",
         customClass: {
-          popup: 'dark:bg-[#122031] dark:text-white'
-        }
-      })
+          popup: "dark:bg-[#122031] dark:text-white",
+        },
+      });
     }
-  }
+  };
 
   const handleCancel = () => {
     Swal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You'll lose all entered data!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Yes, cancel',
-      cancelButtonText: 'No, keep editing',
-      confirmButtonColor: '#FF2323',
-      cancelButtonColor: '#08762D',
+      confirmButtonText: "Yes, cancel",
+      cancelButtonText: "No, keep editing",
+      confirmButtonColor: "#FF2323",
+      cancelButtonColor: "#08762D",
       customClass: {
-        popup: 'dark:bg-[#122031] dark:text-white'
-      }
+        popup: "dark:bg-[#122031] dark:text-white",
+      },
     }).then((result) => {
       if (result.isConfirmed) {
-        router.push('/services')
+        router.push("/services");
       }
-    })
-  }
-    
+    });
+  };
+
   return (
     <div className="p-6">
-      <div className="flex items-center gap-4 mb-8">
+      <div className="mb-8 flex items-center gap-4">
         <Link href="/services" className="inline-block">
-          <IoIosArrowDropleft className="w-10 h-10 cursor-pointer mr-2 text-slate-600 hover:text-[#3584FA] dark:text-white" />
+          <IoIosArrowDropleft className="mr-2 h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
         </Link>
         <h1 className="font-inter text-4xl font-medium text-slate-600 dark:text-white">
-          Edit Service {formData.id}
+          Edit Service {formData._id}
         </h1>
       </div>
 
@@ -110,11 +132,11 @@ export default function EditService() {
           </label>
           <input
             type="text"
-            name="id"
-            value={formData.id}
+            name="_id"
+            value={formData._id}
             onChange={handleChange}
             disabled
-            className="h-10 rounded-md border bg-gray-100 border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
+            className="h-10 rounded-md border border-gray-300 bg-gray-100 p-2 dark:bg-[#1E293B] dark:text-white"
           />
         </div>
 
@@ -124,27 +146,32 @@ export default function EditService() {
           </label>
           <input
             type="text"
-            name="service"
-            value={formData.service}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
+            required
+            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           />
         </div>
-        
+
         <div className="grid grid-cols-2 items-center gap-4">
           <label className="text-2xl font-medium text-gray-500 dark:text-white">
             Category
           </label>
           <select
-            name="category"
-            value={formData.category}
+            name="category_id"
+            value={formData.category_id}
             onChange={handleChange}
-            className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
+            required
+            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           >
             <option value="">Select Category</option>
-            <option value="category1">Category 1</option>
-            <option value="category2">Category 2</option>
-            <option value="category3">Category 3</option>
+            {!categoriesLoading &&
+              categories?.map((category) => (
+                <option key={category._id} value={category._id}>
+                  {category.name}
+                </option>
+              ))}
           </select>
         </div>
 
@@ -154,42 +181,31 @@ export default function EditService() {
           </label>
           <input
             type="date"
-            name="expireDate"
-            value={formData.expireDate}
+            name="opt_expire_date"
+            value={formData.opt_expire_date}
             onChange={handleChange}
-            className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
+            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           />
         </div>
 
-        <div className="grid grid-cols-2 items-center gap-4">
-          <label className="text-2xl font-medium text-gray-500 dark:text-white">
-            Price
-          </label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="h-10 rounded-md border bg-white border-gray-300 p-2 dark:bg-[#1E293B] dark:text-white"
-          />
-        </div>
-
-        <div className="flex justify-end space-x-4 mt-8">
+        <div className="mt-8 flex justify-end space-x-4">
           <button
             type="button"
             onClick={handleCancel}
-            className="rounded-md w-36 h-10 bg-[#FFCDCD] px-4 py-2 text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700 transition-colors duration-200"
+            disabled={isUpdating}
+            className="h-10 w-36 rounded-md bg-[#FFCDCD] px-4 py-2 text-[#FF2323] transition-colors duration-200 hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="rounded-md w-36 h-10 px-4 py-2 text-[#08762D] bg-[#BCFFC8] hover:text-[#BCFFC8] hover:bg-[#08762D] dark:bg-green-600 dark:text-white dark:hover:bg-green-700 transition-colors duration-200"
+            disabled={isUpdating}
+            className="h-10 w-36 rounded-md bg-[#BCFFC8] px-4 py-2 text-[#08762D] transition-colors duration-200 hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
           >
-            Save Changes
+            {isUpdating ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </form>
     </div>
-  )
+  );
 }

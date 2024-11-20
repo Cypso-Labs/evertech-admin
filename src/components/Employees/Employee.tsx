@@ -1,207 +1,249 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
-import { RiExpandUpDownFill } from "react-icons/ri";
-import { MdOutlineSearch } from "react-icons/md";
-import { BiSolidCategory } from "react-icons/bi";
+
+import React, { useState } from "react";
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
+import { FiSearch, FiTrash2 } from "react-icons/fi";
+import { IoIosArrowDropleft } from "react-icons/io";
+import Swal from "sweetalert2";
 import {
-  fetchEmployees,
-  deleteEmployee,
-  EmployeeInterface,
-} from "../../redux/slices/employeeSlice";
-import { AppDispatch, RootState } from "../../redux/store";
-import { fetchRoles } from "../../redux/slices/roleSlice";
-import { useRouter } from "next/navigation";
+  useGetAllEmployeesQuery,
+  useDeleteEmployeeMutation,
+} from "@/app/redux/features/employeeApiSlice";
+import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
 
-const Employee = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const {
-    entities: employees,
-    loading,
-    error,
-  } = useSelector((state: RootState) => state.employees);
-
-  const { roles, loading: roleLoading } = useSelector(
-    (state: RootState) => state.roles,
-  );
-
-  const router = useRouter();
+const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const handleRowClick = (employees: EmployeeInterface) => {
-    const queryParams = new URLSearchParams({
-      id: employees._id,
-    }).toString();
-    router.push(`/employees/editeEmployee?${queryParams}`);
+  
+  const {
+    data: employees,
+    isLoading: employeesLoading,
+    error: employeesError,
+  } = useGetAllEmployeesQuery();
+  const {
+    data: roles,
+    isLoading: rolesLoading,
+    error: rolesError,
+  } = useGetAllRolesQuery();
+
+  const [deleteEmployee, { isLoading: isDeleting }] =
+    useDeleteEmployeeMutation();
+
+  const getRoleName = (roleId: string | undefined) => {
+    const role = roles?.find((role) => role._id === roleId);
+    return role ? role.name : "Unknown";
   };
 
-  useEffect(() => {
-    dispatch(fetchEmployees());
-    dispatch(fetchRoles());
-  }, [dispatch]);
+  const filteredEmployees = Array.isArray(employees)
+    ? employees.filter((employee) => {
+        if (!searchTerm) return true;
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this employee?")) {
-      await dispatch(deleteEmployee(id));
-    }
-  };
-
-  const filteredEmployees = employees.filter((employee) => {
-    const employeeId = employee._id || "";
-    const searchTermLowerCase = searchTerm ? searchTerm.toLowerCase() : "";
-    return employeeId.toLowerCase().includes(searchTermLowerCase);
-  });
-
-  const getRoleName = (roleId: string) => {
-    const role = roles.find((role) => role._id === roleId);
-    return role ? role.name : "Unknown Role";
-  };
+        const searchTermLower = searchTerm.toLowerCase();
+        return (
+          employee.name?.toLowerCase().includes(searchTermLower) ||
+          employee.email?.toLowerCase().includes(searchTermLower) ||
+          getRoleName(employee.role).toLowerCase().includes(searchTermLower)
+        );
+      })
+    : [];
 
   const indexOfLastEmployee = currentPage * itemsPerPage;
   const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
-  const currentEmployees = filteredEmployees.slice(
+  const currentEmployees = filteredEmployees?.slice(
     indexOfFirstEmployee,
     indexOfLastEmployee,
   );
+  const totalPages = Math.ceil((filteredEmployees?.length ?? 0) / itemsPerPage);
 
-  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
+  const handleDelete = async (employeeId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
 
-  if (loading === "pending") {
-    return <div className="py-4 text-center">Loading...</div>;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await deleteEmployee(employeeId).unwrap();
+        await Swal.fire({
+          title: "Deleted!",
+          text: "Employee has been deleted successfully.",
+          icon: "success",
+          timer: 1500,
+        });
+      } catch (error) {
+        await Swal.fire({
+          title: "Error!",
+          text:
+            error instanceof Error
+              ? error.message
+              : "Failed to delete the employee.",
+          icon: "error",
+        });
+        console.error("Failed to delete employee:", error);
+      }
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+ 
+  if (employeesLoading || rolesLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="py-4 text-center text-red-500">Error: {error}</div>;
+  
+
+  if (employeesError || rolesError) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <div className="rounded-lg bg-red-50 p-6 text-center dark:bg-red-900/30">
+          <h2 className="text-xl font-semibold text-red-700 dark:text-red-400">
+            Error Loading Data
+          </h2>
+          <p className="mt-2 text-red-600 dark:text-red-300">
+            {employeesError
+              ? `Error: ${"message" in employeesError ? employeesError.message : "Unknown error"}`
+              : "Failed to load data"}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="text-[40px] font-medium text-slate-600 dark:text-white"
-          style={{ font: "Inter" }}
-        >
-          Employees
-        </h1>
-        <div className="flex space-x-3">
-          <Link href="/employees/role" className="inline-block">
-            <button className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-[#CBD5E1] px-4 py-2 text-xl font-medium text-gray-700 transition-colors duration-300 hover:bg-[#000000] hover:text-slate-300 dark:bg-[#122031] dark:text-white">
+    <div className="p-6">
+      <div className="mb-8 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard"
+            className="transform transition-transform duration-200 hover:scale-110"
+          >
+            <IoIosArrowDropleft className="h-10 w-10 cursor-pointer hover:text-blue-500" />
+          </Link>
+          <h1 className="text-4xl font-medium text-slate-700 dark:text-white">
+            Employees
+          </h1>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/employees/role">
+            <button className="rounded-lg bg-gradient-to-r from-gray-100 to-gray-200 px-6 py-2.5 text-slate-700 shadow-lg transition-all duration-200 hover:scale-105 hover:from-gray-200 hover:to-gray-300 hover:shadow-gray-200 dark:from-slate-700 dark:to-slate-800 dark:text-white dark:hover:shadow-slate-900">
               Roles
-              <BiSolidCategory
-                className="ml-2 text-gray-500 hover:text-slate-300"
-                size={24}
-              />
             </button>
           </Link>
-          <Link href="/employees/newEmployee" className="inline-block">
-            <button className="h-[58px] w-[181px] rounded-md border border-blue-600 bg-blue-100 px-4 py-2 text-[18px] font-medium text-blue-500 transition-colors duration-300 hover:bg-[#3584FA] hover:text-[#E0EDFF] dark:bg-blue-400 dark:text-white">
-              New Employees +
+          <Link href="/employees/newEmployee">
+            <button className="rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-2.5 text-white shadow-lg transition-all duration-200 hover:scale-105 hover:from-blue-600 hover:to-blue-700 hover:shadow-blue-200 dark:hover:shadow-blue-900">
+              New Employee +
             </button>
           </Link>
         </div>
       </div>
 
-      <div className="mt-4 flex items-center p-4">
-        <div className="text-md flex h-[30px] w-[227px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-          <MdOutlineSearch className="mr-4 justify-start" />
+      <div className="mb-10 flex space-x-4">
+        <div className="relative w-full max-w-md">
           <input
             type="text"
             placeholder="Search Employees"
-            className="w-full border-none outline-none dark:border-dark-3 dark:bg-dark-2"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="h-12 w-full rounded-lg border border-gray-200 bg-white pl-12 pr-4 shadow-sm transition-all duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:ring-blue-900"
           />
-        </div>
-
-        <div className="text-md ml-8 flex h-[30px] w-[141px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-          <RiExpandUpDownFill className="cursor-pointer justify-start" />
-          <span> Sort by order </span>
+          <FiSearch className="absolute left-4 top-4 text-gray-400" />
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full table-auto border-separate border-spacing-y-3">
-          <thead>
-            <tr className="border-slate-400 py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
-              <th>ID</th>
-              <th>NAME</th>
-              <th>ROLE</th>
-              <th>EMAIL</th>
-              <th>ACTION</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentEmployees.map((employee) => (
-              <tr
-                key={employee._id}
-                className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
-                onClick={() => handleRowClick(employee)}
-              >
-                <td className="rounded-l-xl px-4 py-6">
-                  {employee?._id
-                    ? `Employee #${employee._id.slice(-5)}`
-                    : "N/A"}
-                </td>
-
-                <td className="px-4 py-2">{employee.name}</td>
-                <td className="px-4 py-2">{getRoleName(employee.role)}</td>
-                <td className="px-4 py-2">{employee.email}</td>
-                <td className="rounded-r-xl px-4 py-2">
-                  <button
-                    className="text-red-500 hover:text-[#3584FA]"
-                    onClick={(e) => handleDelete(employee._id, e)}
-                  >
-                    <FaTrashAlt />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            <nav className="inline-flex items-center font-semibold">
-              <button
-                className="mx-1 rounded-md border border-gray-300 px-3 py-1 text-black dark:text-white"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                <span>&lt;</span>
-              </button>
-              {Array.from({ length: totalPages }, (_, index) => (
-                <button
-                  key={index + 1}
-                  className={`mx-1 rounded-md border border-gray-300 px-3 py-1 ${
-                    currentPage === index + 1
-                      ? "bg-[#3584FA] text-white"
-                      : "text-black dark:text-white"
-                  }`}
-                  onClick={() => setCurrentPage(index + 1)}
-                >
-                  {index + 1}
-                </button>
-              ))}
-              <button
-                className="mx-1 rounded-md border border-gray-300 px-3 py-1 text-black dark:text-white"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              >
-                <span>&gt;</span>
-              </button>
-            </nav>
-          </div>
+      {employees !== null && employees !== undefined && employees.length === 0 ? (
+        <div className="flex h-40 items-center justify-center">
+          <p className="text-lg text-gray-500 dark:text-gray-400">
+            No employees found. Add some employees to get started.
+          </p>
         </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg shadow-md">
+          <table className="w-full border-separate border-spacing-y-2">
+            <thead>
+              <tr className="bg-gray-50 text-left text-lg font-semibold text-slate-700 dark:bg-slate-800 dark:text-white">
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4">Name</th>
+                <th className="px-6 py-4">Email</th>
+                <th className="px-6 py-4">Role</th>
+                <th className="px-6 py-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentEmployees?.map((employee) => (
+                <tr
+                  key={employee._id}
+                  className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
+                >
+                  <td className="px-6 py-4">
+                    Employee #{employee._id?.slice(-5) ?? "N/A"}
+                  </td>
+                  <td className="px-6 py-4">{employee.name ?? "N/A"}</td>
+                  <td className="px-6 py-4">{employee.email ?? "N/A"}</td>
+                  <td className="px-6 py-4">{getRoleName(employee.role)}</td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
+                        isDeleting ? "cursor-not-allowed opacity-50" : ""
+                      }`}
+                      onClick={(e) => handleDelete(employee._id, e)}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                      ) : (
+                        <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" />
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <div className="mt-4 flex items-center justify-between">
+        <button
+          className="px-4 py-2 text-lg font-semibold text-blue-500 disabled:opacity-50"
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+        >
+          Previous
+        </button>
+        <span className="text-lg">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          className="px-4 py-2 text-lg font-semibold text-blue-500 disabled:opacity-50"
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
 };
 
-export default Employee;
+export default Employees;

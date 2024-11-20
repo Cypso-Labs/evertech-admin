@@ -1,6 +1,8 @@
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+
  basePath: '/nx-admin',
+
   images: {
     domains: ["localhost", "evertech.lk"], 
     remotePatterns: [
