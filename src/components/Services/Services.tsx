@@ -20,8 +20,10 @@ const Services = () => {
     dispatch(getService());
   }, [dispatch]);
 
-  const router = useRouter();
 
+  const router = useRouter();
+  
+  
   interface Service {
     id: string;
     service: string;
@@ -72,10 +74,10 @@ const Services = () => {
   };
   
   const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); 
+    e.stopPropagation(); // Prevent triggering other click events
   
     try {
-     
+      // Confirm the delete action with the user
       const confirm = await Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to delete this service? This action cannot be undone.',
