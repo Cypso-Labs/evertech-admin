@@ -4,8 +4,8 @@ import SignIn from "./auth/signin/page";
 
 export const metadata: Metadata = {
   title:
-    "Next.js E-commerce Dashboard Page | NextAdmin - Next.js Dashboard Kit",
-  description: "This is Next.js Home page for NextAdmin Dashboard Kit",
+    "EverTech.lk",
+  description: "Admin Panal",
 };
 
 export default function Home() {
