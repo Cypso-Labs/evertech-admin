@@ -20,10 +20,8 @@ const Services = () => {
     dispatch(getService());
   }, [dispatch]);
 
-
   const router = useRouter();
-  
-  
+
   interface Service {
     id: string;
     service: string;
@@ -74,10 +72,10 @@ const Services = () => {
   };
   
   const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering other click events
+    e.stopPropagation(); 
   
     try {
-      // Confirm the delete action with the user
+     
       const confirm = await Swal.fire({
         title: 'Are you sure?',
         text: 'Do you want to delete this service? This action cannot be undone.',
@@ -207,7 +205,7 @@ const Services = () => {
               onClick={() => handleRowClick(service)}
                   className="text-center py-2 text-[16px] hover:bg-[#E0EDFF] font-medium text-slate-700 bg-white rounded-lg shadow-md dark:text-white dark:bg-[#122031] cursor-pointer"
                   style={{ font: "Inter" }}>
-                <td className="py-6 px-4 rounded-l-xl">{service.id}</td>
+               <td className="py-6 px-4 rounded-l-xl">Service #{service.id.slice(-5)}</td>
                 <td className="py-2 px-4">{service.service}</td>
                 <td className="py-2 px-4">{service.category}</td>
                 <td className="">
@@ -240,7 +238,7 @@ const Services = () => {
           </tbody>
         </table>
 
-        {/* Pagination */}
+     
         <div className="mt-4 flex items-center justify-between">
           <nav className="inline-flex items-center font-semibold">
             <button
