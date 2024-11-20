@@ -38,8 +38,8 @@ export interface Order {
   qty: number;
   status: string;
   sub_total: string;
-  unit_price: number;
-  grand_total: number;
+  unit_price: string;
+  grand_total: string;
   order_date: Date;
   product_id: string;
   customer_id: string;
@@ -49,7 +49,14 @@ export interface Order {
 export interface Role {
   _id: string;
   name: string;
-  access_privilege: number[];
+  privileges: {
+    viewDashboard: boolean;
+    manageEmployees: boolean;
+    manageRoles: boolean;
+    viewReports: boolean;
+    manageSettings: boolean;
+    accessAuditLogs: boolean;
+  };
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -84,6 +91,15 @@ export interface SigninCredentials {
   message?: string;
   token?: string;
   user?: Employee;
+
+}
+
+export interface Payment {
+  id: string;
+  orderId: string;
+  customerName: string;
+  status: string;
+  amount: string;
 }
 
 export interface RegisterCredentials

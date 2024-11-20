@@ -31,7 +31,6 @@ const Roles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Handle row click and route to another page
   const handleRowClick = (role: Role) => {
     const queryParams = new URLSearchParams({
       id: role.id,
@@ -47,20 +46,16 @@ const Roles = () => {
     setRoles((prevRoles) => prevRoles.filter((role) => role.id !== roleId));
   };
 
-  // Filtered roles based on search input
+
   const filteredRoles = roles.filter((role) =>
     role.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Calculate the current roles to display
   const indexOfLastRole = currentPage * itemsPerPage;
   const indexOfFirstRole = indexOfLastRole - itemsPerPage;
   const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
 
-  // Calculate total pages
   const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
-
-  // Pagination handlers
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -95,7 +90,6 @@ const Roles = () => {
       </div>
 
       <div className="mt-4 flex items-center p-4">
-        {/* Search bar */}
         <div className="text-md flex h-[30px] w-[227px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <MdOutlineSearch className="mr-4 justify-start" />
           <input
@@ -113,7 +107,6 @@ const Roles = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-separate border-spacing-y-3">
           <thead>
@@ -152,8 +145,6 @@ const Roles = () => {
             ))}
           </tbody>
         </table>
-
-        {/* Pagination */}
         <div className="mt-4 flex items-center justify-between">
           <div>
             <nav className="inline-flex items-center font-semibold">

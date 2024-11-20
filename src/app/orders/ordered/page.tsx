@@ -1,15 +1,14 @@
-import DefaultLayout from '@/components/Layouts/DefaultLaout'
-;
-import Orderd from '@/components/orders/ordered';
+import DefaultLayout from "@/components/Layouts/DefaultLaout";
+import Ordered from "@/components/orders/ordered";
 
-import React from 'react'
+import React from "react";
 
-const page = () => {
-    return (
-        <DefaultLayout>
-      <Orderd/>
-        </DefaultLayout>
-      );
-}
+const Page = () => {
+  return (
+    <DefaultLayout>
+      <Ordered />
+    </DefaultLayout>
+  );
+};
 
-export default page
+export default Page;

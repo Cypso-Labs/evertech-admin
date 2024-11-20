@@ -1,10 +1,11 @@
 "use client";
-
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLoginMutation } from "@/app/redux/features/authApiSlice";
 import { setCredentials, selectEmployee } from "@/app/redux/features/authSlice";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+
 
 const SigninWithPassword: React.FC = () => {
   const [formData, setFormData] = useState<{ email: string; password: string }>(
@@ -27,19 +28,31 @@ const SigninWithPassword: React.FC = () => {
       if (response?.data?.employee && response?.data?.token) {
         const { employee, token } = response.data;
         dispatch(setCredentials({ employee, token })); 
-        console.log("Logged in employee:", employee.name);
-        console.log("Token:", token);
-        alert("Login successful");
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Login successful",
+        })
         router.push("/dashboard");
       } else {
-        console.error("Invalid response structure:", response);
-        alert("Invalid login credentials");
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Invalid login credentials",
+        })
       }
     } catch (err: any) {
       console.error(err);
-      alert(err?.data?.message || "Something went wrong");
+      Swal.fire({
+        icon: "error", 
+        text: (err?.data?.message || "Something went wrong")
+      })
     }
   };
+  if (employee) {
+    router.push("/dashboard");
+  
+  }
 
   return (
     <div className="mx-auto mt-8 max-w-md rounded-lg bg-white p-6 shadow-md">
@@ -94,13 +107,6 @@ const SigninWithPassword: React.FC = () => {
           {isLoading ? "Signing In..." : "Sign In"}
         </button>
       </form>
-      {employee && (
-        <div className="mt-4">
-          <h3 className="text-lg font-semibold">Logged-in Employee:</h3>
-          <p>Name: {employee.name}</p>
-          <p>Email: {employee.email}</p>
-        </div>
-      )}
     </div>
   );
 };
