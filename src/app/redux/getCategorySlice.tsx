@@ -16,7 +16,6 @@ const initialState: getCategory = {
 
   export const getcategory = createAsyncThunk("category/getCategory", async () => {
     const response = await fetch('http://localhost:5000/api/categories/');
-    // const response = await fetch('https://jsonplaceholder.typicode.com/users');
     return response.json();
   });
   
