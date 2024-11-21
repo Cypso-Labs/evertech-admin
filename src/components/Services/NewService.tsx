@@ -8,9 +8,10 @@ import { useAppDispatch, useAppSelector } from "@/app/redux/hooks";
 import { getcategory } from "@/app/redux/getCategorySlice"
 
 interface FormData {
-  serviceName: string;
-  category: string;
-  expireDate: string;
+  _id:string;
+  name: string;
+  category_id: string;
+  opt_expire_date: string;
 }
 
 const EditService = () => {
@@ -19,9 +20,9 @@ const EditService = () => {
   const { data: categories, loading, error } = useAppSelector((state) => state.category);
 
   const [formData, setFormData] = useState({
-    serviceName: "",
-    category: "",
-    expireDate: ""
+    name: "",
+    category_id: "",
+    opt_expire_date: ""
   });
 
   useEffect(() => {
@@ -40,9 +41,9 @@ const EditService = () => {
     e.preventDefault();
     try {
       const payload = {
-        name: formData.serviceName,
-        category_id: formData.category,
-        opt_expire_date: formData.expireDate
+        name: formData.name,
+        category_id: formData.category_id,
+        opt_expire_date: formData.opt_expire_date
       };
       const response = await fetch("http://localhost:5000/api/services", {
         method: "POST",
@@ -69,9 +70,9 @@ const EditService = () => {
       });
 
       setFormData({
-        serviceName: "",
-        category: "",
-        expireDate: ""
+        name: "",
+        category_id: "",
+        opt_expire_date: ""
       });
       router.push("/services");
     } catch (error) {
@@ -126,8 +127,8 @@ const EditService = () => {
           </label>
           <input
             type="text"
-            name="serviceName"
-            value={formData.serviceName}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           />
@@ -138,8 +139,8 @@ const EditService = () => {
             Category
           </label>
           <select
-            name="category"
-            value={formData.category}
+            name="category_id"
+            value={formData.category_id}
             onChange={handleChange}
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           >
@@ -147,7 +148,6 @@ const EditService = () => {
             {categories.map((category: any) => (
               <option key={category.id} value={category.id}>
                 {category.name}
-              {console.log(category.id)}
               </option>
            
             ))}
@@ -160,8 +160,8 @@ const EditService = () => {
           </label>
           <input
             type="date"
-            name="expireDate"
-            value={formData.expireDate}
+            name="opt_expire_date"
+            value={formData.opt_expire_date}
             onChange={handleChange}
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           />
