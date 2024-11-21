@@ -15,6 +15,7 @@ interface FormData {
 }
 
 const EditService = () => {
+
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { data: categories, loading, error } = useAppSelector((state) => state.category);
@@ -29,6 +30,15 @@ const EditService = () => {
     dispatch(getcategory());
   }, [dispatch]);
 
+
+   const router = useRouter()
+
+  const [formData, setFormData] = useState<FormData>({
+    serviceName: '',
+    category: '',
+    expireDate: '',
+    price: ''
+  }); 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -37,9 +47,11 @@ const EditService = () => {
     }));
   };
 
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+
       const payload = {
         name: formData.name,
         category_id: formData.category_id,
@@ -145,12 +157,14 @@ const EditService = () => {
             className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
           >
             <option value="">Select Category</option>
+
             {categories.map((category: any) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
            
             ))}
+
           </select>
         </div>
 

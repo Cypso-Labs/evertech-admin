@@ -1,6 +1,5 @@
 import Link from "next/link";
 import DarkModeSwitcher from "./DarkModeSwitcher";
-import DropdownNotification from "./DropdownNotification";
 import DropdownUser from "./DropdownUser";
 import Image from "next/image";
 import SearchForm from "@/components/Header/SearchForm";
@@ -14,7 +13,7 @@ const Header = (props: {
     <header className="sticky top-0 z-999 flex w-full border-b border-stroke bg-white dark:border-stroke-dark dark:bg-gray-dark">
       <div className="flex flex-grow items-center justify-between px-4 py-5 shadow-2 md:px-5 2xl:px-10">
         <div className="flex items-center gap-2 sm:gap-4 lg:hidden">
-          {/* <!-- Hamburger Toggle BTN --> */}
+         
           <button
             aria-controls="sidebar"
             onClick={(e) => {
@@ -55,7 +54,6 @@ const Header = (props: {
               </span>
             </span>
           </button>
-          {/* <!-- Hamburger Toggle BTN --> */}
 
           <Link className="block flex-shrink-0 lg:hidden" href="/">
             <Image
@@ -80,7 +78,7 @@ const Header = (props: {
           <ul className="flex items-center gap-2 2xsm:gap-4">
             <SearchForm />
             <DarkModeSwitcher />
-            <DropdownNotification />
+
           </ul>
           <DropdownUser />
         </div>

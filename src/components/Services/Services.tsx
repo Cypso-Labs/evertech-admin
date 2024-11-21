@@ -22,8 +22,6 @@ const Services = () => {
 
 
   const router = useRouter();
-  
-  
   interface Service {
     id: string;
     service: string;
@@ -110,6 +108,7 @@ const Services = () => {
       });
     } catch (error: any) {
 
+
       await Swal.fire({
         title: 'Error!',
         text: error.message || 'Failed to delete the service.',
@@ -120,6 +119,25 @@ const Services = () => {
     }
   };
   
+
+  const handleSwitchChange = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setServices(prevServices =>
+      prevServices.map(service =>
+        service.id === serviceId
+          ? { ...service, isEnabled: !service.isEnabled }
+          : service
+      )
+    );
+  };
+
+  const handleDelete = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setServices(prevServices =>
+      prevServices.filter(service => service.id !== serviceId)
+    );
+  };
+
   const filteredServices = services.filter(
     (service) =>
       service.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,7 +149,9 @@ const Services = () => {
   const indexOfFirstService = indexOfLastService - itemsPerPage;
   const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
 
+
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
+
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -189,7 +209,6 @@ const Services = () => {
         </button>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
       <table className="w-full border-separate border-spacing-y-3 ">
           <thead>
@@ -239,8 +258,6 @@ const Services = () => {
             ))}
           </tbody>
         </table>
-
-     
         <div className="mt-4 flex items-center justify-between">
           <nav className="inline-flex items-center font-semibold">
             <button

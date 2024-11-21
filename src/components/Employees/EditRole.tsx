@@ -1,47 +1,65 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent,useEffect } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import {
+  useGetRoleByIdQuery,
+  useUpdateRoleMutation,
+} from "@/app/redux/features/roleApiSlice";
 
 interface FormData {
   roleID: string;
   roleName: string;
+  privileges: {
+    viewDashboard: boolean;
+    manageEmployees: boolean;
+    manageRoles: boolean;
+    viewReports: boolean;
+    manageSettings: boolean;
+    accessAuditLogs: boolean;
+  };
 }
 
 const EditRole = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const [isOn, setIsOn] = useState(false);
-  const [isOn2, setIsOn2] = useState(false);
-  const [isOn3, setIsOn3] = useState(false);
-  const [isOn4, setIsOn4] = useState(false);
-  const [isOn5, setIsOn5] = useState(false);
-  const [isOn6, setIsOn6] = useState(false);
+  const { id } = useParams();
+  const idString = typeof id === "string" ? id : "";
+
+  const { data: roleData, isLoading } = useGetRoleByIdQuery(idString);
+  const [updateRole] = useUpdateRoleMutation();
+
   const [formData, setFormData] = useState<FormData>({
     roleID: "",
     roleName: "",
+    privileges: {
+      viewDashboard: false,
+      manageEmployees: false,
+      manageRoles: false,
+      viewReports: false,
+      manageSettings: false,
+      accessAuditLogs: false,
+    },
   });
 
-
-  
-
-
   useEffect(() => {
-    if (searchParams) {
+    if (roleData) {
       setFormData({
-        roleID: searchParams.get("id") || "",
-        roleName: searchParams.get("service") || "",
-        
+        roleID: roleData._id || "",
+        roleName: roleData.name || "",
+        privileges: roleData.privileges || {
+          viewDashboard: false,
+          manageEmployees: false,
+          manageRoles: false,
+          viewReports: false,
+          manageSettings: false,
+          accessAuditLogs: false,
+        },
       });
     }
-  }, [searchParams]);
+  }, [roleData]);
 
-
-
-
-  // Handle input changes
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -52,12 +70,28 @@ const EditRole = () => {
     }));
   };
 
-  // Handle form submission
+  const handlePrivilegeToggle = (
+    privilegeName: keyof FormData["privileges"],
+  ) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      privileges: {
+        ...prevState.privileges,
+        [privilegeName]: !prevState.privileges[privilegeName],
+      },
+    }));
+  };
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
-      // Show success alert
+      await updateRole({
+        id: formData.roleID,
+        name: formData.roleName,
+        privileges: formData.privileges,
+      }).unwrap();
+
       await Swal.fire({
         title: "Success!",
         text: "Role has been edited successfully",
@@ -71,11 +105,6 @@ const EditRole = () => {
         },
       });
 
-      // Reset form or redirect
-      setFormData({
-        roleID: "",
-        roleName: "",
-      });
       router.push("/employees/role");
     } catch (error) {
       Swal.fire({
@@ -91,7 +120,6 @@ const EditRole = () => {
     }
   };
 
-  // Handle cancel
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -112,6 +140,10 @@ const EditRole = () => {
     });
   };
 
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <div className="mb-15 flex items-center gap-4 space-x-12">
@@ -127,8 +159,7 @@ const EditRole = () => {
       </div>
 
       <form className="w-1/2 space-y-6" onSubmit={handleSubmit}>
-        {/* Role ID */}
-        <div className="grid grid-cols-2 items-center space-y-4 ">
+        <div className="grid grid-cols-2 items-center space-y-4">
           <label
             className="block text-[24px] font-medium text-gray-500 dark:text-white"
             style={{ font: "Inter" }}
@@ -145,8 +176,7 @@ const EditRole = () => {
           />
         </div>
 
-        {/* Role Name */}
-        <div className="grid grid-cols-2 items-center space-y-4 ">
+        <div className="grid grid-cols-2 items-center space-y-4">
           <label
             className="block text-[24px] font-medium text-gray-500 dark:text-white"
             style={{ font: "Inter" }}
@@ -161,167 +191,62 @@ const EditRole = () => {
             className="h-[36px] rounded-md border border-gray-300 bg-white p-2 dark:bg-[#122031] dark:text-white"
           />
         </div>
-            
 
+        <div className="space-y-14">
+          <h1
+            className="mt-20 text-[26px] font-medium text-[#475569] dark:text-white"
+            style={{ font: "Inter" }}
+          >
+            Access Privileges
+          </h1>
 
-        {/* Access Privileges */}
+          <div className="grid grid-cols-2 gap-22">
+            <div className="grid space-y-6">
 
-        <div className="space-y-14 ">  <h1 className="text-[#475569] dark:text-white text-[26px] font-medium mt-20" style={{ font: "Inter" }}>Access Privileges</h1>
+              <PrivilegeToggle
+                label="View Dashboard"
+                isOn={formData.privileges.viewDashboard}
+                onToggle={() => handlePrivilegeToggle("viewDashboard")}
+              />
+
+              <PrivilegeToggle
+                label="Manage Employees"
+                isOn={formData.privileges.manageEmployees}
+                onToggle={() => handlePrivilegeToggle("manageEmployees")}
+              />
+
+              <PrivilegeToggle
+                label="Manage Roles"
+                isOn={formData.privileges.manageRoles}
+                onToggle={() => handlePrivilegeToggle("manageRoles")}
+              />
+            </div>
+
+            <div className="grid space-y-6">
+           
+              <PrivilegeToggle
+                label="View Reports"
+                isOn={formData.privileges.viewReports}
+                onToggle={() => handlePrivilegeToggle("viewReports")}
+              />
+
+              <PrivilegeToggle
+                label="Manage Settings"
+                isOn={formData.privileges.manageSettings}
+                onToggle={() => handlePrivilegeToggle("manageSettings")}
+              />
+
         
-        
-        <div className="grid grid-cols-2 gap-22  ">
-           <div className="grid space-y-6">
-            {/* Privilege 1 */}
-          <div className=" flex gap-20  ">
-            <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button"
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn(!isOn);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-          </div>
-
-            {/* Privilege 2 */}
-            <div className=" flex gap-20 ">
-            <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button"
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn2 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn2(!isOn2);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn2 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-          </div>
-
-            {/* Privilege 3 */}
-            <div className=" flex gap-20 ">
-            <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button"
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn3 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn3(!isOn3);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn3 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-          </div>
-          </div>
-          
-
-
-          <div className="grid space-y-6">
-            {/* Privilege 4 */}
-            <div className="flex gap-20 ">
-            <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button" 
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn4 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn4(!isOn4);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn4 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
+              <PrivilegeToggle
+                label="Access Audit Logs"
+                isOn={formData.privileges.accessAuditLogs}
+                onToggle={() => handlePrivilegeToggle("accessAuditLogs")}
+              />
             </div>
-
-            {/* Privilege 5 */}
-            <div className="flex gap-20 ">
-            <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button" 
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn5 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn5(!isOn5);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn5 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-            </div>
-
-            {/* Privilege 6 */}
-            <div className="flex gap-20 ">
-            <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button" 
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn6 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn6(!isOn6);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn6 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-            </div>
-            </div>
-          
-        </div>
+          </div>
         </div>
 
-
-
-        
         <div className="ml-20 flex justify-end space-x-4">
-          {/* Discard Button */}
           <button
             type="button"
             onClick={handleCancel}
@@ -329,7 +254,7 @@ const EditRole = () => {
           >
             Discard
           </button>
-          {/* Create Role Button */}
+
           <button
             type="submit"
             className="h-[40px] w-[150px] rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
@@ -341,5 +266,35 @@ const EditRole = () => {
     </div>
   );
 };
+
+interface PrivilegeToggleProps {
+  label: string;
+  isOn: boolean;
+  onToggle: () => void;
+}
+
+const PrivilegeToggle = ({ label, isOn, onToggle }: PrivilegeToggleProps) => (
+  <div className="flex gap-20">
+    <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
+      {label}
+    </label>
+    <button
+      type="button"
+      className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+        isOn ? "bg-green-400" : "bg-gray-300"
+      }`}
+      onClick={(e) => {
+        e.preventDefault();
+        onToggle();
+      }}
+    >
+      <div
+        className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+          isOn ? "translate-x-6" : ""
+        }`}
+      />
+    </button>
+  </div>
+);
 
 export default EditRole;

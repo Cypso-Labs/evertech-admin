@@ -3,10 +3,11 @@ import { useState, useEffect } from "react";
 import { FaRegEdit, FaTrashAlt } from "react-icons/fa";
 import Image from "next/image";
 import { CheckCircle2, Circle } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import circle from "@/assets/image/circle.png";
+import { useParams } from "next/navigation";
 
 interface Order {
   id: string;
@@ -25,7 +26,7 @@ interface OrderItem {
 }
 
 const Orderd = () => {
-  const searchParams = useSearchParams();
+  const { id } = useParams(); 
   const router = useRouter();
 
   const [formData, setFormData] = useState<Order>({
@@ -35,18 +36,17 @@ const Orderd = () => {
     name: "",
     price: "",
   });
-
-  useEffect(() => {
-    if (searchParams) {
-      setFormData({
-        id: searchParams.get("id") || "",
-        service: searchParams.get("service") || "",
-        status: searchParams.get("status") || "",
-        name: searchParams.get("name") || "",
-        price: searchParams.get("price") || "",
-      });
-    }
-  }, [searchParams]);
+useEffect(() => {
+  if (id) {
+    setFormData({
+      id: Array.isArray(id) ? id[0] : id,
+      service: "Example Service",
+      status: "Pending",
+      name: "Customer Name",
+      price: "$100.00",
+    });
+  }
+}, [id]);
 
   const [orderData] = useState<OrderItem[]>([
     {
@@ -79,15 +79,7 @@ const Orderd = () => {
   };
 
   const handleClick = (order: Order) => {
-    const queryParams = new URLSearchParams({
-      id: order.id,
-      service: order.service,
-      status: order.status,
-      name: order.name,
-      price: order.price,
-    }).toString();
-
-    router.push(`orderedit?${queryParams}`);
+    router.push(`/orders/${order.id}/edit`);
   };
 
   interface StepIconProps {
@@ -115,13 +107,13 @@ const Orderd = () => {
             className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
             onClick={() => router.back()}
           >
-            <MdKeyboardArrowLeft className=" cursor-pointer hover:text-[#3584FA] bg-white rounded-full h-[51px] w-[51px] border-2 border-gray-4" />
+            <MdKeyboardArrowLeft className="h-[51px] w-[51px] cursor-pointer rounded-full border-2 border-gray-4 bg-white hover:text-[#3584FA]" />
           </button>
           Order {formData.id || "0001"}
         </div>
         <button
           onClick={() => handleClick(formData)}
-          className="flex rounded-md border-2 border-[#000000] bg-[#CBD5E1] hover:bg-[#000000] hover:text-[#CBD5E1] hover:border-[#CBD5E1] p-2 text-xl text-[#000000] dark:border-dark-3 dark:bg-dark-2 dark:text-white"
+          className="flex rounded-md border-2 border-[#000000] bg-[#CBD5E1] p-2 text-xl text-[#000000] hover:border-[#CBD5E1] hover:bg-[#000000] hover:text-[#CBD5E1] dark:border-dark-3 dark:bg-dark-2 dark:text-white"
         >
           Edit Order <FaRegEdit className="ml-3" />
         </button>
@@ -149,9 +141,7 @@ const Orderd = () => {
           </div>
           <div className="ml-6 mr-10 mt-5 flex justify-between">
             <span>Grand Total:</span>
-            <span className="flex-1 text-center">
-              {}
-            </span>
+            <span className="flex-1 text-center">{formData.price}</span>
           </div>
           <div className="ml-6 mr-10 mt-5 flex justify-between">
             <span>Status:</span>
@@ -204,9 +194,10 @@ const Orderd = () => {
       {/* Order Items Table */}
       <div className="relative col-span-4 mt-4 flex gap-20">
         <div className="w-[900px] rounded-2xl border bg-white shadow-md dark:bg-dark-2">
-        <div className="text-[20px] font-medium p-4 h-[30px] text-[#475569]">Services</div>
+          <div className="h-[30px] p-4 text-[20px] font-medium text-[#475569]">
+            Services
+          </div>
           <table className="w-full table-auto border-separate border-spacing-y-3 p-4">
-           
             <thead>
               <tr className="text-sm uppercase text-gray-700 dark:text-white">
                 <th className="pb-2 text-left font-semibold">ID</th>
@@ -220,11 +211,21 @@ const Orderd = () => {
             <tbody>
               {orderData.map((order, index) => (
                 <tr key={index} className="dark:text-white">
-                  <td className="border-b border-l border-t border-gray-300 p-2">{order.id}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.name}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.qty}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.each}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.subtotal}</td>
+                  <td className="border-b border-l border-t border-gray-300 p-2">
+                    {order.id}
+                  </td>
+                  <td className="border-b border-t border-gray-300 p-2">
+                    {order.name}
+                  </td>
+                  <td className="border-b border-t border-gray-300 p-2">
+                    {order.qty}
+                  </td>
+                  <td className="border-b border-t border-gray-300 p-2">
+                    {order.each}
+                  </td>
+                  <td className="border-b border-t border-gray-300 p-2">
+                    {order.subtotal}
+                  </td>
                   <td className="border-b border-r border-t border-gray-300 p-2 text-center">
                     <button className="text-red-500 hover:text-red-700">
                       <FaTrashAlt size={16} />
@@ -236,9 +237,8 @@ const Orderd = () => {
           </table>
         </div>
 
-
         {/* Order Status */}
-        <div className=" w-[250px] rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-3 dark:text-white">
+        <div className="w-[250px] rounded-2xl bg-white p-6 shadow-xl dark:bg-dark-3 dark:text-white">
           <div className="text-2xl font-semibold">Order Status</div>
           <div className="mt-4">Payment Status</div>
           <button className="mt-4 h-[48px] w-[190px] rounded-lg border-2 border-[#FF2323] bg-[#FFCDCD] p-4 font-medium text-[#F70D1A]">
