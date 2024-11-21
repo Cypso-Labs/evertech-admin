@@ -15,7 +15,7 @@ const initialState: getServicers = {
   }
 
   export const getService = createAsyncThunk("service/getService", async () => {
-    const response = await fetch('http://localhost:5000/api/services');
+    const response = await fetch('http://localhost:5000/api/services/');
     return response.json();
   });
   
