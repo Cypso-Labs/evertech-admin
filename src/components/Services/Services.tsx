@@ -1,82 +1,79 @@
-'use client'
+"use client";
 
-import React, { useState } from "react"
-import { BiSolidCategory } from "react-icons/bi"
-import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi"
-import { Switch } from '@headlessui/react'
-import Link from "next/link"
-import { useRouter } from 'next/navigation'
+import React, { useState } from "react";
+import { BiSolidCategory } from "react-icons/bi";
+import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi";
+import { Switch } from "@headlessui/react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  useGetAllServicesQuery,
+  useUpdateServiceMutation,
+  useDeleteServiceMutation,
+} from "@/app/redux/features/serviceApiSlice";
+import { Service } from "@/types";
+
 const Services = () => {
-
   const router = useRouter();
-  interface Service {
-    id: string;
-    service: string;
-    category: string;
-    price: string;
-    isEnabled?: boolean;
-  }
-  
-  const initialServices: Service[] = [
-    { id: 'Service #00142', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-    { id: 'Service #00143', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-    { id: 'Service #00144', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-    { id: 'Service #00145', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-    { id: 'Service #00146', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-    { id: 'Service #00147', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
-    { id: 'Service #00148', service: 'Lorem ipsum dolor sit amet', category: 'Lorem ipsum', price: "$ 99.98", isEnabled: true },
-    { id: 'Service #00149', service: 'Consectetur adipiscing elit', category: 'Dolor sit', price: "$ 129.99", isEnabled: true },
-    { id: 'Service #00110', service: 'Sed do eiusmod tempor', category: 'Adipiscing elit', price: "$ 89.50", isEnabled: false },
 
-    
-  ];
+  const { data: services = [], isLoading, isError } = useGetAllServicesQuery();
+  const [updateService] = useUpdateServiceMutation();
+  const [deleteService] = useDeleteServiceMutation();
 
-  const [services, setServices] = useState(initialServices);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-   const handleRowClick = (service: Service) => {
-    const queryParams = new URLSearchParams({
-      id: service.id,
-      service: service.service,
-      category: service.category,
-      price: service.price,
-    }).toString();
-    
-    router.push(`/services/editServices?${queryParams}`);
+  // Helper function to check expiration status
+  const isExpired = (optExpireDate: Date) =>
+    new Date(optExpireDate) < new Date();
+
+  const handleRowClick = (service: Service) => {
+    router.push(`/services/editServices?id=${service._id}`);
   };
 
-  const handleSwitchChange = (serviceId: string, e: React.MouseEvent) => {
+  const handleSwitchChange = async (service: Service, e: React.MouseEvent) => {
     e.stopPropagation();
-    setServices(prevServices =>
-      prevServices.map(service =>
-        service.id === serviceId
-          ? { ...service, isEnabled: !service.isEnabled }
-          : service
-      )
-    );
+
+    if (isExpired(service.opt_expire_date)) {
+      alert("This service is expired and cannot be enabled.");
+      return;
+    }
+    try {
+      await updateService({
+        id: service._id,
+        isEnabled: !service.isEnabled,
+      }).unwrap();
+    } catch (error) {
+      console.error("Failed to update service:", error);
+    }
   };
 
-  const handleDelete = (serviceId: string, e: React.MouseEvent) => {
+  const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setServices(prevServices =>
-      prevServices.filter(service => service.id !== serviceId)
-    );
+
+    try {
+      await deleteService(serviceId).unwrap();
+    } catch (error) {
+      console.error("Failed to delete service:", error);
+    }
   };
+
   const filteredServices = services.filter(
     (service) =>
-      service.service.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.id.toLowerCase().includes(searchTerm.toLowerCase())
+      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service.category_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      service._id.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
   const indexOfLastService = currentPage * itemsPerPage;
   const indexOfFirstService = indexOfLastService - itemsPerPage;
-  const currentServices = filteredServices.slice(indexOfFirstService, indexOfLastService);
-
+  const currentServices = filteredServices.slice(
+    indexOfFirstService,
+    indexOfLastService,
+  );
 
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
-
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -90,94 +87,100 @@ const Services = () => {
     }
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading services.</div>;
+
   return (
-    <div >
-      <div className="flex items-center justify-between mb-6">
-        <h1
-          className="text-[40px] font-medium text-slate-600 dark:text-white"
-          style={{ font: "Inter" }}
-        >
+    <div>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-[40px] font-medium text-slate-600 dark:text-white">
           Services
         </h1>
-        <div className="flex space-x-4   ">
-        <Link href="/services/category" className="inline-block">
-      <button 
-        className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-[#CBD5E1] px-4 py-2 text-xl font-medium text-gray-700 transition-colors duration-300 hover:bg-[#000000] hover:text-slate-300 dark:bg-[#122031] dark:text-white"
-      >
-        Categories
-        <BiSolidCategory className="ml-2 text-gray-500 hover:text-slate-300" size={24} />
-      </button>
-    </Link>
-    <Link href="/services/newService" className="inline-block">
-          <button className="h-[58px] w-[181px] rounded-md border border-blue-600 dark:bg-blue-400 dark:text-white  hover:text-[#E0EDFF]  bg-blue-100 px-4 py-2 text-[20px] font-medium text-blue-500 transition-colors duration-300 hover:bg-[#3584FA]  ">
-            New Service +
-          </button>
-      </Link>    
+        <div className="flex space-x-4">
+          <Link href="/services/category" className="inline-block">
+            <button className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-[#CBD5E1] px-4 py-2 text-xl font-medium text-gray-700 hover:bg-[#000000] hover:text-slate-300 dark:bg-[#122031] dark:text-white">
+              Categories
+              <BiSolidCategory
+                className="ml-2 text-gray-500 hover:text-slate-300"
+                size={24}
+              />
+            </button>
+          </Link>
+          <Link href="/services/newService" className="inline-block">
+            <button className="h-[58px] w-[181px] rounded-md border border-blue-600 bg-blue-100 px-4 py-2 text-[20px] font-medium text-blue-500 hover:bg-[#3584FA] hover:text-[#E0EDFF] dark:bg-blue-400 dark:text-white">
+              New Service +
+            </button>
+          </Link>
         </div>
       </div>
 
-      <div className="flex space-x-4 mb-10">
+      <div className="mb-10 flex space-x-4">
         <div className="relative">
           <input
             type="text"
             placeholder="Search Service"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-10 w-64 rounded-md border border-gray-300 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500  dark:text-white dark:bg-[#122031]"
+            className="h-10 w-64 rounded-md border border-gray-300 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
           />
           <FiSearch className="absolute left-3 top-1 translate-y-1/2 transform text-gray-400" />
         </div>
-
-        <button className="flex h-10 w-32 items-center justify-between rounded-md border border-gray-300 bg-white px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white dark:bg-[#122031] ">
-          <span className="text-gray-700 dark:text-white dark:bg-[#122031]">Sort By ID</span>
-          <FiChevronDown className="text-gray-400" />
-        </button>
       </div>
 
       <div className="overflow-x-auto">
-      <table className="w-full border-separate border-spacing-y-3 ">
+        <table className="w-full border-separate border-spacing-y-3">
           <thead>
-            <tr className="text-center dark:text-white border-slate-400 py-2 text-[16px] font-extrabold text-slate-600 " style={{ font: "Inter" }}>
+            <tr className="py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
-              <th>SERVICE</th>
+              <th>NAME</th>
               <th>CATEGORY</th>
-              <th>PRICE</th>
-              <th>EXP</th>
+              <th>EXPIRE DATE</th>
+              <th>STATUS</th>
               <th>ACTION</th>
             </tr>
           </thead>
           <tbody>
-            {currentServices.map((service, index) => (
-              <tr key={index} 
-              onClick={() => handleRowClick(service)}
-                  className="text-center py-2 text-[16px] hover:bg-[#E0EDFF] font-medium text-slate-700 bg-white rounded-lg shadow-md dark:text-white dark:bg-[#122031] cursor-pointer"
-                  style={{ font: "Inter" }}>
-                <td className="py-6 px-4 rounded-l-xl">{service.id}</td>
-                <td className="py-2 px-4">{service.service}</td>
-                <td className="py-2 px-4">{service.category}</td>
-                <td className="py-2 px-4">{service.price}</td>
-                <td className="">
+            {currentServices.map((service) => (
+              <tr
+                key={service._id}
+                onClick={() => handleRowClick(service)}
+                className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
+              >
+                <td className="rounded-l-xl px-4 py-6">{service._id}</td>
+                <td className="px-4 py-2">{service.name}</td>
+                <td className="px-4 py-2">{service.category_id}</td>
+                <td className="px-4 py-2">
+                  {new Date(service.opt_expire_date).toLocaleDateString()}
+                </td>
+                <td>
                   <div className="flex justify-center">
-                  <Switch
-                      checked={service.isEnabled}
+                    <Switch
+                      checked={
+                        service.isEnabled && !isExpired(service.opt_expire_date)
+                      }
                       onChange={() => {}}
-                      onClick={(e) => handleSwitchChange(service.id, e)}
+                      onClick={(e) => handleSwitchChange(service, e)}
                       className={`${
-                        service.isEnabled ? "bg-green-600" : "bg-gray-200"
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
+                        service.isEnabled && !isExpired(service.opt_expire_date)
+                          ? "bg-green-600"
+                          : "bg-gray-200"
+                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:ring-2 focus:ring-indigo-500`}
                     >
                       <span
                         className={`${
-                          service.isEnabled ? "translate-x-6" : "translate-x-1"
+                          service.isEnabled &&
+                          !isExpired(service.opt_expire_date)
+                            ? "translate-x-6"
+                            : "translate-x-1"
                         } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                       />
                     </Switch>
                   </div>
                 </td>
-                <td className="py-2 px-4 rounded-r-xl">
-                  <button 
+                <td className="rounded-r-xl px-4 py-2">
+                  <button
                     className="text-red-500 hover:text-[#3584FA]"
-                    onClick={(e) => handleDelete(service.id, e)}
+                    onClick={(e) => handleDelete(service._id, e)}
                   >
                     <FiTrash2 size={20} />
                   </button>

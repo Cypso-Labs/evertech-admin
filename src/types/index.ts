@@ -30,6 +30,7 @@ export interface Service {
   opt_expire_date: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  isEnabled?: boolean;
 }
 
 export interface Order {

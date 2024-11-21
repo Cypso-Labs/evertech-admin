@@ -1,180 +1,242 @@
 "use client";
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
-import Swal from 'sweetalert2';
-import { useRouter } from "next/navigation"
-interface FormData {
-  serviceName: string;
-  category: string;
-  expireDate: string;
-  price: string | number;
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+import { useCreateServiceMutation } from "@/app/redux/features/serviceApiSlice";
+import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
+import type { Service, Category } from "@/types";
+
+interface ServiceFormData {
+  name: string;
+  category_id: string;
+  opt_expire_date: string;
 }
 
-const EditService = () => {
-   const router = useRouter()
+const CreateService: React.FC = () => {
+  const router = useRouter();
+  const [createService, { isLoading }] = useCreateServiceMutation();
+  const { data: categories = [] } = useGetAllCategoriesQuery();
 
-  const [formData, setFormData] = useState<FormData>({
-    serviceName: '',
-    category: '',
-    expireDate: '',
-    price: ''
+  const [formData, setFormData] = useState<ServiceFormData>({
+    name: "",
+    category_id: "",
+    opt_expire_date: new Date().toISOString().split("T")[0],
   });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
+  const [errors, setErrors] = useState<Partial<ServiceFormData>>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<ServiceFormData> = {};
+
+    // Form validation logic
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+
+    // Clear specific error when user starts typing/selecting
+    if (errors[name as keyof ServiceFormData]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: undefined,
+      }));
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
+    if (!validateForm()) {
+      return;
+    }
+
     try {
+      const response = await createService({
+        ...formData,
+        opt_expire_date: new Date(formData.opt_expire_date),
+      }).unwrap();
+
       await Swal.fire({
-        title: 'Success!',
-        text: 'Service has been created successfully',
-        icon: 'success',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#08762D',
+        title: "Success!",
+        text: "Service has been created successfully",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#08762D",
         customClass: {
-          popup: 'dark:bg-[#122031] dark:text-white',
-          confirmButton: 'bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]'
-        }
+          popup: "dark:bg-[#122031] dark:text-white",
+          confirmButton: "bg-green-500 text-white hover:bg-green-600",
+        },
       });
-      setFormData({
-        serviceName: '',
-        category: '',
-        expireDate: '',
-        price: ''
-      });
-      router.push('/services')
+
+      router.push("/services");
     } catch (error) {
+      console.error("Service creation error:", error);
+
       Swal.fire({
-        title: 'Error!',
-        text: 'Something went wrong while creating the service',
-        icon: 'error',
-        confirmButtonText: 'OK',
-        confirmButtonColor: '#FF2323',
+        title: "Error!",
+        text: "Failed to create service. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#FF2323",
         customClass: {
-          popup: 'dark:bg-[#122031] dark:text-white'
-        }
+          popup: "dark:bg-[#122031] dark:text-white",
+        },
       });
     }
   };
+
   const handleCancel = () => {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: "You'll lose all entered data!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes, cancel',
-      cancelButtonText: 'No, keep editing',
-      confirmButtonColor: '#FF2323',
-      cancelButtonColor: '#08762D',
-      customClass: {
-        popup: 'dark:bg-[#122031] dark:text-white'
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        router.push('/services')
-      }
-    })
-  }
+    if (
+      formData.name ||
+      formData.category_id ||
+      formData.opt_expire_date !== new Date().toISOString().split("T")[0]
+    ) {
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You'll lose all entered data!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, cancel",
+        cancelButtonText: "No, keep editing",
+        confirmButtonColor: "#FF2323",
+        cancelButtonColor: "#08762D",
+        customClass: {
+          popup: "dark:bg-[#122031] dark:text-white",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.push("/services");
+        }
+      });
+    } else {
+      router.push("/services");
+    }
+  };
 
   return (
-    <div>
-      <div className="flex items-center gap-4 mb-15 space-x-12">
-        <h1 className="font-inter flex text-4xl font-medium text-slate-600 dark:text-white" style={{ font: "Inter" }}>
-          <Link href="/services" className="inline-block">
-            <IoIosArrowDropleft className="w-10 h-10 cursor-pointer mr-2 hover:text-[#3584FA]" /> 
-          </Link>
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8 flex items-center gap-4">
+        <Link href="/services" className="inline-block">
+          <IoIosArrowDropleft
+            className="h-10 w-10 text-slate-600 transition-colors hover:text-blue-500 dark:text-white"
+            aria-label="Back to Services"
+          />
+        </Link>
+        <h1 className="text-3xl font-medium text-slate-600 dark:text-white">
           New Service
         </h1>
       </div>
 
-      <form className="w-1/2 space-y-6" onSubmit={handleSubmit}>
-        <div className="grid grid-cols-2 items-center space-y-2">
-          <label className="block text-[24px] font-medium text-gray-500 dark:text-white" style={{ font: "Inter" }}>
-            Service ID
-          </label>
-          <input
-            type="text"
-            name="id"
-            disabled
-            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 items-center space-y-2">
-          <label className="block text-[24px] font-medium text-gray-500 dark:text-white" style={{ font: "Inter" }}>
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto max-w-2xl space-y-6 rounded-lg bg-white p-8 shadow-md dark:bg-[#1e293b]"
+      >
+        <div className="form-group">
+          <label
+            htmlFor="name"
+            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
+          >
             Service Name
           </label>
           <input
             type="text"
-            name="serviceName"
-            value={formData.serviceName}
+            id="name"
+            name="name"
+            value={formData.name}
             onChange={handleChange}
-            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
+            placeholder="Enter service name"
+            className={`w-full rounded-md border px-3 py-2 
+              ${
+                errors.name
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              } 
+              dark:bg-[#122031] dark:text-white`}
           />
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+          )}
         </div>
-        
-        <div className="grid grid-cols-2 items-center space-y-2">
-          <label className="block text-[24px] font-medium text-gray-500 dark:text-white" style={{ font: "Inter" }}>
+
+        <div className="form-group">
+          <label
+            htmlFor="category_id"
+            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
+          >
             Category
           </label>
           <select
-            name="category"
-            value={formData.category}
+            id="category_id"
+            name="category_id"
+            value={formData.category_id}
             onChange={handleChange}
-            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
+            className={`w-full rounded-md border px-3 py-2
+              ${
+                errors.category_id
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              } 
+              dark:bg-[#122031] dark:text-white`}
           >
             <option value="">Select Category</option>
+            {categories.map((category: Category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
           </select>
+          {errors.category_id && (
+            <p className="mt-1 text-sm text-red-500">{errors.category_id}</p>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 items-center space-y-2">
-          <label className="block text-[24px] font-medium text-gray-500 dark:text-white" style={{ font: "Inter" }}>
+        <div className="form-group">
+          <label
+            htmlFor="opt_expire_date"
+            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
+          >
             Expire Date
           </label>
           <input
             type="date"
-            name="expireDate"
-            value={formData.expireDate}
+            id="opt_expire_date"
+            name="opt_expire_date"
+            value={formData.opt_expire_date}
             onChange={handleChange}
-            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
+            min={new Date().toISOString().split("T")[0]}
+            className={`w-full rounded-md border px-3 py-2
+              ${
+                errors.opt_expire_date
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              } 
+              dark:bg-[#122031] dark:text-white`}
           />
+          {errors.opt_expire_date && (
+            <p className="mt-1 text-sm text-red-500">
+              {errors.opt_expire_date}
+            </p>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 items-center space-y-2">
-          <label className="block text-[24px] font-medium text-gray-500 dark:text-white" style={{ font: "Inter" }}>
-            Price
-          </label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="h-[36px] rounded-md border bg-white border-gray-300 p-2 dark:bg-[#122031] dark:text-white"
-          />
-        </div>
-
-        <div className="flex justify-end ml-20 space-x-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="rounded-md w-[150px] h-[40px] px-4 py-2 text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] bg-[#FFCDCD] dark:text-white border border-red-400 dark:bg-red-600 dark:hover:bg-red-700"
-          >
+        <div className="flex justify-end space-x-4 pt-4">
+          <button type="button" onClick={handleCancel} className="btn-cancel">
             Cancel
           </button>
-          <button
-            type="submit"
-            className="rounded-md w-[150px] h-[40px] px-4 py-2 text-[#08762D] bg-[#BCFFC8] hover:text-[#BCFFC8] hover:bg-[#08762D] dark:text-white border border-green-400 dark:bg-green-600 dark:hover:bg-green-700"
-          >
-            Create Category
+          <button type="submit" disabled={isLoading} className="btn-primary">
+            {isLoading ? "Creating..." : "Create Service"}
           </button>
         </div>
       </form>
@@ -182,4 +244,4 @@ const EditService = () => {
   );
 };
 
-export default EditService;
+export default CreateService;
