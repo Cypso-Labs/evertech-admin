@@ -1,47 +1,51 @@
 "use client";
 
 import React, { useState, useEffect, FormEvent } from "react";
-import { useRouter,useParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
 import {
-  useUpdateServiceMutation,
   useGetServiceByIdQuery,
+  useUpdateServiceMutation,
 } from "@/app/redux/features/serviceApiSlice";
 
 export default function EditService() {
   const router = useRouter();
-  const params = useParams();
-  const { id } = params; 
+  const searchParams = useSearchParams();
+  const serviceId = searchParams.get("id") || "";
 
   const { data: categories, isLoading: categoriesLoading } =
     useGetAllCategoriesQuery();
-  const { data: serviceData } = useGetServiceByIdQuery(id as string, {
-    skip: !id, 
-  });
+  const { data: service, isLoading: serviceLoading } =
+    useGetServiceByIdQuery(serviceId);
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
 
   const [formData, setFormData] = useState({
-    _id: "",
-    name: "",
-    category_id: "",
+    id: "",
+    service: "",
+    category: "",
     opt_expire_date: "",
   });
 
+  const formatDate = (date: string | Date): string => {
+    if (!date) return "";
+    const parsedDate = typeof date === "string" ? new Date(date) : date;
+    if (isNaN(parsedDate.getTime())) return "";
+    return parsedDate.toISOString().split("T")[0];
+  };
+
   useEffect(() => {
-    if (serviceData) {
+    if (service) {
       setFormData({
-        _id: serviceData._id,
-        name: serviceData.name,
-        category_id: serviceData.category_id,
-        opt_expire_date: serviceData.opt_expire_date
-          ? new Date(serviceData.opt_expire_date).toISOString().split("T")[0]
-          : "",
+        id: service._id,
+        service: service.name,
+        category: service.category_id,
+        opt_expire_date: formatDate(service.opt_expire_date),
       });
     }
-  }, [serviceData]);
+  }, [service]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -57,14 +61,16 @@ export default function EditService() {
     e.preventDefault();
 
     try {
-      await updateService({
-        id: formData._id,
-        name: formData.name,
-        category_id: formData.category_id,
+      const payload = {
+        id: formData.id,
+        name: formData.service,
         opt_expire_date: formData.opt_expire_date
           ? new Date(formData.opt_expire_date)
           : undefined,
-      }).unwrap();
+        category_id: formData.category,
+      };
+
+      await updateService(payload).unwrap();
 
       await Swal.fire({
         title: "Success!",
@@ -78,8 +84,7 @@ export default function EditService() {
             "bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]",
         },
       });
-
-      router.push("/services");
+      router.push(`/services`);
     } catch (error) {
       Swal.fire({
         title: "Error!",
@@ -114,6 +119,10 @@ export default function EditService() {
     });
   };
 
+  if (categoriesLoading || serviceLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="p-6">
       <div className="mb-8 flex items-center gap-4">
@@ -121,7 +130,7 @@ export default function EditService() {
           <IoIosArrowDropleft className="mr-2 h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
         </Link>
         <h1 className="font-inter text-4xl font-medium text-slate-600 dark:text-white">
-          Edit Service {formData._id}
+          Edit Service #{formData.id.slice(-5)}
         </h1>
       </div>
 
@@ -132,8 +141,8 @@ export default function EditService() {
           </label>
           <input
             type="text"
-            name="_id"
-            value={formData._id}
+            name="id"
+            value={formData.id.slice(-5)}
             onChange={handleChange}
             disabled
             className="h-10 rounded-md border border-gray-300 bg-gray-100 p-2 dark:bg-[#1E293B] dark:text-white"
@@ -146,10 +155,9 @@ export default function EditService() {
           </label>
           <input
             type="text"
-            name="name"
-            value={formData.name}
+            name="service"
+            value={formData.service}
             onChange={handleChange}
-            required
             className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           />
         </div>
@@ -159,19 +167,17 @@ export default function EditService() {
             Category
           </label>
           <select
-            name="category_id"
-            value={formData.category_id}
+            name="category"
+            value={formData.category}
             onChange={handleChange}
-            required
-            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
+            className="h-[36px] rounded-md border border-gray-300 bg-white p-2 dark:bg-[#122031] dark:text-white"
           >
             <option value="">Select Category</option>
-            {!categoriesLoading &&
-              categories?.map((category) => (
-                <option key={category._id} value={category._id}>
-                  {category.name}
-                </option>
-              ))}
+            {categories?.map((category: any) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -192,7 +198,6 @@ export default function EditService() {
           <button
             type="button"
             onClick={handleCancel}
-            disabled={isUpdating}
             className="h-10 w-36 rounded-md bg-[#FFCDCD] px-4 py-2 text-[#FF2323] transition-colors duration-200 hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
           >
             Cancel
@@ -200,7 +205,7 @@ export default function EditService() {
           <button
             type="submit"
             disabled={isUpdating}
-            className="h-10 w-36 rounded-md bg-[#BCFFC8] px-4 py-2 text-[#08762D] transition-colors duration-200 hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
+            className="h-10 w-36 rounded-md bg-[#BCFFC8] px-4 py-2 text-[#08762D] transition-colors duration-200 hover:bg-[#08762D] hover:text-[#BCFFC8] disabled:opacity-50 dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
           >
             {isUpdating ? "Saving..." : "Save Changes"}
           </button>
