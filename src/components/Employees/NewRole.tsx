@@ -4,13 +4,17 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
+import { createRole } from "../../redux/slices/roleSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/store";
 
 interface FormData {
-  roleID: string;
-  roleName: string;
+  id: string;
+  name: string;
 }
 
 const NewRole = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const [isOn, setIsOn] = useState(false);
   const [isOn2, setIsOn2] = useState(false);
@@ -19,8 +23,8 @@ const NewRole = () => {
   const [isOn5, setIsOn5] = useState(false);
   const [isOn6, setIsOn6] = useState(false);
   const [formData, setFormData] = useState<FormData>({
-    roleID: "",
-    roleName: "",
+    id: "",
+    name: "",
   });
 
   const handleChange = (
@@ -37,6 +41,12 @@ const NewRole = () => {
     e.preventDefault();
 
     try {
+      await dispatch(
+        createRole({
+          name: formData.name,
+        }),
+      ).unwrap();
+
       await Swal.fire({
         title: "Success!",
         text: "Role has been created successfully",
@@ -49,9 +59,10 @@ const NewRole = () => {
             "bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]",
         },
       });
+
       setFormData({
-        roleID: "",
-        roleName: "",
+        id: "",
+        name: "",
       });
       router.push("/employees/role");
     } catch (error) {
@@ -112,10 +123,9 @@ const NewRole = () => {
           </label>
           <input
             type="text"
-            name="roleID"
-            disabled
+            name="id"
             className="h-[36px] rounded-md border border-gray-300 bg-white p-2 dark:bg-[#122031] dark:text-white"
-            value={formData.roleID}
+            value={formData.id}
             onChange={handleChange}
           />
         </div>
@@ -129,161 +139,160 @@ const NewRole = () => {
           </label>
           <input
             type="text"
-            name="roleName"
-            value={formData.roleName}
+            name="name"
+            value={formData.name}
             onChange={handleChange}
             className="h-[36px] rounded-md border border-gray-300 bg-white p-2 dark:bg-[#122031] dark:text-white"
           />
         </div>
-            
 
-        <div className="space-y-14 ">  <h1 className="text-[#475569] dark:text-white text-[26px] font-medium mt-20" style={{ font: "Inter" }}>Access Privileges</h1>
-        
-        
-        <div className="grid grid-cols-2 gap-22  ">
-           <div className="grid space-y-6">
+        <div className="space-y-14 ">
+          {" "}
+          <h1
+            className="mt-20 text-[26px] font-medium text-[#475569] dark:text-white"
+            style={{ font: "Inter" }}
+          >
+            Access Privileges
+          </h1>
+          <div className="grid grid-cols-2 gap-22  ">
+            <div className="grid space-y-6">
+              <div className=" flex gap-20  ">
+                <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
+                  Lorem Ipsum Dolor Sit
+                </label>
+                <button
+                  type="button"
+                  className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isOn ? "bg-green-400" : "bg-gray-300"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOn(!isOn);
+                  }}
+                >
+                  <div
+                    className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+                      isOn ? "translate-x-6" : ""
+                    }`}
+                  ></div>
+                </button>
+              </div>
 
-          <div className=" flex gap-20  ">
-            <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button"
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn(!isOn);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-          </div>
+              <div className=" flex gap-20 ">
+                <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
+                  Lorem Ipsum Dolor Sit
+                </label>
+                <button
+                  type="button"
+                  className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isOn2 ? "bg-green-400" : "bg-gray-300"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOn2(!isOn2);
+                  }}
+                >
+                  <div
+                    className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+                      isOn2 ? "translate-x-6" : ""
+                    }`}
+                  ></div>
+                </button>
+              </div>
 
-            <div className=" flex gap-20 ">
-            <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button"
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn2 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn2(!isOn2);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn2 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-          </div>
-
-            <div className=" flex gap-20 ">
-            <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button"
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn3 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn3(!isOn3);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn3 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-          </div>
-          </div>
-          
-
-
-          <div className="grid space-y-6">
-            <div className="flex gap-20 ">
-            <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button" 
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn4 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn4(!isOn4);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn4 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
+              <div className=" flex gap-20 ">
+                <label className="block text-[18px] font-medium text-gray-500 dark:text-white">
+                  Lorem Ipsum Dolor Sit
+                </label>
+                <button
+                  type="button"
+                  className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isOn3 ? "bg-green-400" : "bg-gray-300"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOn3(!isOn3);
+                  }}
+                >
+                  <div
+                    className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+                      isOn3 ? "translate-x-6" : ""
+                    }`}
+                  ></div>
+                </button>
+              </div>
             </div>
-            <div className="flex gap-20 ">
-            <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button" 
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn5 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn5(!isOn5);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn5 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
+
+            <div className="grid space-y-6">
+              <div className="flex gap-20 ">
+                <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
+                  Lorem Ipsum Dolor Sit
+                </label>
+                <button
+                  type="button"
+                  className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isOn4 ? "bg-green-400" : "bg-gray-300"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOn4(!isOn4);
+                  }}
+                >
+                  <div
+                    className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+                      isOn4 ? "translate-x-6" : ""
+                    }`}
+                  ></div>
+                </button>
+              </div>
+
+              <div className="flex gap-20 ">
+                <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
+                  Lorem Ipsum Dolor Sit
+                </label>
+                <button
+                  type="button"
+                  className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isOn5 ? "bg-green-400" : "bg-gray-300"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOn5(!isOn5);
+                  }}
+                >
+                  <div
+                    className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+                      isOn5 ? "translate-x-6" : ""
+                    }`}
+                  ></div>
+                </button>
+              </div>
+
+              <div className="flex gap-20 ">
+                <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
+                  Lorem Ipsum Dolor Sit
+                </label>
+                <button
+                  type="button"
+                  className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
+                    isOn6 ? "bg-green-400" : "bg-gray-300"
+                  }`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsOn6(!isOn6);
+                  }}
+                >
+                  <div
+                    className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
+                      isOn6 ? "translate-x-6" : ""
+                    }`}
+                  ></div>
+                </button>
+              </div>
             </div>
-            <div className="flex gap-20 ">
-            <label className=" flex text-[18px] font-medium text-gray-500 dark:text-white">
-              Lorem Ipsum Dolor Sit
-            </label>
-            <button
-              type="button" 
-              className={`flex h-8 w-14 items-center rounded-full p-1 duration-300 ease-in-out ${
-                isOn6 ? "bg-green-400" : "bg-gray-300"
-              }`}
-              onClick={(e) => {
-                e.preventDefault(); 
-                setIsOn6(!isOn6);
-              }}
-            >
-              <div
-                className={`h-6 w-6 transform rounded-full bg-white shadow-md duration-300 ease-in-out ${
-                  isOn6 ? "translate-x-6" : ""
-                }`}
-              ></div>
-            </button>
-            </div>
-            </div>
-          
+          </div>
         </div>
-        </div>
 
-
-
-        
         <div className="ml-20 flex justify-end space-x-4">
           <button
             type="button"
@@ -292,6 +301,7 @@ const NewRole = () => {
           >
             Discard
           </button>
+
           <button
             type="submit"
             className="h-[40px] w-[150px] rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"

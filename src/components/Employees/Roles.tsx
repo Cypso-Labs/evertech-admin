@@ -1,49 +1,59 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
+import { fetchRoles, deleteRole } from "../../redux/slices/roleSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { Role } from "../../redux/slices/roleSlice";
+import { selectEmployeeRoleCounts } from "../../redux/slices/employeeSlice";
+
 const Roles = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { roles, loading, error } = useSelector(
+    (state: RootState) => state.roles,
+  );
   const router = useRouter();
 
-  interface Role {
-    id: string;
-    name: string;
-    employees: string;
-  }
+  const roleCounts = useSelector(selectEmployeeRoleCounts);
 
-  const initialRoles: Role[] = [
-    { id: "1", name: "Lorem Ipsum Dolor Sit", employees: "5" },
-    { id: "2", name: "Lorem Ipsum Dolor Sit", employees: "12" },
-    { id: "3", name: "Lorem Ipsum Dolor Sit", employees: "2" },
-    { id: "4", name: "Lorem Ipsum Dolor Sit", employees: "3" },
-    { id: "5", name: "Lorem Ipsum Dolor Sit", employees: "4" },
-    { id: "6", name: "Lorem Ipsum Dolor Sit", employees: "5" },
-    { id: "7", name: "Lorem Ipsum Dolor Sit", employees: "5" },
-  ];
-
-  
-  const [roles, setRoles] = useState(initialRoles);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
+
+  useEffect(() => {
+    dispatch(fetchRoles());
+  }, [dispatch]);
+
+  const filteredRoles = roles.filter((role) =>
+    role.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const indexOfLastRole = currentPage * itemsPerPage;
+  const indexOfFirstRole = indexOfLastRole - itemsPerPage;
+  const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
+  const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
+
+
   const handleRowClick = (role: Role) => {
     const queryParams = new URLSearchParams({
-      id: role.id,
+      id: role._id,
       name: role.name,
-      employees: role.employees,
-      
+      employees: roleCounts.toString(),
     }).toString();
     router.push(`/employees/role/editRole?${queryParams}`);
   };
 
-  const handleDelete = (roleId: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setRoles((prevRoles) => prevRoles.filter((role) => role.id !== roleId));
+    if (window.confirm("Are you sure you want to delete this role?")) {
+      await dispatch(deleteRole(id));
+    }
   };
 
 
@@ -56,6 +66,7 @@ const Roles = () => {
   const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
 
   const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
+
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -70,7 +81,7 @@ const Roles = () => {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 flex items-center justify-between">
         <h1
           className="font-inter flex items-center space-x-2 text-4xl font-medium text-slate-600 dark:text-white "
           style={{ font: "Inter" }}
@@ -82,7 +93,7 @@ const Roles = () => {
         </h1>
         <div className="flex space-x-3">
           <Link href="/employees/role/newRole" className="inline-block">
-            <button className="h-[58px] w-[181px] rounded-md border border-blue-600 dark:bg-blue-400 dark:text-white hover:text-[#E0EDFF] bg-blue-100 px-4 py-2 text-[18px] font-medium text-blue-500 transition-colors duration-300 hover:bg-[#3584FA]">
+            <button className="h-[58px] w-[181px] rounded-md border border-blue-600 bg-blue-100 px-4 py-2 text-[18px] font-medium text-blue-500 transition-colors duration-300 hover:bg-[#3584FA] hover:text-[#E0EDFF] dark:bg-blue-400 dark:text-white">
               New Role +
             </button>
           </Link>
@@ -100,20 +111,12 @@ const Roles = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
-        <div className="text-md ml-8 flex h-[30px] w-[141px] items-center rounded-lg border-2 border-gray-300 bg-white px-3 py-2 text-center text-gray-600 shadow-2xl dark:border-dark-3 dark:bg-dark-2 dark:text-white">
-          <RiExpandUpDownFill className="cursor-pointer justify-start" />
-          <span> Sort by order </span>
-        </div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full table-auto border-separate border-spacing-y-3">
           <thead>
-            <tr
-              className="text-center dark:text-white border-slate-400 py-2 text-[16px] font-extrabold text-slate-600"
-              style={{ font: "Inter" }}
-            >
+            <tr className="border-slate-400 py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
               <th>NAME</th>
               <th>EMPLOYEES</th>
@@ -123,20 +126,19 @@ const Roles = () => {
           <tbody>
             {currentRoles.map((role) => (
               <tr
-                key={role.id}
+                key={role._id}
                 onClick={() => handleRowClick(role)}
-                className="text-center py-2 text-[16px] hover:bg-[#E0EDFF] font-medium text-slate-700 bg-white rounded-lg shadow-md dark:text-white dark:bg-[#122031] cursor-pointer"
-                style={{ font: "Inter" }}
+                className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
               >
-                <td className="py-6 px-4 rounded-l-xl">
-                {role.id}
+                <td className="rounded-l-xl px-4 py-6">
+                  Role #{role._id.slice(-5)}
                 </td>
-                <td className="py-2 px-4">{role.name}</td>
-                <td className="py-2 px-4">{role.employees}</td>
-                <td className="py-2 px-4 rounded-r-xl">
+                <td className="px-4 py-2">{role.name}</td>
+                <td className="px-4 py-2">{roleCounts[role._id] || 0}</td>
+                <td className="rounded-r-xl px-4 py-2">
                   <button
                     className="text-red-500 hover:text-[#3584FA]"
-                    onClick={(e) => handleDelete(role.id, e)}
+                    onClick={(e) => handleDelete(role._id, e)}
                   >
                     <FaTrashAlt />
                   </button>
@@ -145,6 +147,7 @@ const Roles = () => {
             ))}
           </tbody>
         </table>
+
         <div className="mt-4 flex items-center justify-between">
           <div>
             <nav className="inline-flex items-center font-semibold">

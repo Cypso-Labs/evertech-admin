@@ -4,69 +4,73 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { useRegisterMutation } from "../../app/redux/features/authApiSlice";
-import { Employee } from "@/types";
+import { newEmployee } from "@/redux/slices/employeeSlice";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../redux/store";
+import { useSelector } from "react-redux";
+import { RootState } from "../../redux/store";
 
-const initialFormData: Employee = {
-  _id: " ",
-  name: " ",
-  address: " ",
-  gender: " ",
-  age: " ",
-  join_date: new Date(),
-  email: "",
-  contact: "",
-  username: "",
-  password: "",
-  role: "",
+interface FormData {
+  _id: string;
+  name: string;
+  age: string;
+  role: string;
+  contact: string;
+  address: string;
+  gender: string;
+  password: string;
+  email: string;
+  username: string;
 }
 
 const NewEmployee = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const [registerEmployee] = useRegisterMutation();
-  const [formData, setFormData] = useState<Employee>(initialFormData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { roles } = useSelector((state: RootState) => state.roles);
+
+  const [formData, setFormData] = useState<FormData>({
+    _id: "",
+    name: "",
+    age: "",
+    role: "",
+    contact: "",
+    address: "",
+    gender: "",
+    password: "",
+    email: "",
+    username: "",
+  });
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (isSubmitting) return;
 
-    const requiredFields = [
-      "name",
-      "role",
-      "contact",
-      "address",
-      "gender",
-      "join_date",
-    ];
-    const missingFields = requiredFields.filter(
-      (field) => !formData[field as keyof Employee],
-    );
-
-    if (missingFields.length > 0) {
-      await Swal.fire({
-        title: "Missing Information",
-        text: `Please fill in all required fields: ${missingFields.join(", ")}`,
-        icon: "warning",
-        confirmButtonColor: "#08762D",
-        customClass: {
-          popup: "dark:bg-[#122031] dark:text-white",
-        },
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
+    const selectedRole = roles.find((role) => role._id === formData.role);
+    const roleName = selectedRole ? selectedRole.name : "";
 
     try {
-      await registerEmployee(formData).unwrap();
+      await dispatch(
+        newEmployee({
+          email: formData.email,
+          name: formData.name,
+          username: formData.username,
+          role: roleName,
+          contact: formData.contact,
+          address: formData.address,
+          gender: formData.gender,
+          age: formData.age,
+          password: formData.password,
+        }),
+      ).unwrap();
 
       await Swal.fire({
         title: "Success!",
@@ -81,14 +85,23 @@ const NewEmployee = () => {
         },
       });
 
-      setFormData(initialFormData);
+      setFormData({
+        _id: "",
+        name: "",
+        age: "",
+        role: "",
+        contact: "",
+        address: "",
+        gender: "",
+        password: "",
+        email: "",
+        username: "",
+      });
       router.push("/employees");
-    } catch (error: any) {
-      await Swal.fire({
+    } catch (error) {
+      Swal.fire({
         title: "Error!",
-        text:
-          error.data?.message ||
-          "Something went wrong while creating the employee",
+        text: "Something went wrong while creating the employee",
         icon: "error",
         confirmButtonText: "OK",
         confirmButtonColor: "#FF2323",
@@ -96,102 +109,28 @@ const NewEmployee = () => {
           popup: "dark:bg-[#122031] dark:text-white",
         },
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
-  const handleCancel = async () => {
-    if (Object.values(formData).some((value) => value !== "")) {
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "You'll lose all entered data!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, discard",
-        cancelButtonText: "No, keep editing",
-        confirmButtonColor: "#FF2323",
-        cancelButtonColor: "#08762D",
-        customClass: {
-          popup: "dark:bg-[#122031] dark:text-white",
-        },
-      });
-
+  const handleCancel = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You'll lose all entered data!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, cancel",
+      cancelButtonText: "No, keep editing",
+      confirmButtonColor: "#FF2323",
+      cancelButtonColor: "#08762D",
+      customClass: {
+        popup: "dark:bg-[#122031] dark:text-white",
+      },
+    }).then((result) => {
       if (result.isConfirmed) {
         router.push("/employees");
       }
-    } else {
-      router.push("/employees");
-    }
+    });
   };
-
-  const FormField = ({
-    label,
-    name,
-    type = "text",
-    value,
-    options = [],
-    disabled = false,
-    rows = 1,
-  }: {
-    label: string;
-    name: string;
-    type?: string;
-    value: string;
-    options?: Array<{ value: string; label: string }>;
-    disabled?: boolean;
-    rows?: number;
-  }) => (
-    <div className="flex items-start">
-      <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
-        {label}
-      </label>
-      {type === "select" ? (
-        <select
-          name={name}
-          value={value}
-          onChange={handleChange}
-          disabled={disabled || isSubmitting}
-          className="flex-1 rounded-md border px-3 py-2 disabled:opacity-50 dark:bg-[#122031] dark:text-white"
-        >
-          <option value="">Select {label}</option>
-          {options.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      ) : type === "textarea" ? (
-        <textarea
-          name={name}
-          value={value}
-          onChange={handleChange}
-          rows={rows}
-          disabled={disabled || isSubmitting}
-          className="flex-1 rounded-md border px-3 py-2 disabled:opacity-50 dark:bg-[#122031] dark:text-white"
-        />
-      ) : (
-        <input
-          type={type}
-          name={name}
-          value={value}
-          onChange={handleChange}
-          disabled={disabled || isSubmitting}
-          className="flex-1 rounded-md border px-3 py-2 disabled:opacity-50 dark:bg-[#122031] dark:text-white"
-        />
-      )}
-    </div>
-  );
-  const ROLES = [
-    { value: "admin", label: "Admin" },
-    { value: "employee", label: "Employee" },
-    { value: "manager", label: "Manager" },
-  ];
-  const GENDERS = [
-    { value: "male", label: "Male" },
-    { value: "female", label: "Female" },
-    { value: "other", label: "Other" },
-  ];
 
   return (
     <div className="p-6">
@@ -205,71 +144,149 @@ const NewEmployee = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full max-w-6xl">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-6">
           <div className="space-y-6">
-            <FormField
-              label="Employee ID"
-              name="_id"
-              value={formData._id}
-              disabled
-            />
-            <FormField
-              label="Employee Name"
-              name="name"
-              value={formData.name}
-            />
-            <FormField
-              label="Role"
-              name="role"
-              type="select"
-              value={formData.role}
-              options={ROLES}
-            />
-           <FormField
-             label="Contact"
-             name="contact"
-             type="tel"
-             value={formData.contact ?? ''}
-           />
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                User Name
+              </label>
+              <input
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Name
+              </label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Role
+              </label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              >
+                <option value="">Select Role</option>
+                {roles.map((role) => (
+                  <option key={role._id} value={role._id}>
+                    {role.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Contact
+              </label>
+              <input
+                type="text"
+                name="contact"
+                value={formData.contact}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Age
+              </label>
+              <input
+                type="text"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
           </div>
 
           <div className="space-y-6">
-            <FormField
-              label="Address"
-              name="address"
-              type="textarea"
-              value={formData.address}
-              rows={4}
-            />
-            <FormField
-              label="Gender"
-              name="gender"
-              type="select"
-              value={formData.gender}
-              options={GENDERS}
-            />
-            <FormField
-              label="Join Date"
-              name="join_date"
-              type="date"
-              value={formData.join_date.toISOString().slice(0, 10)}
-            />
+            <div className="flex items-start">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Address
+              </label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                rows={4}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
 
-            <div className="flex justify-end space-x-4">
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Gender
+              </label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              >
+                <option value="">Select Gender</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Email
+              </label>
+              <input
+                type="text"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+
+            <div className="mt-8 flex justify-end space-x-4">
               <button
                 type="button"
                 onClick={handleCancel}
-                disabled={isSubmitting}
-                className="rounded-md bg-gray-200 px-4 py-2 font-medium text-gray-700 hover:bg-gray-300 disabled:opacity-50 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                className="rounded-md border border-red-400 bg-[#FFCDCD] px-4 py-2 text-sm font-medium text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
               >
                 Discard
               </button>
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="rounded-md bg-[#3584FA] px-4 py-2 font-medium text-white hover:bg-blue-600 disabled:opacity-50"
+                className="rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
               >
-                {isSubmitting ? "Creating..." : "Create Employee"}
+                Create Employee
               </button>
             </div>
           </div>
