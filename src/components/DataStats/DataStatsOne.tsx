@@ -1,17 +1,19 @@
+"use client";
 import React from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "@/redux/store"; // Import the store type
+import { useGetAllOrdersQuery } from "@/app/redux/features/orderApiSlice";
 import orders from "@/assets/images/icon/order.svg";
 import payments from "@/assets/images/icon/payment.svg";
 import services from "@/assets/images/icon/service.svg";
 import customers from "@/assets/images/icon/customer.svg";
 import Image from "next/image";
 
-
 const DataStatsOne: React.FC = () => {
-  const unpaidOrdersCount = useSelector(
-    (state: RootState) => state.orders.unpaidOrdersCount,
-  );
+  const { data: allOrders, isLoading } = useGetAllOrdersQuery();
+
+ 
+  const unpaidOrdersCount = isLoading
+    ? 0
+    : allOrders?.filter((order) => order.status === "Pending").length || 0;
 
   const dataStatsList = [
     {
@@ -59,7 +61,6 @@ const DataStatsOne: React.FC = () => {
       growthRate: -0.95,
     },
   ];
-
 
   return (
     <>

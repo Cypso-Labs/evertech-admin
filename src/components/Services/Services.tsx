@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BiSolidCategory } from "react-icons/bi";
-import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi";
+import { FiSearch, FiTrash2 } from "react-icons/fi";
 import { Switch } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,20 +11,53 @@ import {
   useUpdateServiceMutation,
   useDeleteServiceMutation,
 } from "@/app/redux/features/serviceApiSlice";
+import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
 import { Service } from "@/types";
 
 const Services = () => {
   const router = useRouter();
-
-  const { data: services = [], isLoading, isError } = useGetAllServicesQuery();
-  const [updateService] = useUpdateServiceMutation();
-  const [deleteService] = useDeleteServiceMutation();
-
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Helper function to check expiration status
+
+  const [updateService] = useUpdateServiceMutation();
+  const [deleteService] = useDeleteServiceMutation();
+
+
+  const {
+    data: servicesResponse = { data: [] } as { data: Service[] },
+    isLoading: servicesLoading,
+    isError: servicesError,
+  } = useGetAllServicesQuery();
+
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+  } = useGetAllCategoriesQuery();
+
+
+  if (servicesLoading || categoriesLoading) return <div>Loading...</div>;
+
+  if (servicesError || categoriesError) return <div>Error loading data.</div>;
+
+  const services =
+    servicesResponse && "data" in servicesResponse
+      ? servicesResponse.data
+      : servicesResponse;
+
+ 
+  const filteredServices = services.filter((service) =>
+    service.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
+  const paginatedServices = filteredServices.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
   const isExpired = (optExpireDate: Date) =>
     new Date(optExpireDate) < new Date();
 
@@ -49,46 +82,32 @@ const Services = () => {
     }
   };
 
-  const handleDelete = async (serviceId: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-
     try {
-      await deleteService(serviceId).unwrap();
+      await deleteService(id).unwrap();
     } catch (error) {
       console.error("Failed to delete service:", error);
     }
   };
 
-  const filteredServices = services.filter(
-    (service) =>
-      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.category_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service._id.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
-  const indexOfLastService = currentPage * itemsPerPage;
-  const indexOfFirstService = indexOfLastService - itemsPerPage;
-  const currentServices = filteredServices.slice(
-    indexOfFirstService,
-    indexOfLastService,
-  );
-
-  const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
-
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage((prevPage) => prevPage + 1);
+      setCurrentPage(currentPage + 1);
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage((prevPage) => prevPage - 1);
+      setCurrentPage(currentPage - 1);
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error loading services.</div>;
+  // Function to get category name by id
+  const getCategoryName = (categoryId: string) => {
+    const category = categories.find((cat) => cat._id === categoryId);
+    return category ? category.name : "Unknown Category";
+  };
 
   return (
     <div>
@@ -133,6 +152,7 @@ const Services = () => {
             <tr className="py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
               <th>NAME</th>
+              <th>PRICE</th>
               <th>CATEGORY</th>
               <th>EXPIRE DATE</th>
               <th>STATUS</th>
@@ -140,7 +160,7 @@ const Services = () => {
             </tr>
           </thead>
           <tbody>
-            {currentServices.map((service) => (
+            {paginatedServices.map((service) => (
               <tr
                 key={service._id}
                 onClick={() => handleRowClick(service)}
@@ -148,7 +168,10 @@ const Services = () => {
               >
                 <td className="rounded-l-xl px-4 py-6">{service._id}</td>
                 <td className="px-4 py-2">{service.name}</td>
-                <td className="px-4 py-2">{service.category_id}</td>
+                <td className="px-4 py-2">Rs.{service.price}</td>
+                <td className="px-4 py-2">
+                  {getCategoryName(service.category_id)}
+                </td>
                 <td className="px-4 py-2">
                   {new Date(service.opt_expire_date).toLocaleDateString()}
                 </td>
@@ -190,7 +213,7 @@ const Services = () => {
           </tbody>
         </table>
         <div className="mt-4 flex items-center justify-between">
-          <nav className="inline-flex items-center font-semibold">
+          <nav className="inline-flex items-center">
             <button
               className="mx-1 rounded-md border border-gray-300 px-3 py-1 text-black dark:text-white"
               onClick={handlePreviousPage}
@@ -198,7 +221,7 @@ const Services = () => {
             >
               <span>&lt;</span>
             </button>
-            {Array.from({ length: totalPages }, (_, index) => (
+            {[...Array(totalPages)].map((_, index) => (
               <button
                 key={index + 1}
                 className={`mx-1 rounded-md border border-gray-300 px-3 py-1 ${

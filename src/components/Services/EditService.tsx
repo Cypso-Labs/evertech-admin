@@ -29,20 +29,13 @@ export default function EditService() {
     opt_expire_date: "",
   });
 
-  const formatDate = (date: string | Date): string => {
-    if (!date) return "";
-    const parsedDate = typeof date === "string" ? new Date(date) : date;
-    if (isNaN(parsedDate.getTime())) return "";
-    return parsedDate.toISOString().split("T")[0];
-  };
-
   useEffect(() => {
     if (service) {
       setFormData({
         id: service._id,
         service: service.name,
         category: service.category_id,
-        opt_expire_date: formatDate(service.opt_expire_date),
+        opt_expire_date: service.opt_expire_date ? service.opt_expire_date.toISOString() : "",
       });
     }
   }, [service]);
@@ -59,7 +52,6 @@ export default function EditService() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     try {
       const payload = {
         id: formData.id,
@@ -69,10 +61,8 @@ export default function EditService() {
           : undefined,
         category_id: formData.category,
       };
-
       await updateService(payload).unwrap();
-
-      await Swal.fire({
+      Swal.fire({
         title: "Success!",
         text: "Service has been edited successfully",
         icon: "success",
@@ -130,7 +120,7 @@ export default function EditService() {
           <IoIosArrowDropleft className="mr-2 h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
         </Link>
         <h1 className="font-inter text-4xl font-medium text-slate-600 dark:text-white">
-          Edit Service #{formData.id.slice(-5)}
+          Edit Service #{formData.id ? formData.id.slice(-5) : "Unknown"}
         </h1>
       </div>
 
@@ -142,7 +132,7 @@ export default function EditService() {
           <input
             type="text"
             name="id"
-            value={formData.id.slice(-5)}
+            value={formData.id ? formData.id.slice(-5) : ""}
             onChange={handleChange}
             disabled
             className="h-10 rounded-md border border-gray-300 bg-gray-100 p-2 dark:bg-[#1E293B] dark:text-white"

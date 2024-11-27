@@ -1,6 +1,7 @@
 export interface Employee {
   _id: string;
   name: string;
+  employee_id: string;
   leave?: string;
   address: string;
   gender: string;
@@ -26,6 +27,7 @@ export interface Category {
 export interface Service {
   _id: string;
   name: string;
+  price: string;
   category_id: string;
   opt_expire_date: Date;
   createdAt?: Date;

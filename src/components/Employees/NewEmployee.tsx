@@ -4,15 +4,17 @@ import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
-import { newEmployee } from "@/redux/slices/employeeSlice";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../redux/store";
-import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { useRegisterMutation } from "@/app/redux/features/authApiSlice";
+import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
+import type { RootState } from "@/app/redux/store/store";
+import { Employee } from "@/types";
+import { Role } from "@/types";
 
 interface FormData {
   _id: string;
   name: string;
+  employee_id: string;
   age: string;
   role: string;
   contact: string;
@@ -24,12 +26,16 @@ interface FormData {
 }
 
 const NewEmployee = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
-  const { roles } = useSelector((state: RootState) => state.roles);
+  const [register, { isLoading }] = useRegisterMutation();
 
+  const dispatch = useDispatch();
+  const router = useRouter();
+
+  const { data: roles } = useGetAllRolesQuery();
+  
   const [formData, setFormData] = useState<FormData>({
     _id: "",
+    employee_id: "",
     name: "",
     age: "",
     role: "",
@@ -50,67 +56,64 @@ const NewEmployee = () => {
       [name]: value,
     }));
   };
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  try {
+    const result = await register({
+      email: formData.email,
+      employee_id: formData.employee_id,
+      name: formData.name,
+      username: formData.username,
+      role: formData.role, 
+      contact: formData.contact,
+      address: formData.address,
+      gender: formData.gender,
+      age: formData.age,
+      password: formData.password,
+      join_date: new Date(),
+    }).unwrap();
+    await Swal.fire({
+      title: "Success!",
+      text: "Employee has been created successfully",
+      icon: "success",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#08762D",
+      customClass: {
+        popup: "dark:bg-[#122031] dark:text-white",
+        confirmButton:
+          "bg-[#BCFFC8] text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8]",
+      },
+    });
 
-    const selectedRole = roles.find((role) => role._id === formData.role);
-    const roleName = selectedRole ? selectedRole.name : "";
+    setFormData({
+      _id: "",
+      employee_id: "",
+      name: "",
+      age: "",
+      role: "",
+      contact: "",
+      address: "",
+      gender: "",
+      password: "",
+      email: "",
+      username: "",
+    });
 
-    try {
-      await dispatch(
-        newEmployee({
-          email: formData.email,
-          name: formData.name,
-          username: formData.username,
-          role: roleName,
-          contact: formData.contact,
-          address: formData.address,
-          gender: formData.gender,
-          age: formData.age,
-          password: formData.password,
-        }),
-      ).unwrap();
-
-      await Swal.fire({
-        title: "Success!",
-        text: "Employee has been created successfully",
-        icon: "success",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#08762D",
-        customClass: {
-          popup: "dark:bg-[#122031] dark:text-white",
-          confirmButton:
-            "bg-[#BCFFC8] text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8]",
-        },
-      });
-
-      setFormData({
-        _id: "",
-        name: "",
-        age: "",
-        role: "",
-        contact: "",
-        address: "",
-        gender: "",
-        password: "",
-        email: "",
-        username: "",
-      });
-      router.push("/employees");
-    } catch (error) {
-      Swal.fire({
-        title: "Error!",
-        text: "Something went wrong while creating the employee",
-        icon: "error",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#FF2323",
-        customClass: {
-          popup: "dark:bg-[#122031] dark:text-white",
-        },
-      });
-    }
-  };
+    router.push("/employees");
+  } catch (error: any) {
+    Swal.fire({
+      title: "Error!",
+      text: error.message || "Something went wrong while creating the employee",
+      icon: "error",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#FF2323",
+      customClass: {
+        popup: "dark:bg-[#122031] dark:text-white",
+      },
+    });
+  }
+};
 
   const handleCancel = () => {
     Swal.fire({
@@ -174,6 +177,19 @@ const NewEmployee = () => {
 
             <div className="flex items-center">
               <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+                Employe ID
+              </label>
+              <input
+                type="text"
+                name="employee_id"
+                value={formData.employee_id}
+                onChange={handleChange}
+                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Role
               </label>
               <select
@@ -183,7 +199,7 @@ const NewEmployee = () => {
                 className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               >
                 <option value="">Select Role</option>
-                {roles.map((role) => (
+                {roles?.map((role: Role) => (
                   <option key={role._id} value={role._id}>
                     {role.name}
                   </option>

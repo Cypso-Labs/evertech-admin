@@ -1,34 +1,30 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
-import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
-import { fetchRoles, deleteRole } from "../../redux/slices/roleSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/store";
-import { Role } from "../../redux/slices/roleSlice";
-import { selectEmployeeRoleCounts } from "../../redux/slices/employeeSlice";
+import {
+  useGetAllRolesQuery,
+  useDeleteRoleMutation,
+} from "@/app/redux/features/roleApiSlice";
+import type { Role } from "@/types";
 
 const Roles = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { roles, loading, error } = useSelector(
-    (state: RootState) => state.roles,
-  );
   const router = useRouter();
-
-  const roleCounts = useSelector(selectEmployeeRoleCounts);
+  const { data: roles = [], isLoading, isError } = useGetAllRolesQuery();
+  const [deleteRole] = useDeleteRoleMutation();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
 
-  useEffect(() => {
-    dispatch(fetchRoles());
-  }, [dispatch]);
+  const roleCounts = roles.reduce((acc: Record<string, number>, role) => {
+    acc[role._id] = 0; 
+    return acc;
+  }, {});
 
   const filteredRoles = roles.filter((role) =>
     role.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -39,12 +35,11 @@ const Roles = () => {
   const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
   const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
 
-
   const handleRowClick = (role: Role) => {
     const queryParams = new URLSearchParams({
       id: role._id,
       name: role.name,
-      employees: roleCounts.toString(),
+      employees: roleCounts[role._id].toString(),
     }).toString();
     router.push(`/employees/role/editRole?${queryParams}`);
   };
@@ -52,20 +47,13 @@ const Roles = () => {
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this role?")) {
-      await dispatch(deleteRole(id));
+      try {
+        await deleteRole(id).unwrap();
+      } catch (error) {
+        console.error("Failed to delete role", error);
+      }
     }
   };
-
-
-  const filteredRoles = roles.filter((role) =>
-    role.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const indexOfLastRole = currentPage * itemsPerPage;
-  const indexOfFirstRole = indexOfLastRole - itemsPerPage;
-  const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
-
-  const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
@@ -79,13 +67,13 @@ const Roles = () => {
     }
   };
 
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <div>Error loading roles</div>;
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1
-          className="font-inter flex items-center space-x-2 text-4xl font-medium text-slate-600 dark:text-white "
-          style={{ font: "Inter" }}
-        >
+        <h1 className="font-inter flex items-center space-x-2 text-4xl font-medium text-slate-600 dark:text-white">
           <Link href="/employees" className="inline-block">
             <IoIosArrowDropleft className="mr-2 h-10 w-10 cursor-pointer hover:text-[#3584FA]" />
           </Link>

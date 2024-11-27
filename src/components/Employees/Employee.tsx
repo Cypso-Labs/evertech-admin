@@ -1,6 +1,5 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FiSearch, FiTrash2 } from "react-icons/fi";
 import { IoIosArrowDropleft } from "react-icons/io";
@@ -16,12 +15,13 @@ const Employees = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  
   const {
     data: employees,
     isLoading: employeesLoading,
     error: employeesError,
+    refetch: refetchEmployees,
   } = useGetAllEmployeesQuery();
+
   const {
     data: roles,
     isLoading: rolesLoading,
@@ -80,6 +80,7 @@ const Employees = () => {
           icon: "success",
           timer: 1500,
         });
+        refetchEmployees(); 
       } catch (error) {
         await Swal.fire({
           title: "Error!",
@@ -102,7 +103,16 @@ const Employees = () => {
     if (currentPage > 1) setCurrentPage((prev) => prev - 1);
   };
 
- 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      refetchEmployees();
+    }, 300); 
+
+    return () => {
+      clearInterval(intervalId); 
+    };
+  }, [refetchEmployees]);
+
   if (employeesLoading || rolesLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
@@ -110,8 +120,6 @@ const Employees = () => {
       </div>
     );
   }
-
-  
 
   if (employeesError || rolesError) {
     return (
@@ -171,7 +179,9 @@ const Employees = () => {
         </div>
       </div>
 
-      {employees !== null && employees !== undefined && employees.length === 0 ? (
+      {employees !== null &&
+      employees !== undefined &&
+      employees.length === 0 ? (
         <div className="flex h-40 items-center justify-center">
           <p className="text-lg text-gray-500 dark:text-gray-400">
             No employees found. Add some employees to get started.
@@ -196,7 +206,7 @@ const Employees = () => {
                   className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
                 >
                   <td className="px-6 py-4">
-                    Employee #{employee._id?.slice(-5) ?? "N/A"}
+                    #{employee.employee_id ?? "N/A"}
                   </td>
                   <td className="px-6 py-4">{employee.name ?? "N/A"}</td>
                   <td className="px-6 py-4">{employee.email ?? "N/A"}</td>

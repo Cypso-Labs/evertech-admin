@@ -1,27 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { fetchOrders } from "../../redux/slices/ordersSlice";
-import { RootState, AppDispatch } from "../../redux/store";
+import {
+  useGetAllOrdersQuery,
+  useDeleteOrderMutation,
+} from "@/app/redux/features/orderApiSlice";
+import { Order } from "@/types";
 
 const Orders: React.FC = () => {
-  const dispatch = useDispatch<AppDispatch>();
-  const { orders } = useSelector((state: RootState) => state.orders);
+  const router = useRouter();
+  const { data: orders = [], isLoading } = useGetAllOrdersQuery();
+  const [deleteOrder] = useDeleteOrderMutation();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
-  const router = useRouter();
-
-  useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
 
   const filteredOrders = orders.filter((order) =>
     order._id.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -35,10 +33,9 @@ const Orders: React.FC = () => {
   );
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  const handleRowClick = (order: (typeof orders)[0]) => {
+  const handleRowClick = (order: Order) => {
     const queryParams = new URLSearchParams({
       id: order._id.toString(),
-
       status: order.status,
     }).toString();
 
@@ -53,10 +50,10 @@ const Orders: React.FC = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  const handleDelete = (orderId: number) => {
+  const handleDelete = (orderId: string) => {
     Swal.fire({
       title: "Are you sure?",
-      text: "You won’t be able to revert this!",
+      text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, delete it!",
@@ -65,11 +62,13 @@ const Orders: React.FC = () => {
       cancelButtonColor: "#D93132",
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(`Order ${orderId} deleted`);
+        deleteOrder(orderId);
         router.push("/orders");
       }
     });
   };
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>
@@ -118,9 +117,9 @@ const Orders: React.FC = () => {
               onClick={() => handleRowClick(order)}
             >
               <td className="rounded-lg px-4 py-6 text-center">
-                Order #{order._id.slice(-5)}
+               #{order.order_id}
               </td>
-              <td className="p-4 text-center">{}</td>
+            {/* <td className="p-4 text-center">{order.customerName || "N/A"}</td> */}
               <td className="p-4 text-center">
                 <span
                   className={`font-semibold ${
@@ -132,13 +131,14 @@ const Orders: React.FC = () => {
                   {order.status}
                 </span>
               </td>
-              <td className="p-4 text-center">{}</td>
-              <td className="p-4 text-center">{}</td>
+              {/* <td className="p-4 text-center">{order.service || "N/A"}</td>
+              <td className="p-4 text-center">{order.price || "N/A"}</td> */}
               <td className="p-4 text-center">
                 <button
                   className="text-center text-red-500 hover:text-red-700"
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleDelete(order._id);
                   }}
                 >
                   <FaTrashAlt />
