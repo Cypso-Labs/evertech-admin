@@ -50,6 +50,18 @@ export interface Order {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface Customer{
+  _id: string;
+  customer_id: string;
+  name: string;
+  mail: string;
+  contact: string;
+  address: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface Role {
   _id: string;
   name: string;
