@@ -6,10 +6,11 @@ export const serviceApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllServices: builder.query<Service[], void>({
       query: () => "/services",
+      transformResponse: (response: { data: Service[] }) => response.data,
       providesTags: [{ type: "Service", id: "LIST" }],
     }),
     getServiceById: builder.query<Service, string>({
-      query: (id) => `/services/${id}`,
+      query: (id) => `/services/${id}`, // Correctly interpolate the service ID
       providesTags: (result, error, id) => [{ type: "Service", id }],
     }),
     createService: builder.mutation<Service, Omit<Service, "_id">>({
@@ -32,7 +33,7 @@ export const serviceApiSlice = apiSlice.injectEndpoints({
     ),
     deleteService: builder.mutation<void, string>({
       query: (id) => ({
-        url: `/services/${id}`,
+        url: `/services/${id}`, // Correctly interpolate the service ID
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Service", id: "LIST" }],

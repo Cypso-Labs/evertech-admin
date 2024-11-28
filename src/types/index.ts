@@ -33,6 +33,7 @@ export interface Service {
   createdAt?: Date;
   updatedAt?: Date;
   isEnabled?: boolean;
+  data?: string;
 }
 
 export interface Order {

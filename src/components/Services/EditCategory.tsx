@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
-import { useUpdateCategoryMutation } from "../../app/redux/features/categoryApiSlice";
+import { useUpdateCategoryMutation  } from "../../app/redux/features/categoryApiSlice";
 
 const EditCategory: React.FC = () => {
   const router = useRouter();

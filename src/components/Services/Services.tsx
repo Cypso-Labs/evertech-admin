@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import { BiSolidCategory } from "react-icons/bi";
-import { FiSearch, FiTrash2 } from "react-icons/fi";
+import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi";
 import { Switch } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   useGetAllServicesQuery,
-  useUpdateServiceMutation,
   useDeleteServiceMutation,
+  useUpdateServiceMutation,
 } from "@/app/redux/features/serviceApiSlice";
 import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
 import { Service } from "@/types";
@@ -21,93 +21,94 @@ const Services = () => {
   const itemsPerPage = 6;
 
 
-  const [updateService] = useUpdateServiceMutation();
+  const { data, isLoading, isError, error, refetch: refetchServices } = useGetAllServicesQuery();
+  const services = data|| [];
+  const { data: categories = [], isLoading: loading } =
+    useGetAllCategoriesQuery();
+
+  //use catogary id show its name on table
+  const getServiceNameByCategoryId = (categoryId: string) => {
+    const category = categories.find((cat) => cat._id === categoryId);
+    return category?.name || "Unknown Service";
+  };
+
+
   const [deleteService] = useDeleteServiceMutation();
+  const [updateService] = useUpdateServiceMutation();
 
+  const handleRowClick = (service: Service) => {
+    const queryParams = new URLSearchParams({
+      id: service._id,
+      service: service.name,
+      category: service.category_id,
+      price: service.price.toString(),
+    }).toString();
+    router.push(`/services/editServices?${queryParams}`);
+  };
 
-  const {
-    data: servicesResponse = { data: [] } as { data: Service[] },
-    isLoading: servicesLoading,
-    isError: servicesError,
-  } = useGetAllServicesQuery();
+  const handleSwitchChange = (serviceId: string, isEnabled: boolean) => {
+    updateService({
+      id: serviceId,
+      isEnabled: !isEnabled,
+    });
+  };
 
-  const {
-    data: categories = [],
-    isLoading: categoriesLoading,
-    isError: categoriesError,
-  } = useGetAllCategoriesQuery();
+  const handleDelete = (serviceId: string) => {
+    deleteService(serviceId);
+  };
 
+  const filteredServices = Array.isArray(services)
+    ? services.filter(
+        (service) =>
+          service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          service.category_id
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          service._id.toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    : [];
 
-  if (servicesLoading || categoriesLoading) return <div>Loading...</div>;
-
-  if (servicesError || categoriesError) return <div>Error loading data.</div>;
-
-  const services =
-    servicesResponse && "data" in servicesResponse
-      ? servicesResponse.data
-      : servicesResponse;
-
- 
-  const filteredServices = services.filter((service) =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const indexOfLastService = currentPage * itemsPerPage;
+  const indexOfFirstService = indexOfLastService - itemsPerPage;
+  const currentServices = filteredServices.slice(
+    indexOfFirstService,
+    indexOfLastService,
   );
 
   const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
-  const paginatedServices = filteredServices.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
-  );
-
-  const isExpired = (optExpireDate: Date) =>
-    new Date(optExpireDate) < new Date();
-
-  const handleRowClick = (service: Service) => {
-    router.push(`/services/editServices?id=${service._id}`);
-  };
-
-  const handleSwitchChange = async (service: Service, e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    if (isExpired(service.opt_expire_date)) {
-      alert("This service is expired and cannot be enabled.");
-      return;
-    }
-    try {
-      await updateService({
-        id: service._id,
-        isEnabled: !service.isEnabled,
-      }).unwrap();
-    } catch (error) {
-      console.error("Failed to update service:", error);
-    }
-  };
-
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    try {
-      await deleteService(id).unwrap();
-    } catch (error) {
-      console.error("Failed to delete service:", error);
-    }
-  };
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      setCurrentPage((prevPage) => prevPage + 1);
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      setCurrentPage((prevPage) => prevPage - 1);
     }
   };
+   useEffect(() => {
+     const intervalId = setInterval(() => {
+       refetchServices();
+     }, 300);
 
-  // Function to get category name by id
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find((cat) => cat._id === categoryId);
-    return category ? category.name : "Unknown Category";
-  };
+     return () => {
+       clearInterval(intervalId);
+     };
+   }, [refetchServices]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; 
+  }
+  if (isError) {
+    return (
+      <div>
+        Error:{" "}
+        {error instanceof Error ? error.message : "Failed to load services"}
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -116,7 +117,7 @@ const Services = () => {
           Services
         </h1>
         <div className="flex space-x-4">
-          <Link href="/services/category" className="inline-block">
+          <Link href="/services/category">
             <button className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-[#CBD5E1] px-4 py-2 text-xl font-medium text-gray-700 hover:bg-[#000000] hover:text-slate-300 dark:bg-[#122031] dark:text-white">
               Categories
               <BiSolidCategory
@@ -125,7 +126,7 @@ const Services = () => {
               />
             </button>
           </Link>
-          <Link href="/services/newService" className="inline-block">
+          <Link href="/services/newService">
             <button className="h-[58px] w-[181px] rounded-md border border-blue-600 bg-blue-100 px-4 py-2 text-[20px] font-medium text-blue-500 hover:bg-[#3584FA] hover:text-[#E0EDFF] dark:bg-blue-400 dark:text-white">
               New Service +
             </button>
@@ -140,61 +141,57 @@ const Services = () => {
             placeholder="Search Service"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-10 w-64 rounded-md border border-gray-300 pl-10 pr-4 focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+            className="h-10 w-64 rounded-md border border-gray-300 pl-10 pr-4 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
           />
           <FiSearch className="absolute left-3 top-1 translate-y-1/2 transform text-gray-400" />
         </div>
+
+        <button className="flex h-10 w-32 items-center justify-between rounded-md border border-gray-300 bg-white px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white">
+          <span className="text-gray-700 dark:text-white">Sort By ID</span>
+          <FiChevronDown className="text-gray-400" />
+        </button>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full border-separate border-spacing-y-3">
           <thead>
-            <tr className="py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
+            <tr className="border-slate-400 py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
-              <th>NAME</th>
-              <th>PRICE</th>
+              <th>SERVICE</th>
               <th>CATEGORY</th>
-              <th>EXPIRE DATE</th>
-              <th>STATUS</th>
+              <th>PRICE</th>
+              <th>EXP</th>
               <th>ACTION</th>
             </tr>
           </thead>
           <tbody>
-            {paginatedServices.map((service) => (
+            {currentServices.map((service) => (
               <tr
                 key={service._id}
                 onClick={() => handleRowClick(service)}
                 className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
               >
-                <td className="rounded-l-xl px-4 py-6">{service._id}</td>
+                <td className="rounded-l-xl px-4 py-6">#{service._id.slice(-5)}</td>
                 <td className="px-4 py-2">{service.name}</td>
-                <td className="px-4 py-2">Rs.{service.price}</td>
-                <td className="px-4 py-2">
-                  {getCategoryName(service.category_id)}
-                </td>
-                <td className="px-4 py-2">
-                  {new Date(service.opt_expire_date).toLocaleDateString()}
-                </td>
+                <td className="px-4 py-2">{getServiceNameByCategoryId(service.category_id)}</td>
+                <td className="px-4 py-2">{service.price}</td>
                 <td>
                   <div className="flex justify-center">
                     <Switch
-                      checked={
-                        service.isEnabled && !isExpired(service.opt_expire_date)
+                      checked={service.isEnabled}
+                      onChange={() =>
+                        handleSwitchChange(
+                          service._id,
+                          service.isEnabled as boolean,
+                        )
                       }
-                      onChange={() => {}}
-                      onClick={(e) => handleSwitchChange(service, e)}
                       className={`${
-                        service.isEnabled && !isExpired(service.opt_expire_date)
-                          ? "bg-green-600"
-                          : "bg-gray-200"
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:ring-2 focus:ring-indigo-500`}
+                        service.isEnabled ? "bg-green-600" : "bg-gray-200"
+                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
                     >
                       <span
                         className={`${
-                          service.isEnabled &&
-                          !isExpired(service.opt_expire_date)
-                            ? "translate-x-6"
-                            : "translate-x-1"
+                          service.isEnabled ? "translate-x-6" : "translate-x-1"
                         } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
                       />
                     </Switch>
@@ -203,7 +200,10 @@ const Services = () => {
                 <td className="rounded-r-xl px-4 py-2">
                   <button
                     className="text-red-500 hover:text-[#3584FA]"
-                    onClick={(e) => handleDelete(service._id, e)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(service._id);
+                    }}
                   >
                     <FiTrash2 size={20} />
                   </button>
@@ -212,8 +212,9 @@ const Services = () => {
             ))}
           </tbody>
         </table>
+
         <div className="mt-4 flex items-center justify-between">
-          <nav className="inline-flex items-center">
+          <nav className="inline-flex items-center font-semibold">
             <button
               className="mx-1 rounded-md border border-gray-300 px-3 py-1 text-black dark:text-white"
               onClick={handlePreviousPage}
@@ -221,12 +222,12 @@ const Services = () => {
             >
               <span>&lt;</span>
             </button>
-            {[...Array(totalPages)].map((_, index) => (
+            {Array.from({ length: totalPages }, (_, index) => (
               <button
                 key={index + 1}
                 className={`mx-1 rounded-md border border-gray-300 px-3 py-1 ${
                   currentPage === index + 1
-                    ? "bg-blue text-white"
+                    ? "bg-blue-500 text-white"
                     : "text-black dark:text-white"
                 }`}
                 onClick={() => setCurrentPage(index + 1)}

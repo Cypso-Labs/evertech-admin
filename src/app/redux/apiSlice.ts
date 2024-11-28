@@ -8,11 +8,8 @@ export const apiSlice = createApi({
     baseUrl: BASE_URL,
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.token;
-
       if (token) {
-        headers.set("authorization", `Bearer ${token}`);
-      } else {
-      
+        headers.set("authorization", `Bearer ${token}`); // Fix string interpolation
       }
       return headers;
     },
