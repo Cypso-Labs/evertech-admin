@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import Swal from "sweetalert2";
@@ -217,5 +217,13 @@ useEffect(() => {
     </div>
   );
 };
+// add Suspense 
+const EditCustomerPage = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <EditCustomer />
+    </Suspense>
+  );
+}
+  export default EditCustomerPage;
 
-export default EditCustomer;

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect, Suspense } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -46,7 +46,7 @@ const EditEmployee = () => {
         employeeId: employee.employee_id || "",
         email: employee.email || "",
         name: employee.name || "",
-        role: employee.role || "", // Ensure role ID is set from employee data
+        role: employee.role || "",
         contact: employee.contact || "",
         address: employee.address || "",
         gender: employee.gender || "",
@@ -56,7 +56,7 @@ const EditEmployee = () => {
   }, [employee]);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -142,15 +142,21 @@ const EditEmployee = () => {
       >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Object.entries(formData).map(([key, value]) => {
-            if (key === "role") {
-              // Render the role select dropdown
+            if (key === "role" || key === "gender") {
+              const options =
+                key === "role"
+                  ? ["Admin", "Manager", "Employee"]
+                  : ["Male", "Female", "Other"];
+
               return (
                 <div key={key} className="flex flex-col space-y-2">
                   <label
                     htmlFor={key}
                     className="text-base font-medium capitalize text-gray-600"
                   >
-                    Role
+                    {key
+                      .replace(/([A-Z])/g, " $1")
+                      .replace(/^./, (str) => str.toUpperCase())}
                   </label>
                   <select
                     id={key}
@@ -162,10 +168,9 @@ const EditEmployee = () => {
                     transition-colors duration-300 focus:outline-none 
                     focus:ring-2 focus:ring-blue-500"
                   >
-                    <option value="">Select Role</option>
-                    {roles?.map((role: Role) => (
-                      <option key={role._id} value={role._id}>
-                        {role.name}
+                    {options.map((option) => (
+                      <option key={option} value={option}>
+                        {option}
                       </option>
                     ))}
                   </select>
@@ -173,36 +178,6 @@ const EditEmployee = () => {
               );
             }
 
-            if (key === "gender") {
-              // Gender select dropdown
-              return (
-                <div key={key} className="flex flex-col space-y-2">
-                  <label
-                    htmlFor={key}
-                    className="text-base font-medium capitalize text-gray-600"
-                  >
-                    Gender
-                  </label>
-                  <select
-                    id={key}
-                    name={key}
-                    value={value}
-                    onChange={handleChange}
-                    className="w-full rounded-md border 
-                    border-gray-300 px-4 py-2 
-                    transition-colors duration-300 focus:outline-none 
-                    focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              );
-            }
-
-            // For all other fields, use input type text
             return (
               <div key={key} className="flex flex-col space-y-2">
                 <label
@@ -262,4 +237,10 @@ const EditEmployee = () => {
   );
 };
 
-export default EditEmployee;
+const EditEmployeePage = () => (
+  <Suspense fallback={<p>Loading...</p>}>
+    <EditEmployee />
+  </Suspense>
+);
+
+export default EditEmployeePage;

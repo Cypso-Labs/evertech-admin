@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent, Suspense } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -198,4 +198,12 @@ const EditRole = () => {
   );
 };
 
-export default EditRole;
+const EditRolePage = () => {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <EditRole />
+    </Suspense>
+  );
+};
+
+export default EditRolePage;

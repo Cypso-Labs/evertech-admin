@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, FormEvent } from "react";
+import React, { useState, useEffect, FormEvent, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
@@ -13,29 +13,24 @@ import {
 import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
 import { Category } from "@/types"; // Assuming you have a Category type
 
-export default function EditService() {
+const  EditService = () => {
+  
   const router = useRouter();
   const searchParams = useSearchParams();
   const serviceId = searchParams.get("id");
 
- 
-  if (!serviceId) {
-    router.push("/services");
-    return null;
-  }
-
+  // Hooks must always be called unconditionally at the top level
   const {
     data: service,
     isLoading: isServiceLoading,
     error: serviceError,
-  } = useGetServiceByIdQuery(serviceId);
+  } = useGetServiceByIdQuery(serviceId || "");
   const {
     data: categories,
     isLoading: isCategoriesLoading,
     error: categoriesError,
   } = useGetAllCategoriesQuery();
   const { data, isLoading, isError, error } = useGetAllServicesQuery();
-
   const [updateService, { isLoading: isUpdating }] = useUpdateServiceMutation();
 
   const [formData, setFormData] = useState({
@@ -46,8 +41,9 @@ export default function EditService() {
     expireDate: "",
   });
 
+  // Effect to initialize form data when service data changes
   useEffect(() => {
-    if (data) {
+    if (data && serviceId) {
       const serviceData = data.find((s) => s._id === serviceId);
       if (serviceData) {
         setFormData({
@@ -57,7 +53,7 @@ export default function EditService() {
           price: serviceData.price.toString(),
           expireDate: new Date(serviceData.opt_expire_date)
             .toISOString()
-            .slice(0, 10), 
+            .slice(0, 10),
         });
       }
     }
@@ -75,13 +71,13 @@ export default function EditService() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-   const payload = {
-     id: formData.id,
-     name: formData.service,
-     category_id: formData.category,
-     price: formData.price,
-     opt_expire_date: new Date(formData.expireDate), 
-   };
+    const payload = {
+      id: formData.id,
+      name: formData.service,
+      category_id: formData.category,
+      price: formData.price,
+      opt_expire_date: new Date(formData.expireDate),
+    };
     try {
       await updateService(payload);
       await Swal.fire({
@@ -92,8 +88,6 @@ export default function EditService() {
         confirmButtonColor: "#08762D",
         customClass: {
           popup: "dark:bg-[#122031] dark:text-white",
-          confirmButton:
-            "bg-[#BCFFC8] text-[#BCFFC8] hover:bg-[#08762D] hover:text-[#BCFFC8]",
         },
       });
       router.push("/services");
@@ -129,6 +123,11 @@ export default function EditService() {
       router.push("/services");
     }
   };
+
+  if (!serviceId) {
+    router.push("/services");
+    return null;
+  }
 
   if (isServiceLoading || isCategoriesLoading) return <p>Loading...</p>;
   if (serviceError || categoriesError) return <p>Error loading data.</p>;
@@ -237,3 +236,12 @@ export default function EditService() {
     </div>
   );
 }
+const EditServicePage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditService />
+    </Suspense>
+  );
+}
+
+export default EditServicePage;
