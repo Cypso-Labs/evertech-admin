@@ -7,6 +7,7 @@ export const customerApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllCustomers: builder.query<Customer[], void>({
       query: () => "/customers",
+      
       providesTags: ["Customer"],
     }),
     getCustomerById: builder.query<Customer, string>({
