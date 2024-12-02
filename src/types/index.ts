@@ -51,6 +51,22 @@ export interface Order {
   updatedAt?: Date;
 }
 
+export interface Payment {
+  _id: string;
+  payment_id: string;
+  order_id: string;
+  customer_id: string;
+  amount: string;
+  payment_method: string;
+  payment_date: Date;
+  status: string;
+  employee_id: string;
+  transaction_id: string;
+  payment_details: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface Customer{
   _id: string;
   customer_id: string;

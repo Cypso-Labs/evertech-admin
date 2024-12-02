@@ -174,7 +174,7 @@ const TablePage = () => {
                     className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
                   >
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                      Employee #{employee._id.slice(-5)}
+                     #{employee.employee_id}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                       {employee.name}

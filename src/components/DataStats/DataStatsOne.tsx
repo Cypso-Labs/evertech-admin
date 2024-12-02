@@ -3,11 +3,15 @@ import React from "react";
 import { useGetAllOrdersQuery } from "@/app/redux/features/orderApiSlice";
 import { useGetAllServicesQuery } from "@/app/redux/features/serviceApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
+import { useGetAllPaymentsQuery } from "@/app/redux/features/paymentApiSlice";
 import orders from "@/assets/images/icon/order.svg";
 import payments from "@/assets/images/icon/payment.svg";
 import services from "@/assets/images/icon/service.svg";
 import customers from "@/assets/images/icon/customer.svg";
 import Image from "next/image";
+import CountUp from "react-countup";
+
+import { Payment } from "@/types";
 
 const DataStatsOne: React.FC = () => {
   const { data: allOrders, isLoading: isLoadingOrders } =
@@ -16,6 +20,8 @@ const DataStatsOne: React.FC = () => {
     useGetAllServicesQuery();
   const { data: allCustomers, isLoading: isLoadingCustomers } =
     useGetAllCustomersQuery();
+  const { data: allPayments, isLoading: isLoadingPayments } =
+    useGetAllPaymentsQuery();
 
   // Calculations
   const unpaidOrdersCount = isLoadingOrders
@@ -27,13 +33,19 @@ const DataStatsOne: React.FC = () => {
     : allServices?.filter(
         (service) => new Date(service.opt_expire_date) > new Date(),
       ).length || 0;
-      //get all customers count
 
-  const customersCount = isLoadingCustomers
-    ? 0
-    : allCustomers?.length || 0;
+  const customersCount = isLoadingCustomers ? 0 : allCustomers?.length || 0;
 
-  // Data Stats List
+  const paidPayments = isLoadingPayments
+    ? []
+    : allPayments?.filter((payment) => payment.status === "Paid") || [];
+
+  const paidPaymentsCount = paidPayments.length;
+  const paidPaymentsTotal = paidPayments.reduce(
+    (total: number, payment: Payment) => total + parseFloat(payment.amount),
+    0,
+  );
+
   const dataStatsList = [
     {
       icon: (
@@ -54,7 +66,7 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#FF9C55",
       title: "Total Payment",
-      value: "$42.2K",
+      value: paidPaymentsTotal.toLocaleString(),
       growthRate: 4.35,
     },
     {
@@ -98,7 +110,12 @@ const DataStatsOne: React.FC = () => {
           <div className="mt-6 flex items-end justify-between">
             <div>
               <h4 className="mb-1.5 text-heading-6 font-bold text-dark dark:text-white">
-                {item.value}
+                <CountUp
+                  end={Number(item.value.replace(/[^0-9.-]+/g, ""))}
+                  duration={1.5}
+                  separator=","
+                  prefix={item.title === "Total Payment" ? "Rs." : ""}
+                />
               </h4>
               <span className="text-body-sm font-medium">{item.title}</span>
             </div>

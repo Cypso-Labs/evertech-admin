@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { FiSearch, FiTrash2 } from "react-icons/fi";
 import { IoIosArrowDropleft } from "react-icons/io";
+import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import {
   useGetAllEmployeesQuery,
@@ -14,6 +15,7 @@ const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
+  const router = useRouter();
 
   const {
     data: employees,
@@ -80,7 +82,7 @@ const Employees = () => {
           icon: "success",
           timer: 1500,
         });
-        refetchEmployees(); 
+        refetchEmployees();
       } catch (error) {
         await Swal.fire({
           title: "Error!",
@@ -95,6 +97,15 @@ const Employees = () => {
     }
   };
 
+  // Handle row click with type safety  use employee type
+  const handleRowClick = (employee: any) => {
+    const queryParams = new URLSearchParams({
+      id: employee._id.toString(),
+    }).toString();
+
+    router.push(`/employees/editeEmployee?${queryParams}`);
+  };
+
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
   };
@@ -106,10 +117,10 @@ const Employees = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       refetchEmployees();
-    }, 300); 
+    }, 300);
 
     return () => {
-      clearInterval(intervalId); 
+      clearInterval(intervalId);
     };
   }, [refetchEmployees]);
 
@@ -200,34 +211,35 @@ const Employees = () => {
               </tr>
             </thead>
             <tbody>
-              {currentEmployees?.map((employee) => (
-                <tr
-                  key={employee._id}
-                  className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
-                >
-                  <td className="px-6 py-4">
-                    #{employee.employee_id ?? "N/A"}
-                  </td>
-                  <td className="px-6 py-4">{employee.name ?? "N/A"}</td>
-                  <td className="px-6 py-4">{employee.email ?? "N/A"}</td>
-                  <td className="px-6 py-4">{getRoleName(employee.role)}</td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
-                        isDeleting ? "cursor-not-allowed opacity-50" : ""
-                      }`}
-                      onClick={(e) => handleDelete(employee._id, e)}
-                      disabled={isDeleting}
-                    >
-                      {isDeleting ? (
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-                      ) : (
-                        <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" />
-                      )}
-                    </button>
-                  </td>
-                </tr>
-              ))}
+             {currentEmployees?.map((employee) => (
+               <tr
+                 key={employee._id}
+                 className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
+                 onClick={() => handleRowClick(employee)} // Pass the employee object to handleRowClick
+               >
+                 <td className="px-6 py-4">
+                   #{employee.employee_id ?? "N/A"}
+                 </td>
+                 <td className="px-6 py-4">{employee.name ?? "N/A"}</td>
+                 <td className="px-6 py-4">{employee.email ?? "N/A"}</td>
+                 <td className="px-6 py-4">{getRoleName(employee.role)}</td>
+                 <td className="px-6 py-4 text-center">
+                   <button
+                     className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
+                       isDeleting ? "cursor-not-allowed opacity-50" : ""
+                     }`}
+                     onClick={(e) => handleDelete(employee._id, e)}
+                     disabled={isDeleting}
+                   >
+                     {isDeleting ? (
+                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                     ) : (
+                       <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" />
+                     )}
+                   </button>
+                 </td>
+               </tr>
+             ))}
             </tbody>
           </table>
         </div>

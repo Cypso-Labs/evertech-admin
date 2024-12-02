@@ -6,24 +6,31 @@ import Swal from "sweetalert2";
 import { useSearchParams, useRouter } from "next/navigation";
 import { LuArrowRightToLine } from "react-icons/lu";
 import {
-  updateEmployee,
-  fetchEmployees,
-  EmployeeInterface,
-} from "../../redux/slices/employeeSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../redux/store";
+  useUpdateEmployeeMutation,
+  useGetEmployeeByIdQuery,
+} from "@/app/redux/features/employeeApiSlice";
+import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
+import { Employee } from "@/types";
+import { Role } from "@/types";
 
 const EditEmployee = () => {
   const router = useRouter();
-  const { roles } = useSelector((state: RootState) => state.roles);
   const searchParams = useSearchParams();
-  const dispatch = useDispatch<AppDispatch>();
-  const { entities: employees } = useSelector(
-    (state: RootState) => state.employees,
-  );
-  const [employee, setEmployee] = useState<EmployeeInterface | null>(null);
+  const employeeId = searchParams.get("id");
+
+  const {
+    data: employee,
+    isLoading,
+    isError,
+  } = useGetEmployeeByIdQuery(employeeId || "");
+
+  const [updateEmployee, { isLoading: isUpdating }] =
+    useUpdateEmployeeMutation();
+
+  const { data: roles } = useGetAllRolesQuery();
+
   const [formData, setFormData] = useState({
-    id: "",
+    employeeId: employeeId || "",
     email: "",
     name: "",
     role: "",
@@ -33,30 +40,20 @@ const EditEmployee = () => {
     username: "",
   });
 
-  const employeeId = searchParams.get("id");
-
   useEffect(() => {
-    dispatch(fetchEmployees());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (employees.length && employeeId) {
-      const foundEmployee = employees.find((emp) => emp._id === employeeId);
-      if (foundEmployee) {
-        setEmployee(foundEmployee);
-        setFormData({
-          id: foundEmployee._id || "",
-          email: foundEmployee.email || "",
-          name: foundEmployee.name || "",
-          role: foundEmployee.role || "",
-          contact: foundEmployee.contact || "",
-          address: foundEmployee.address || "",
-          gender: foundEmployee.gender || "",
-          username: foundEmployee.username || "",
-        });
-      }
+    if (employee) {
+      setFormData({
+        employeeId: employee.employee_id || "",
+        email: employee.email || "",
+        name: employee.name || "",
+        role: employee.role || "", // Ensure role ID is set from employee data
+        contact: employee.contact || "",
+        address: employee.address || "",
+        gender: employee.gender || "",
+        username: employee.username || "",
+      });
     }
-  }, [employees, employeeId]);
+  }, [employee]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -71,34 +68,17 @@ const EditEmployee = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (!employeeId) {
+      Swal.fire("Error", "Invalid employee ID", "error");
+      return;
+    }
+
     try {
-      await dispatch(
-        updateEmployee({ id: formData.id, employeeData: formData }),
-      );
-
-      Swal.fire({
-        title: "Success!",
-        text: "Employee has been edited successfully",
-        icon: "success",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#08762D",
-        customClass: {
-          popup: "dark:bg-[#122031] dark:text-white",
-        },
-      });
-
+      await updateEmployee({ id: employeeId, ...formData }).unwrap();
+      Swal.fire("Success", "Employee updated successfully", "success");
       router.push("/employees");
     } catch (error) {
-      Swal.fire({
-        title: "Error!",
-        text: "Something went wrong while editing the employee",
-        icon: "error",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#FF2323",
-        customClass: {
-          popup: "dark:bg-[#122031] dark:text-white",
-        },
-      });
+      Swal.fire("Error", "Failed to update employee", "error");
     }
   };
 
@@ -110,11 +90,6 @@ const EditEmployee = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, cancel",
       cancelButtonText: "No, keep editing",
-      confirmButtonColor: "#FF2323",
-      cancelButtonColor: "#08762D",
-      customClass: {
-        popup: "dark:bg-[#122031] dark:text-white",
-      },
     }).then((result) => {
       if (result.isConfirmed) {
         router.push("/employees");
@@ -123,175 +98,164 @@ const EditEmployee = () => {
   };
 
   const handleLeaveClick = () => {
-    const queryParams = new URLSearchParams({
-      id: formData.id,
-      name: formData.name,
-      role: formData.role,
-    }).toString();
-    router.push(/employees/editeEmployee/leaves?${queryParams});
+    router.push(`/employees/editEmployee/leaves?id=${employeeId}`);
   };
 
+  if (isLoading)
+    return (
+      <p className="p-6 text-lg text-gray-600">Loading employee data...</p>
+    );
+  if (isError || !employee)
+    return (
+      <p className="p-6 text-lg text-red-600">Failed to load employee data.</p>
+    );
+
   return (
-    <div className="p-6">
-      <div className="mb-20 flex items-center justify-between">
-        <div className="flex items-center">
-          <Link href="/employees">
-            <IoIosArrowDropleft className="h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-12 flex flex-col items-center justify-between space-y-4 md:flex-row md:space-y-0">
+        <div className="flex items-center space-x-4">
+          <Link href="/employees" className="group">
+            <IoIosArrowDropleft className="h-10 w-10 text-gray-500 transition-colors group-hover:text-blue-500" />
           </Link>
-          <h1 className="ml-4 text-[40px] font-medium text-slate-600 dark:text-white">
-            Edit Employee # {formData.id.toString().slice(-5)}
+          <h1 className="text-3xl font-semibold text-gray-700 md:text-4xl">
+            Edit Employee #{formData.employeeId}
           </h1>
         </div>
 
         <button
           onClick={handleLeaveClick}
-          className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-[#CBD5E1] px-4 py-2 text-xl font-medium text-gray-700 transition-colors duration-300 hover:bg-black hover:text-slate-300 dark:bg-[#122031] dark:text-white"
+          className="flex w-full items-center justify-center space-x-2 rounded-lg border 
+          border-gray-300 bg-gray-200 px-6 
+          py-3 text-base 
+          font-medium text-gray-700 
+          transition-colors duration-300 
+          hover:border-gray-400 hover:bg-gray-300 md:w-auto"
         >
-          Leaves
-          <LuArrowRightToLine
-            className="ml-2 text-gray-500 hover:text-slate-300"
-            size={24}
-          />
+          <span>Leaves</span>
+          <LuArrowRightToLine className="ml-2" size={20} />
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full max-w-6xl">
-        <div className="grid grid-cols-2 gap-x-8 gap-y-6">
-          <div className="space-y-6">
-            <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Employee ID
-              </label>
-              <input
-                type="text"
-                name="id"
-                disabled
-                value={formData.id.toString().slice(-5)}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md"
+      >
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {Object.entries(formData).map(([key, value]) => {
+            if (key === "role") {
+              // Render the role select dropdown
+              return (
+                <div key={key} className="flex flex-col space-y-2">
+                  <label
+                    htmlFor={key}
+                    className="text-base font-medium capitalize text-gray-600"
+                  >
+                    Role
+                  </label>
+                  <select
+                    id={key}
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full rounded-md border 
+                    border-gray-300 px-4 py-2 
+                    transition-colors duration-300 focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Role</option>
+                    {roles?.map((role: Role) => (
+                      <option key={role._id} value={role._id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
 
-            <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Employee Name
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
+            if (key === "gender") {
+              // Gender select dropdown
+              return (
+                <div key={key} className="flex flex-col space-y-2">
+                  <label
+                    htmlFor={key}
+                    className="text-base font-medium capitalize text-gray-600"
+                  >
+                    Gender
+                  </label>
+                  <select
+                    id={key}
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full rounded-md border 
+                    border-gray-300 px-4 py-2 
+                    transition-colors duration-300 focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              );
+            }
 
-            <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Role
-              </label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              >
-                <option value="">Select Role</option>
-                {roles.map((role) => (
-                  <option key={role._id} value={role._id}>
-                    {role.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            // For all other fields, use input type text
+            return (
+              <div key={key} className="flex flex-col space-y-2">
+                <label
+                  htmlFor={key}
+                  className="text-base font-medium capitalize text-gray-600"
+                >
+                  {key
+                    .replace(/([A-Z])/g, " $1")
+                    .replace(/^./, (str) => str.toUpperCase())}
+                </label>
+                <input
+                  id={key}
+                  name={key}
+                  value={value}
+                  onChange={handleChange}
+                  type="text"
+                  className="w-full rounded-md border 
+                  border-gray-300 px-4 py-2 
+                  transition-colors duration-300 focus:outline-none 
+                  focus:ring-2 focus:ring-blue-500"
+                  readOnly={key === "employeeId"} // Make employeeId read-only
+                />
+              </div>
+            );
+          })}
+        </div>
 
-            <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                User Name
-              </label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Contact
-              </label>
-              <input
-                type="tel"
-                name="contact"
-                disabled
-                value={formData.contact}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex items-start">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                E-mail
-              </label>
-              <input
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                type="email"
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
-
-            <div className="flex items-start">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Address
-              </label>
-              <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                rows={4}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <label className="w-32  text-[20px] font-medium text-gray-500 dark:text-white">
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div className="mt-8 flex justify-end space-x-4">
-              <button
-                type="button"
-                onClick={handleCancel}
-                className="rounded-md border border-red-400 bg-[#FFCDCD] px-4 py-2 text-sm font-medium text-[#FF2323] hover:bg-[#FF2323] hover:text-[#FFCDCD] dark:bg-red-600 dark:text-white dark:hover:bg-red-700"
-              >
-                Discard
-              </button>
-              <button
-                type="submit"
-                className="rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700"
-              >
-                Save Changes
-              </button>
-            </div>
-          </div>
+        <div className="mt-8 flex flex-col justify-end space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="w-full rounded-lg border border-transparent 
+            bg-red-500 px-6 py-3 
+            font-medium 
+            text-white transition-colors 
+            duration-300 hover:bg-red-600 
+            sm:w-auto"
+          >
+            Discard
+          </button>
+          <button
+            type="submit"
+            disabled={isUpdating}
+            className="w-full rounded-lg border border-transparent 
+            bg-green-500 px-6 py-3 
+            font-medium 
+            text-white transition-colors 
+            duration-300 hover:bg-green-600 
+            disabled:cursor-not-allowed
+            disabled:opacity-50 sm:w-auto"
+          >
+            {isUpdating ? "Saving..." : "Save Changes"}
+          </button>
         </div>
       </form>
     </div>

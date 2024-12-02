@@ -10,12 +10,15 @@ import {
   useGetAllOrdersQuery,
   useDeleteOrderMutation,
 } from "@/app/redux/features/orderApiSlice";
+import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
 import { Order } from "@/types";
 
 const Orders: React.FC = () => {
   const router = useRouter();
   const { data: orders = [], isLoading } = useGetAllOrdersQuery();
   const [deleteOrder] = useDeleteOrderMutation();
+
+  const { data: customers = [] } = useGetAllCustomersQuery();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,6 +52,12 @@ const Orders: React.FC = () => {
 
   const handlePreviousPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  // use customer name instead of customer id
+  const getCustomerName = (customerId: string) => {
+    const customer = customers.find((c) => c._id === customerId);
+    return customer ? customer.name : "";
   };
 
   const handleDelete = (orderId: string) => {
@@ -120,7 +129,7 @@ const Orders: React.FC = () => {
               <td className="rounded-lg px-4 py-6 text-center">
                 #{order.order_id}
               </td>
-              <td className="p-4 text-center">{order.customer_id || "N/A"}</td> 
+              <td className="p-4 text-center">{getCustomerName(order.customer_id) || "N/A"}</td> 
               <td className="p-4 text-center">
                 <span
                   className={`font-semibold ${

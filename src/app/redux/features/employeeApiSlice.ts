@@ -16,6 +16,12 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
     }),
     getEmployeeById: builder.query<Employee, string>({
       query: (id) => `/employees/${id}`,
+      transformResponse: (response: {
+        status: string;
+        data: { employee: Employee }; // Should access `employee`, not `employees`
+      }) => {
+        return response.data.employee; // Return the single employee object
+      },
       providesTags: ["Employee"],
     }),
     updateEmployee: builder.mutation<
