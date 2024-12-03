@@ -54,10 +54,7 @@ const Customers = () => {
     }
   };
  
-  const getOrderStatus = (customerId: string) => {
-    const order = orderData2.find((order) => order.customer_id === customerId);
-    return order ? order.status : "N/A";
-  };
+
 
 
   // Filter and paginate customers
@@ -127,7 +124,7 @@ const Customers = () => {
           <tr>
             <th className="p-4">ID</th>
             <th className="p-4">Customer Name</th>
-            <th className="p-4">Order</th>
+            <th className="p-4">Mail</th>
             <th className="p-4">Contact</th>
             <th className="p-4"></th>
             <th className="p-4"></th>
@@ -145,16 +142,7 @@ const Customers = () => {
               </td>
               <td className="text-center">{customers.name}</td>
               <td className="p-4 text-center">
-                
-                 <span
-                  className={`rounded-md font-semibold ${
-                    getOrderStatus(customers._id) === "Active"
-                      ? "h-[30px] w-[78px] border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
-                      : "h-[30px] w-[78px] border-2 border-[#000000] bg-[#CBD5E1] px-5 py-1 text-[#000000]"
-                  }`}
-                >
-                  {getOrderStatus(customers._id)}
-                </span> 
+                {customers.mail}
               </td>
               <td className="p-4 text-center">{customers.contact}</td>
               <td className="p-4 text-center">
