@@ -1,135 +1,244 @@
 "use client";
-import React, { useState } from "react";
+
+import React, { useState, useMemo } from "react";
 import { FaTrashAlt } from "react-icons/fa";
-import { MdOutlineAddCircle } from "react-icons/md";
-import { IoIosArrowDropleft } from "react-icons/io";
-import { MdKeyboardArrowLeft } from "react-icons/md";
+import { MdKeyboardArrowLeft, MdOutlineAddCircle } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { X, Plus, Minus } from "lucide-react";
 
-const Neworder = () => {
+// Import RTK Query hooks
+import { useCreateOrderMutation } from "@/app/redux/features/orderApiSlice";
+import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
+import { useGetAllServicesQuery } from "@/app/redux/features/serviceApiSlice";
+import { Order, Service } from "@/types";
+
+const NewOrder: React.FC = () => {
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [orderData] = useState([
-    {
-      id: 1,
-      name: "Lorem Ipsum",
-      qty: "5",
-      each: "$0.99",
-      subtotal: "$4.95",
-    },
-    {
-      id: 2,
-      name: "Lorem Ipsum",
-      qty: "5",
-      each: "$0.99",
-      subtotal: "$4.95",
-    },
-    {
-      id: 3,
-      name: "Lorem Ipsum",
-      qty: "5",
-      each: "$0.99",
-      subtotal: "$4.95",
-    },
-  ]);
+  // State management
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>("");
+  const [quantity, setQuantity] = useState<number>(1);
+  const [orderData, setOrderData] = useState<any[]>([]);
+  const [customerSearch, setCustomerSearch] = useState<string>("");
+
+  // Form data state
+  const [formData, setFormData] = useState({
+    order_id: "",
+    customer_id: "",
+    product_id: "",
+    status: "Pending",
+  });
+
+  // RTK Query hooks
+  const { data: services = [], isLoading: isServicesLoading } =
+    useGetAllServicesQuery();
+  const [createOrder, { isLoading: isCreatingOrder }] =
+    useCreateOrderMutation();
+  const { data: customers = [], isLoading: isCustomersLoading } =
+    useGetAllCustomersQuery();
+
+  // Calculated grand total
+  const grandTotal = useMemo(
+    () =>
+      orderData.reduce((total, item) => total + parseFloat(item.subtotal), 0),
+    [orderData],
+  );
+
+  // Handle input changes for form fields
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Filtered customer list based on search query
+  const filteredCustomers = useMemo(
+    () =>
+      customers.filter(
+        (customer) =>
+          customer.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+          customer.customer_id
+            .toLowerCase()
+            .includes(customerSearch.toLowerCase()),
+      ),
+    [customers, customerSearch],
+  );
+
+  // Handle adding a service
+  const handleAddService = () => {
+    const service = services.find((s: Service) => s._id === selectedService);
+
+    if (service) {
+      const subtotal = quantity * parseFloat(service.price);
+
+      const newOrderItem = {
+        id: service._id,
+        name: service.name,
+        qty: quantity,
+        each: service.price,
+        subtotal: subtotal.toFixed(2),
+      };
+
+      setOrderData((prev) => [...prev, newOrderItem]);
+      setIsModalOpen(false);
+      setSelectedService("");
+      setQuantity(1);
+    }
+  };
 
   const handleSave = async () => {
-    const result = await Swal.fire({
+  const payload = {
+    order_id: formData.order_id, 
+    customer_id: formData.customer_id,
+    items: orderData,
+    total: grandTotal,
+    grand_total: grandTotal.toFixed(2),
+    status: "pending",
+    qty: orderData.reduce((acc, item) => acc + item.qty, 0),
+    sub_total: grandTotal.toFixed(2),
+    unit_price: orderData.reduce(
+      (acc, item) => acc + parseFloat(item.subtotal),
+      0,
+    ),
+    order_date: new Date(),
+    product_id: formData.product_id,
+  };
+
+  try {
+    await createOrder(payload).unwrap();
+    Swal.fire({
       title: "Success!",
       text: "Order has been made",
       icon: "success",
-      showCancelButton: true,
-      confirmButtonText: "Payment Page",
-      confirmButtonColor: "#2E84D3",
-      cancelButtonText: "OK!",
-      cancelButtonColor: "#2ED36D",
-      customClass: {
-        title: "font-medium",
-        popup: "dark:bg-[#122031] dark:text-white",
-        confirmButton: "bg-[#BCFFC8] text-[#00000] hover:bg-[#08762D] w-[147.5px] h-[47px]",
-        cancelButton: "bg-[#FFD1D1] text-[#00000] hover:bg-[#FF5733] w-[147.5px] h-[47px]",
-      },
+      confirmButtonText: "ok",
+    }).then(() => {
+      router.push("/orders");
     });
-  
-  
-    
-  };
-  
+  } catch (error) {
+    Swal.fire({
+      title: "Error!",
+      text: "Failed to create order",
+      icon: "error",
+    });
+  }
+};
+
+  // Handle order cancellation
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
       text: "You will lose all newly entered data!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes,Cancel",
-      cancelButtonText: "No,keep editing",
-      confirmButtonColor: "#D93132",
-      cancelButtonColor: "#2ED36D",
-      customClass: {
-        popup: "dark:bg-[#122031] dark:text-white",
-        confirmButton: "text-white bg-[#D93132] w-[133px] h-[47px] text-[15px] rounded-md",
-        cancelButton: "text-white bg-[#2ED36D]  w-[140px] h-[47px] text-[15px]   rounded-md",
-      },
+      confirmButtonText: "Yes, Cancel",
+      cancelButtonText: "No, Keep Editing",
     }).then((result) => {
       if (result.isConfirmed) {
         router.push("/orders");
       }
     });
   };
-  
+
+  // Remove order item
+  const removeOrderItem = (index: number) => {
+    setOrderData((prev) => prev.filter((_, i) => i !== index));
+  };
 
   return (
     <div>
+      {/* Header Section */}
       <div className="mb-12 flex items-center text-[40px] font-medium text-gray-700 dark:text-white">
         <button
           className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
           onClick={() => router.back()}
         >
-             <MdKeyboardArrowLeft className=" cursor-pointer hover:text-[#3584FA] bg-white rounded-full h-[51px] w-[51px] border-2 border-gray-4" />
+          <MdKeyboardArrowLeft className="h-[51px] w-[51px] cursor-pointer rounded-full border-2 border-gray-4 bg-white hover:text-[#3584FA]" />
         </button>
         New Order
       </div>
 
-      <div className="grid grid-cols-4 gap-x-4 ">
+      {/* Order Form */}
+      <div className="grid grid-cols-4 gap-x-4">
         <div className="space-y-2 text-2xl font-semibold dark:text-white">
           <div className="h-[36px]">Order Id</div>
           <div className="h-[36px]">Customer Id</div>
           <div className="h-[36px]">Product Id</div>
-
-          <div className="mb-2 w-full text-2xl font-bold">
-            <div className="relative flex w-[900px] items-center justify-between pt-4">
-              <div>Services</div>
-              <MdOutlineAddCircle
-                className="size-14 text-[#5E91FF] dark:text-dark-5 cursor-pointer"
-                onClick={() => setIsModalOpen(true)}
-              />
-            </div>
-          </div>
         </div>
 
         <div className="col-span-2 space-y-2">
           <input
             type="text"
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900 dark:border-slate-500 dark:bg-slate-600 dark:text-white"
+            name="order_id"
+            value={formData.order_id}
+            onChange={handleInputChange}
+            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            placeholder="Enter New Order ID"
           />
+          <div className="relative">
+            <input
+              type="search"
+              id="search"
+              value={customerSearch}
+              onChange={(e) => setCustomerSearch(e.target.value)}
+              placeholder="Search customer by name or ID"
+              className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            />
+            {customerSearch &&
+              !isCustomersLoading &&
+              filteredCustomers.length > 0 && (
+                <div className="absolute z-10 mt-1 rounded-md border border-gray-300 bg-white">
+                  {filteredCustomers.map((customer) => (
+                    <div
+                      key={customer._id}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setCustomerSearch(
+                          `${customer.name} - ${customer.customer_id}`,
+                        );
+                        setFormData((prev) => ({
+                          ...prev,
+                          customer_id: customer.customer_id,
+                        }));
+                      }}
+                    >
+                      {customer.name} - {customer.customer_id}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
+
           <input
             type="text"
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900 dark:border-slate-500 dark:bg-slate-600 dark:text-white"
-          />
-          <input
-            type="text"
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900 dark:border-slate-500 dark:bg-slate-600 dark:text-white"
+            name="product_id"
+            value={formData.product_id}
+            onChange={handleInputChange}
+            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            placeholder="Enter Product ID"
           />
         </div>
       </div>
 
+      {/* Add Service Button */}
+      <div className="mb-4 mt-4">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center rounded bg-green-500 px-4 py-2 text-white hover:bg-green-600"
+        >
+          <MdOutlineAddCircle className="mr-2" /> Add Service
+        </button>
+      </div>
+
+      {/* Services Table */}
       <div className="relative col-span-4 mt-4">
-        <div className="w-[900px] rounded-md border bg-white shadow-md dark:bg-dark-2">
+        <div className="w-[900px] rounded-md border bg-white shadow-md">
           <table className="w-full table-auto border-separate border-spacing-y-3 p-4">
             <thead>
-              <tr className="text-sm uppercase text-gray-700 dark:text-white">
+              <tr className="text-sm uppercase text-gray-700">
                 <th className="pb-2 text-left font-semibold">ID</th>
                 <th className="pb-2 text-left font-semibold">Service</th>
                 <th className="pb-2 text-left font-semibold">QTY</th>
@@ -140,15 +249,18 @@ const Neworder = () => {
             </thead>
             <tbody>
               {orderData.map((order, index) => (
-                <tr key={index} className="dark:text-white">
-                  <td className="border-b border-l border-t border-gray-300 p-2">{order.id}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.name}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.qty}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.each}</td>
-                  <td className="border-b border-t border-gray-300 p-2">{order.subtotal}</td>
-                  <td className="border-b border-r border-t border-gray-300 p-2 text-center">
-                    <button className="text-red-500 hover:text-red-700">
-                      <FaTrashAlt size={16} />
+                <tr key={index} className="text-sm text-gray-700">
+                  <td className="py-2">{order.id.slice(0, 8)}...</td>
+                  <td className="py-2">{order.name}</td>
+                  <td className="py-2">{order.qty}</td>
+                  <td className="py-2">Rs.{order.each}</td>
+                  <td className="py-2">Rs.{order.subtotal}</td>
+                  <td className="py-2">
+                    <button
+                      onClick={() => removeOrderItem(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FaTrashAlt />
                     </button>
                   </td>
                 </tr>
@@ -156,85 +268,95 @@ const Neworder = () => {
             </tbody>
           </table>
         </div>
-
-        <div className="mt-4 w-full text-2xl font-bold text-black dark:text-white">
-          <div className="flex w-[900px] items-center justify-between pt-4">
-            <div>Grand Total</div>
-            <div>$12.32</div>
+        <div className="mt-4 flex justify-end">
+          <div className="text-lg font-semibold">
+            <span>Grand Total: </span> <span>Rs.{grandTotal}</span>
           </div>
         </div>
-
-        <div className="flex justify-center space-x-8">
-          <button
-            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#FF2323] bg-[#FFCDCD] hover:bg-[#FF2323] hover:border-[#FFCDCD] hover:text-[#FFCDCD] font-medium text-[#FF2323]"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleCancel();
-            }}
-          >
-            Cancel Order
-          </button>
-          <button
-            className="h-[49px] w-[181px] rounded-lg border-[1px] border-[#08762D] bg-[#BCFFC8] hover:bg-[#08762D] hover:border-[#BCFFC8] hover:text-[#BCFFC8] font-medium text-[#08762D]"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSave();
-            }}
-          >
-            Save Order
-          </button>
-        </div>
       </div>
-    
+
+      {/* Action Buttons */}
+      <div className="mt-10 flex justify-end space-x-6">
+        <button
+          onClick={handleCancel}
+          className="h-[49px] w-[181px] rounded-lg border bg-red-200 text-red-600 hover:bg-red-600 hover:text-white"
+        >
+          Discard
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={isCreatingOrder}
+          className={`h-[49px] w-[181px] rounded-lg border bg-green-500 text-white ${
+            isCreatingOrder ? "cursor-not-allowed" : "hover:bg-green-600"
+          }`}
+        >
+          {isCreatingOrder ? "Creating..." : "Save Order"}
+        </button>
+      </div>
+
+      {/* Modal for adding services */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-10 rounded-lg w-[672px] h-[439px]">
-            <div className="flex items-center gap-4 mb-10">
-              <h1 className="font-extrabold text-[24px] text-black">Add Service</h1>
+          <div className="w-full max-w-lg space-y-6 rounded-lg bg-white p-8 shadow-xl">
+            {/* Title */}
+            <div className="text-center">
+              <h1 className="text-2xl font-extrabold text-gray-800">
+                Add Service
+              </h1>
             </div>
 
-            <form className="space-y-10">
-              <div className="flex justify-between items-center">
-                <label className="text-[20px] font-bold text-gray-600">SERVICE</label>
-                <select
-                  name="category"
-                  className="h-[36px] w-[347px] rounded-md border bg-white border-gray-300"
-                >
-                  <option value="">Select Service</option>
-                  <option value="service1">Service 1</option>
-                  <option value="service2">Service 2</option>
-                  <option value="service3">Service 3</option>
-                </select>
-              </div>
+            {/* Service Selection */}
+            <div>
+              <label className="mb-2 block text-lg font-semibold text-gray-700">
+                Service
+              </label>
+              <select
+                onChange={(e) => setSelectedService(e.target.value)}
+                className="h-12 w-full rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">-- Select a Service --</option>
+                {services.map((service) => (
+                  <option key={service._id} value={service._id}>
+                    {service.name} - Rs.{service.price}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-              <div className="flex justify-between items-center">
-                <label className="text-[20px] font-bold text-gray-600">QUANTITY</label>
+            {/* Quantity and Add Button */}
+            <div className="flex items-center justify-between space-x-4">
+              <div className="flex-1">
+                <label className="mb-2 block text-lg font-semibold text-gray-700">
+                  Quantity
+                </label>
                 <input
                   type="number"
-                  name="quantity"
-                  className="h-[36px] w-[347px] rounded-md border bg-white border-gray-300"
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                  className="h-12 w-full rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-green-500"
+                  min={1}
                 />
               </div>
 
-              <div className="flex justify-between items-center">
-                <label className="text-[20px] font-bold text-gray-600">SUB Total</label>
-                <input
-                  type="number"
-                  name="subtotal"
-                  className="h-[36px] w-[347px] rounded-md border bg-[#E8E8E8] border-gray-300"
-                />
-              </div>
-
-              <div className="flex justify-end mt-10">
+              <div className="flex-shrink-0">
                 <button
-                  type="button"
-                  className="rounded-md w-[154px] h-10 bg-[#BCFFC8] text-[20px] font-bold px-4 py-2 border border-[#08762D] text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] transition-colors duration-200"
-                  onClick={() => setIsModalOpen(false)} 
+                  onClick={handleAddService}
+                  className="w-full rounded-md bg-green-500 px-6 py-3 text-lg font-semibold text-white transition duration-200 hover:bg-green-600 sm:w-auto"
                 >
-                  ADD
+                  Add
                 </button>
               </div>
-            </form>
+            </div>
+
+            {/* Close Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-md bg-gray-200 px-6 py-3 text-gray-700 transition hover:bg-gray-300"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -242,4 +364,4 @@ const Neworder = () => {
   );
 };
 
-export default Neworder;
+export default NewOrder;

@@ -24,9 +24,10 @@ const Orders: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  const filteredOrders = orders.filter((order) =>
-    order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.order_id.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filteredOrders = orders.filter(
+    (order) =>
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.order_id.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const indexOfLastOrder = currentPage * itemsPerPage;
@@ -54,10 +55,10 @@ const Orders: React.FC = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  // use customer name instead of customer id
+  // use customer name useing customer_id from useGetAllCustomersQuery
   const getCustomerName = (customerId: string) => {
-    const customer = customers.find((c) => c._id === customerId);
-    return customer ? customer.name : "";
+    const customer = customers.find((customer) => customer.customer_id === customerId);
+    return customer ? customer.name : "N/A";
   };
 
   const handleDelete = (orderId: string) => {
@@ -113,7 +114,7 @@ const Orders: React.FC = () => {
             <th className="p-4 text-center">ID</th>
             <th className="p-4 text-center">Customer Name</th>
             <th className="p-4 text-center">Status</th>
-            <th className="p-4 text-center">Service</th>
+            <th className="p-4 text-center">Product ID</th>
             <th className="p-4 text-center">Price</th>
             <th className="p-4"></th>
             <th className="p-4"></th>
@@ -129,7 +130,9 @@ const Orders: React.FC = () => {
               <td className="rounded-lg px-4 py-6 text-center">
                 #{order.order_id}
               </td>
-              <td className="p-4 text-center">{getCustomerName(order.customer_id) || "N/A"}</td> 
+              <td className="p-4 text-center">
+                {getCustomerName(order.customer_id) || "N/A"}
+              </td>
               <td className="p-4 text-center">
                 <span
                   className={`font-semibold ${
@@ -141,8 +144,8 @@ const Orders: React.FC = () => {
                   {order.status}
                 </span>
               </td>
-               <td className="p-4 text-center">{order.product_id || "N/A"}</td>
-              <td className="p-4 text-center">{order.grand_total || "N/A"}</td>
+              <td className="p-4 text-center">#{order.product_id || "N/A"}</td>
+              <td className="p-4 text-center">Rs.{order.grand_total || "N/A"}</td>
               <td className="p-4 text-center">
                 <button
                   className="text-center text-red-500 hover:text-red-700"

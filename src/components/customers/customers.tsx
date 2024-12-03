@@ -9,6 +9,7 @@ import {
   useGetAllCustomersQuery,
   useDeleteCustomerMutation,
 } from "@/app/redux/features/customerApiSlice";
+import { useGetAllOrdersQuery } from "@/app/redux/features/orderApiSlice";
 import { Customer } from "@/types";
 
 const Customers = () => {
@@ -19,7 +20,14 @@ const Customers = () => {
     isLoading,
     isError,
     refetch: refetchCustomers,
-  } = useGetAllCustomersQuery(undefined);
+  } = useGetAllCustomersQuery();
+
+  const {
+    data: orderData2 = [],
+    isLoading: isLoading2,
+    isError: isError2,
+    refetch: refetchOrders,
+  } = useGetAllOrdersQuery();
 
   const [deleteCustomer] = useDeleteCustomerMutation();
 
@@ -45,6 +53,12 @@ const Customers = () => {
       console.error("Failed to delete customer", error);
     }
   };
+ 
+  const getOrderStatus = (customerId: string) => {
+    const order = orderData2.find((order) => order.customer_id === customerId);
+    return order ? order.status : "N/A";
+  };
+
 
   // Filter and paginate customers
   const filteredOrders = orderData.filter((order) =>
@@ -127,19 +141,20 @@ const Customers = () => {
               onClick={() => handleRowClick(customers)}
             >
               <td className="rounded-lg p-2 px-4 py-6 text-center">
-              #{customers.customer_id}
+                #{customers.customer_id}
               </td>
               <td className="text-center">{customers.name}</td>
               <td className="p-4 text-center">
-                {/* <span
+                
+                 <span
                   className={`rounded-md font-semibold ${
-                    customers.order === "Active"
+                    getOrderStatus(customers._id) === "Active"
                       ? "h-[30px] w-[78px] border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
                       : "h-[30px] w-[78px] border-2 border-[#000000] bg-[#CBD5E1] px-5 py-1 text-[#000000]"
                   }`}
                 >
-                  {customers.order}
-                </span> */}
+                  {getOrderStatus(customers._id)}
+                </span> 
               </td>
               <td className="p-4 text-center">{customers.contact}</td>
               <td className="p-4 text-center">
