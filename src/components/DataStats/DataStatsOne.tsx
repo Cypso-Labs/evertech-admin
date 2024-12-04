@@ -26,7 +26,7 @@ const DataStatsOne: React.FC = () => {
   // Calculations
   const unpaidOrdersCount = isLoadingOrders
     ? 0
-    : allOrders?.filter((order) => order.status === "Pending").length || 0;
+    : allOrders?.filter((order) => order.status === "pending").length || 0;
 
   const notExpiredServicesCount = isLoadingServices
     ? 0

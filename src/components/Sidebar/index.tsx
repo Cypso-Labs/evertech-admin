@@ -30,7 +30,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
         }`}
       >
         <div className="flex items-center justify-between gap-2 px-6 py-5.5">
-          <Link href="/" className="block">
+          <Link href="/dashboard" className="block">
             <button className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-600 via-blue-500 to-green-400 p-0.5 transition-all duration-300 hover:scale-105 hover:shadow-md">
               <div className="relative rounded-md bg-black px-4 py-1.5">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 via-blue-500/20 to-green-400/20 blur-sm transition-all duration-300 group-hover:blur-md" />
