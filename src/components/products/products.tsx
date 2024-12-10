@@ -117,7 +117,7 @@ const Products: React.FC = () => {
               className="cursor-pointer rounded-md bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-300"
             >
               <td className="rounded-lg p-2 px-4 py-6 text-center">
-                #{product._id}
+                {product.product_id}
               </td>
               <td className="text-center">{product.product_type}</td>
               <td className="p-4 text-center">
@@ -126,7 +126,7 @@ const Products: React.FC = () => {
               <td className="p-4 text-center">{product.model_number}</td>
               <td className="p-4 text-center">
                 <button className="text-center text-[#FF0000] hover:text-[#3584FA]"
-               // onClick={(e) => { e.stopPropagation(); handleDelete(product._id)}}
+                onClick={(e) => { e.stopPropagation(); handleDelete(product._id)}}
                 
                 >
                   <FaTrashAlt />

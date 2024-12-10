@@ -173,7 +173,7 @@ const Orders: React.FC = () => {
                   {order.status}
                 </span>
               </td>
-              <td className="p-4 text-center">#{order.product_id || "N/A"}</td>
+              <td className="p-4 text-center">{order.product_id || "N/A"}</td>
               <td className="p-4 text-center">
                 Rs.{order.grand_total || "N/A"}
               </td>
