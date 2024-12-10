@@ -4,6 +4,7 @@ import payments from "@/assets/images/icon/payment.svg";
 import services from "@/assets/images/icon/service.svg";
 import customers from "@/assets/images/icon/customer.svg";
 import employees from "@/assets/images/icon/employee.svg";
+import product from "@/assets/images/icon/product.svg";
 import ClipboardMinus  from "@/assets/images/icon/repory.png";
 
 interface MenuItem {
@@ -51,6 +52,11 @@ const MenuGroupsData: MenuGroup[] = [
         icon: employees,
         label: "Employees",
         route: "/employees",
+      },
+      {
+        icon:product,
+        label: "Products",
+        route: "/products",
       },
       {
         icon: ClipboardMinus,

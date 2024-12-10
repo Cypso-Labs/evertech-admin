@@ -40,7 +40,7 @@ export default function PaymentOrder() {
     { name: "Lorem Ipsum", quantity: "Dolor Sit", price: "Dolor Sit" },
   ];
 
-  const [formData, setFormData] = useState<PaymentFormData>({
+  const [formData, setFormData] = useState({
     id: "",
     orderId: "",
     customerName: "",
@@ -199,8 +199,8 @@ useEffect(() => {
                 </span>
                 <input
                   type="text"
-                  value={formData.id}
-                  className="bg-transparent text-[16px] font-normal  text-gray-500 focus:outline-none  "
+                  value={formData.orderId}
+                  className="bg-transparent text-[16px] font-normal  text-black focus:outline-none  "
                   style={{ font: "Inter" }}
                 />
               </div>

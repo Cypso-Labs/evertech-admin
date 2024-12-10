@@ -12,7 +12,7 @@ const Newcustomer = () => {
 
 
   const [formData, setFormData] = useState({
-    customer_id: "",
+   
     name: "",
     contact: "",
     address: "",
@@ -26,7 +26,7 @@ const Newcustomer = () => {
 
   const validateForm = () => {
     if (
-      !formData.customer_id ||
+     
       !formData.name ||
       !formData.contact ||
       !formData.address ||
@@ -116,7 +116,7 @@ const Newcustomer = () => {
 
       <div className="grid grid-cols-4">
         <div className="space-y-6 text-[24px] font-medium text-[#64748B] dark:text-white">
-          <div className="h-[36px]">Customer ID</div>
+         
           <div className="h-[36px]">Customer Name</div>
           <div className="h-[36px]">Contact</div>
           <div className="h-[108px]">Address</div>
@@ -125,13 +125,7 @@ const Newcustomer = () => {
 
         <div>
           <div className="col-span-3 space-y-6">
-            <input
-              type="text"
-              name="customer_id"
-              value={formData.customer_id}
-              onChange={handleInputChange}
-              className="h-[36px] w-[520px] rounded-md border border-gray-300 bg-white dark:border-slate-500 dark:bg-slate-600"
-            />
+           
             <input
               type="text"
               name="name"

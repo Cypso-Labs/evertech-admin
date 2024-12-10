@@ -134,5 +134,18 @@ export interface Payment {
   amount: string;
 }
 
+export interface Product{
+  _id: string;
+  product_type: string;
+  serial_number: string;
+  model_number: string;
+  problem: string;
+  status: string;
+  description:string,
+  customer_id: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 export interface RegisterCredentials
   extends Omit<Employee, "_id" | "createdAt" | "updatedAt"> {}
