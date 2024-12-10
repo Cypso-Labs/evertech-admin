@@ -37,8 +37,6 @@ const  EditService = () => {
     id: "",
     service: "",
     category: "",
-    price: "",
-    expireDate: "",
   });
 
   // Effect to initialize form data when service data changes
@@ -50,10 +48,6 @@ const  EditService = () => {
           id: serviceData._id,
           service: serviceData.name,
           category: serviceData.category_id,
-          price: serviceData.price.toString(),
-          expireDate: new Date(serviceData.opt_expire_date)
-            .toISOString()
-            .slice(0, 10),
         });
       }
     }
@@ -75,8 +69,7 @@ const  EditService = () => {
       id: formData.id,
       name: formData.service,
       category_id: formData.category,
-      price: formData.price,
-      opt_expire_date: new Date(formData.expireDate),
+     
     };
     try {
       await updateService(payload);
@@ -188,32 +181,6 @@ const  EditService = () => {
                 </option>
               ))}
           </select>
-        </div>
-
-        <div className="grid grid-cols-2 items-center gap-4">
-          <label className="text-2xl font-medium text-gray-500 dark:text-white">
-            Expire Date
-          </label>
-          <input
-            type="date"
-            name="expireDate"
-            value={formData.expireDate}
-            onChange={handleChange}
-            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 items-center gap-4">
-          <label className="text-2xl font-medium text-gray-500 dark:text-white">
-            Price
-          </label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
-          />
         </div>
 
         <div className="mt-8 flex justify-end space-x-4">
