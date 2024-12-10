@@ -6,6 +6,8 @@ import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
+import { FaPrint } from "react-icons/fa";
+import { FaCreditCard } from "react-icons/fa6";
 import {
   useGetAllOrdersQuery,
   useDeleteOrderMutation,
@@ -57,9 +59,12 @@ const Orders: React.FC = () => {
 
   // use customer name useing customer_id from useGetAllCustomersQuery
   const getCustomerName = (customerId: string) => {
-    const customer = customers.find((customer) => customer.customer_id === customerId);
+    const customer = customers.find(
+      (customer) => customer.customer_id === customerId,
+    );
     return customer ? customer.name : "N/A";
   };
+
 
   const handleDelete = (orderId: string) => {
     Swal.fire({
@@ -78,6 +83,30 @@ const Orders: React.FC = () => {
       }
     });
   };
+
+  const handlePrint = (orderId: string) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, print it!",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#2E84D3",
+      cancelButtonColor: "#D93132",
+    });
+  };
+
+  const handlePayment = (orderId: string ) => {
+    const queryParams = new URLSearchParams({
+      id: orderId,
+      
+    }).toString();
+
+    router.push(`/payments/PaymentOrder?id=${queryParams}`);
+  };
+
+  
 
   if (isLoading) return <div>Loading...</div>;
 
@@ -145,7 +174,9 @@ const Orders: React.FC = () => {
                 </span>
               </td>
               <td className="p-4 text-center">#{order.product_id || "N/A"}</td>
-              <td className="p-4 text-center">Rs.{order.grand_total || "N/A"}</td>
+              <td className="p-4 text-center">
+                Rs.{order.grand_total || "N/A"}
+              </td>
               <td className="p-4 text-center">
                 <button
                   className="text-center text-red-500 hover:text-red-700"
@@ -155,6 +186,24 @@ const Orders: React.FC = () => {
                   }}
                 >
                   <FaTrashAlt />
+                </button>
+                <button
+                  className="ml-4 text-center text-blue-500 hover:text-blue-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrint(order._id);
+                  }}
+                >
+                  <FaPrint />
+                </button>
+                <button className="ml-4 text-center text-green-500 hover:text-green-700"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePayment(order._id);
+                }}
+                
+                >
+                  <FaCreditCard />
                 </button>
               </td>
               <td className="rounded-lg p-4"></td>
