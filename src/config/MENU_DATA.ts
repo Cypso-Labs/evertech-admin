@@ -5,6 +5,9 @@ import services from "@/assets/images/icon/service.svg";
 import customers from "@/assets/images/icon/customer.svg";
 import employees from "@/assets/images/icon/employee.svg";
 import product from "@/assets/images/icon/product.svg";
+
+import tech from "@/assets/images/icon/tech.svg";
+
 import ClipboardMinus  from "@/assets/images/icon/repory.png";
 
 interface MenuItem {
@@ -63,6 +66,11 @@ const MenuGroupsData: MenuGroup[] = [
         label: "Reports",
         route: "/reports",
       },
+      {
+        icon: tech,
+        label: "Technicion",
+        route: "/technicians",
+      }
     ],
   },
 ];

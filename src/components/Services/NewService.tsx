@@ -10,10 +10,9 @@ import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice"
 import type { Service, Category } from "@/types";
 
 interface ServiceFormData {
+  id: string;
   name: string;
   category_id: string;
-  price: string;
-  opt_expire_date: string;
 }
 
 const CreateService: React.FC = () => {
@@ -22,10 +21,9 @@ const CreateService: React.FC = () => {
   const { data: categories = [] } = useGetAllCategoriesQuery();
 
   const [formData, setFormData] = useState<ServiceFormData>({
+    id:"",
     name: "",
     category_id: "",
-    price: "",
-    opt_expire_date: new Date().toISOString().split("T")[0],
   });
 
   const [errors, setErrors] = useState<Partial<ServiceFormData>>({});
@@ -33,11 +31,7 @@ const CreateService: React.FC = () => {
   const validateForm = (): boolean => {
     const newErrors: Partial<ServiceFormData> = {};
     if (!formData.name) newErrors.name = "Service name is required.";
-    if (!formData.price) newErrors.price = "Price is required.";
     if (!formData.category_id) newErrors.category_id = "Category is required.";
-    if (!formData.opt_expire_date)
-      newErrors.opt_expire_date = "Expire date is required.";
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -68,11 +62,6 @@ const CreateService: React.FC = () => {
     }
 
     try {
-      const response = await createService({
-        ...formData,
-        opt_expire_date: new Date(formData.opt_expire_date),
-      }).unwrap();
-
       await Swal.fire({
         title: "Success!",
         text: "Service has been created successfully",
@@ -105,9 +94,7 @@ const CreateService: React.FC = () => {
   const handleCancel = () => {
     if (
       formData.name ||
-      formData.category_id ||
-      formData.price ||
-      formData.opt_expire_date !== new Date().toISOString().split("T")[0]
+      formData.category_id 
     ) {
       Swal.fire({
         title: "Are you sure?",
@@ -149,6 +136,29 @@ const CreateService: React.FC = () => {
         onSubmit={handleSubmit}
         className="mx-auto max-w-2xl space-y-6 rounded-lg bg-white p-8 shadow-md dark:bg-[#1e293b]"
       >
+         <div className="form-group">
+          <label
+            htmlFor="name"
+            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
+          >
+            Service Id
+          </label>
+          <input
+            type="text"
+            id="id"
+            name="id"
+            value={formData.id}
+            onChange={handleChange}
+            placeholder="Enter service id"
+            className={`w-full rounded-md border px-3 py-2 
+              ${errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
+              dark:bg-[#122031] dark:text-white`}
+          />
+          {errors.name && (
+            <p className="mt-1 text-sm text-red-500">{errors.id}</p>
+          )}
+        </div>
+
         <div className="form-group">
           <label
             htmlFor="name"
@@ -169,29 +179,6 @@ const CreateService: React.FC = () => {
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label
-            htmlFor="price"
-            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
-          >
-            Price
-          </label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            placeholder="Enter price"
-            className={`w-full rounded-md border px-3 py-2 
-              ${errors.price ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
-              dark:bg-[#122031] dark:text-white`}
-          />
-          {errors.price && (
-            <p className="mt-1 text-sm text-red-500">{errors.price}</p>
           )}
         </div>
 
@@ -220,31 +207,6 @@ const CreateService: React.FC = () => {
           </select>
           {errors.category_id && (
             <p className="mt-1 text-sm text-red-500">{errors.category_id}</p>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label
-            htmlFor="opt_expire_date"
-            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
-          >
-            Expire Date
-          </label>
-          <input
-            type="date"
-            id="opt_expire_date"
-            name="opt_expire_date"
-            value={formData.opt_expire_date}
-            onChange={handleChange}
-            min={new Date().toISOString().split("T")[0]}
-            className={`w-full rounded-md border px-3 py-2
-              ${errors.opt_expire_date ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
-              dark:bg-[#122031] dark:text-white`}
-          />
-          {errors.opt_expire_date && (
-            <p className="mt-1 text-sm text-red-500">
-              {errors.opt_expire_date}
-            </p>
           )}
         </div>
 

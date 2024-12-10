@@ -41,17 +41,16 @@ const Services = () => {
       id: service._id,
       service: service.name,
       category: service.category_id,
-      price: service.price.toString(),
     }).toString();
     router.push(`/services/editServices?${queryParams}`);
   };
 
-  const handleSwitchChange = (serviceId: string, isEnabled: boolean) => {
-    updateService({
-      id: serviceId,
-      isEnabled: !isEnabled,
-    });
-  };
+  // const handleSwitchChange = (serviceId: string, isEnabled: boolean) => {
+  //   updateService({
+  //     id: serviceId,
+  //     isEnabled: !isEnabled,
+  //   });
+  // };
 
   const handleDelete = (serviceId: string) => {
     deleteService(serviceId);
@@ -159,8 +158,6 @@ const Services = () => {
               <th>ID</th>
               <th>SERVICE</th>
               <th>CATEGORY</th>
-              <th>PRICE</th>
-              <th>EXP</th>
               <th>ACTION</th>
             </tr>
           </thead>
@@ -173,30 +170,7 @@ const Services = () => {
               >
                 <td className="rounded-l-xl px-4 py-6">#{service._id.slice(-5)}</td>
                 <td className="px-4 py-2">{service.name}</td>
-                <td className="px-4 py-2">{getServiceNameByCategoryId(service.category_id)}</td>
-                <td className="px-4 py-2">{service.price}</td>
-                <td>
-                  <div className="flex justify-center">
-                    <Switch
-                      checked={service.isEnabled}
-                      onChange={() =>
-                        handleSwitchChange(
-                          service._id,
-                          service.isEnabled as boolean,
-                        )
-                      }
-                      className={`${
-                        service.isEnabled ? "bg-green-600" : "bg-gray-200"
-                      } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2`}
-                    >
-                      <span
-                        className={`${
-                          service.isEnabled ? "translate-x-6" : "translate-x-1"
-                        } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
-                      />
-                    </Switch>
-                  </div>
-                </td>
+                <td className="px-4 py-2">{getServiceNameByCategoryId(service.category_id)}</td>  
                 <td className="rounded-r-xl px-4 py-2">
                   <button
                     className="text-red-500 hover:text-[#3584FA]"
