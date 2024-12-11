@@ -1,45 +1,46 @@
 "use client";
+
 import { apiSlice } from "../apiSlice";
 import type { Product } from "@/types";
 
 export const productApiSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getAllProducts: builder.query<Product[], void>({
-      query: () => "/products",
-      providesTags: [{ type: "Product", id: "LIST" }],
+      query: () => "/products/",
+      providesTags: ["Product"],
     }),
-
     getProductById: builder.query<Product, string>({
       query: (id) => `/products/${id}`,
-      providesTags: (result, error, id) => [{ type: "Product", id }],
+      providesTags: ["Product"],
     }),
-
-    createProduct: builder.mutation<Product, Omit<Product, "_id">>({
+    createProduct: builder.mutation<
+      Product,
+      Omit<Product, "_id" | "product_id" | "created_at" | "updated_at">
+    >({
       query: (productData) => ({
-        url: "/products",
+        url: "/products/",
         method: "POST",
         body: productData,
       }),
-      invalidatesTags: [{ type: "Product", id: "LIST" }],
+      invalidatesTags: ["Product"],
     }),
-
-    updateProduct: builder.mutation<Product, Product>({
-      query: (productData) => ({
-        url: `/products/${productData._id}`,
+    updateProduct: builder.mutation<
+      Product,
+      Partial<Product> & { _id: string }
+    >({
+      query: ({ _id, ...updates }) => ({
+        url: `/products/${_id}`,
         method: "PUT",
-        body: productData,
+        body: updates,
       }),
-      invalidatesTags: (result, error, productData) => [
-        { type: "Product", id: productData._id },
-      ],
+      invalidatesTags: ["Product"],
     }),
-
     deleteProduct: builder.mutation<void, string>({
       query: (id) => ({
         url: `/products/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => [{ type: "Product", id }],
+      invalidatesTags: ["Product"],
     }),
   }),
 });

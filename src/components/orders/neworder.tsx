@@ -164,7 +164,6 @@ const NewOrder: React.FC = () => {
       {/* Order Form */}
       <div className="grid grid-cols-4 gap-x-4">
         <div className="space-y-2 text-2xl font-semibold dark:text-white">
-          <div className="h-[36px]">Order Id</div>
           <div className="h-[36px]">Customer Id</div>
           <div className="h-[36px]">Product Id</div>
         </div>
@@ -250,7 +249,6 @@ const NewOrder: React.FC = () => {
             <tbody>
               {orderData.map((order, index) => (
                 <tr key={index} className="text-sm text-gray-700">
-                  <td className="py-2">{order.id.slice(0, 8)}...</td>
                   <td className="py-2">{order.name}</td>
                   <td className="py-2">{order.qty}</td>
                   <td className="py-2">Rs.{order.each}</td>

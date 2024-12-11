@@ -10,7 +10,7 @@ export const serviceApiSlice = apiSlice.injectEndpoints({
       providesTags: [{ type: "Service", id: "LIST" }],
     }),
     getServiceById: builder.query<Service, string>({
-      query: (id) => `/services/${id}`, // Correctly interpolate the service ID
+      query: (id) => `/services/${id}`, 
       providesTags: (result, error, id) => [{ type: "Service", id }],
     }),
     createService: builder.mutation<Service, Omit<Service, "_id">>({

@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import { useRouter } from "next/navigation";
@@ -26,12 +27,13 @@ const NewProduct = () => {
   const [createProduct, { isLoading: isCreatingProduct }] = useCreateProductMutation();
   const { data: customers = [], isLoading: isLoadingCustomers } = useGetAllCustomersQuery();
 
+  // Filter customers based on search input
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(customerSearch.toLowerCase())
   );
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -72,20 +74,24 @@ const NewProduct = () => {
 
   return (
     <div className="p-6">
+      {/* Header */}
       <div className="mb-20 flex items-center">
-        <Link href="/products" className="mr-4">
+        <Link href="/products">
           <IoIosArrowDropleft className="h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
         </Link>
-        <h1 className="text-4xl font-medium text-slate-600 dark:text-white">
+        <h1 className="text-4xl font-medium text-slate-600 dark:text-white ml-4">
           New Product
         </h1>
       </div>
 
+      {/* Form */}
       <form className="w-full max-w-6xl" onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-x-10 gap-y-6">
+          {/* Left Section */}
           <div className="space-y-6">
-            <div className="flex items-center">
-            <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Customer Search */}
+            <div className="relative">
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Customer
               </label>
               <input
@@ -93,22 +99,20 @@ const NewProduct = () => {
                 value={customerSearch}
                 onChange={(e) => setCustomerSearch(e.target.value)}
                 placeholder="Search Customer"
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
               {customerSearch && filteredCustomers.length > 0 && (
-                <div className="absolute mt-1 max-h-60  overflow-y-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                <div className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 dark:bg-gray-800 dark:text-white">
                   {filteredCustomers.map((customer) => (
                     <div
                       key={customer.customer_id}
-                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      className="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                       onClick={() => {
                         setFormData((prevState) => ({
                           ...prevState,
                           customer_id: customer.customer_id,
                         }));
-                        setCustomerSearch(
-                          `${customer.name} - ${customer.customer_id}`,
-                        );
+                        setCustomerSearch(`${customer.name} - ${customer.customer_id}`);
                       }}
                     >
                       {customer.name} - {customer.customer_id}
@@ -118,8 +122,9 @@ const NewProduct = () => {
               )}
             </div>
 
-            <div className="flex items-center">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Product Type */}
+            <div>
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Product Type
               </label>
               <input
@@ -127,12 +132,13 @@ const NewProduct = () => {
                 name="product_type"
                 value={formData.product_type}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
-            <div className="flex items-center">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Model Number */}
+            <div>
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Model
               </label>
               <input
@@ -140,12 +146,13 @@ const NewProduct = () => {
                 name="model_number"
                 value={formData.model_number}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
-            <div className="flex items-center">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Serial Number */}
+            <div>
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Serial No
               </label>
               <input
@@ -153,30 +160,33 @@ const NewProduct = () => {
                 name="serial_number"
                 value={formData.serial_number}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
           </div>
 
+          {/* Right Section */}
           <div className="space-y-6">
-            <div className="flex items-center">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Status */}
+            <div>
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Status
               </label>
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               >
                 <option value="">Select Status</option>
-                <option value="Shop Based">Shop Based</option>
-                <option value="Outsource">Outsource</option>
+                <option value="Shop-based job">Shop Based</option>
+                <option value="Outsource job">Outsource</option>
               </select>
             </div>
 
-            <div className="flex items-center">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Problem */}
+            <div>
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Problem
               </label>
               <input
@@ -184,12 +194,13 @@ const NewProduct = () => {
                 name="problem"
                 value={formData.problem}
                 onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
-            <div className="flex items-start">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
+            {/* Description */}
+            <div>
+              <label className="block text-[20px] font-medium text-gray-500 dark:text-white">
                 Description
               </label>
               <textarea
@@ -197,10 +208,11 @@ const NewProduct = () => {
                 value={formData.description}
                 onChange={handleChange}
                 rows={4}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
+                className="w-full rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
 
+            {/* Buttons */}
             <div className="mt-8 flex justify-end space-x-4">
               <button
                 type="button"
@@ -213,7 +225,7 @@ const NewProduct = () => {
                 type="submit"
                 disabled={isCreatingProduct}
                 className={`rounded-md border border-green-400 bg-[#BCFFC8] px-4 py-2 text-[#08762D] hover:bg-[#08762D] hover:text-[#BCFFC8] dark:bg-green-600 dark:text-white dark:hover:bg-green-700 ${
-                  isCreatingProduct && "opacity-50 cursor-not-allowed"
+                  isCreatingProduct && "cursor-not-allowed opacity-50"
                 }`}
               >
                 {isCreatingProduct ? "Creating..." : "Create Product"}
