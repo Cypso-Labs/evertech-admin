@@ -6,8 +6,12 @@ import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { useGetAllProductsQuery , useDeleteProductMutation} from "@/app/redux/features/productApiSlice";
+import {
+  useGetAllProductsQuery,
+  useDeleteProductMutation,
+} from "@/app/redux/features/productApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
+import { Product } from "@/types";
 
 const Products: React.FC = () => {
   const router = useRouter();
@@ -18,7 +22,6 @@ const Products: React.FC = () => {
   const { data: customers = [] } = useGetAllCustomersQuery();
   const [deleteProduct] = useDeleteProductMutation();
 
-  // Filter and paginate products
   const filteredProducts = products.filter((product) =>
     product.product_type.toLowerCase().includes(searchTerm.toLowerCase()),
   );
@@ -32,7 +35,6 @@ const Products: React.FC = () => {
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
 
-  // Pagination handlers
   const handleNextPage = () => {
     if (currentPage < totalPages) {
       setCurrentPage((prevPage) => prevPage + 1);
@@ -45,7 +47,6 @@ const Products: React.FC = () => {
     }
   };
 
-  // use customer name useing customer_id from useGetAllCustomersQuery
   const getCustomerName = (customerId: string) => {
     const customer = customers.find(
       (customer) => customer.customer_id === customerId,
@@ -68,7 +69,14 @@ const Products: React.FC = () => {
         router.push("/products");
       }
     });
-  }
+  };
+
+  const handleRowClick = (products: Product) => {
+    const queryParams = new URLSearchParams({
+      id: products._id,
+    }).toString();
+    router.push(`/products/editproduct?${queryParams}`);
+  };
 
   return (
     <div>
@@ -115,6 +123,7 @@ const Products: React.FC = () => {
             <tr
               key={product._id}
               className="cursor-pointer rounded-md bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-300"
+              onClick={() => handleRowClick(product)}
             >
               <td className="rounded-lg p-2 px-4 py-6 text-center">
                 {product.product_id}
@@ -125,9 +134,12 @@ const Products: React.FC = () => {
               </td>
               <td className="p-4 text-center">{product.model_number}</td>
               <td className="p-4 text-center">
-                <button className="text-center text-[#FF0000] hover:text-[#3584FA]"
-                onClick={(e) => { e.stopPropagation(); handleDelete(product._id)}}
-                
+                <button
+                  className="text-center text-[#FF0000] hover:text-[#3584FA]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(product._id);
+                  }}
                 >
                   <FaTrashAlt />
                 </button>
