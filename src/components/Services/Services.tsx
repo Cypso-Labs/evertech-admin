@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BiSolidCategory } from "react-icons/bi";
 import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi";
-import { Switch } from "@headlessui/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -26,11 +24,7 @@ const Services = () => {
   const { data: categories = [], isLoading: loading } =
     useGetAllCategoriesQuery();
 
-  //use catogary id show its name on table
-  const getServiceNameByCategoryId = (categoryId: string) => {
-    const category = categories.find((cat) => cat._id === categoryId);
-    return category?.name || "Unknown Service";
-  };
+  
 
 
   const [deleteService] = useDeleteServiceMutation();
@@ -40,17 +34,12 @@ const Services = () => {
     const queryParams = new URLSearchParams({
       id: service._id,
       service: service.name,
-      category: service.category_id,
+      description: service.description,
     }).toString();
     router.push(`/services/editServices?${queryParams}`);
   };
 
-  // const handleSwitchChange = (serviceId: string, isEnabled: boolean) => {
-  //   updateService({
-  //     id: serviceId,
-  //     isEnabled: !isEnabled,
-  //   });
-  // };
+
 
   const handleDelete = (serviceId: string) => {
     deleteService(serviceId);
@@ -60,7 +49,7 @@ const Services = () => {
     ? services.filter(
         (service) =>
           service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          service.category_id
+          service.description
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
           service._id.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -116,15 +105,6 @@ const Services = () => {
           Services
         </h1>
         <div className="flex space-x-4">
-          <Link href="/services/category">
-            <button className="flex h-[58px] w-[181px] items-center justify-center rounded-md border border-gray-500 bg-[#CBD5E1] px-4 py-2 text-xl font-medium text-gray-700 hover:bg-[#000000] hover:text-slate-300 dark:bg-[#122031] dark:text-white">
-              Categories
-              <BiSolidCategory
-                className="ml-2 text-gray-500 hover:text-slate-300"
-                size={24}
-              />
-            </button>
-          </Link>
           <Link href="/services/newService">
             <button className="h-[58px] w-[181px] rounded-md border border-blue-600 bg-blue-100 px-4 py-2 text-[20px] font-medium text-blue-500 hover:bg-[#3584FA] hover:text-[#E0EDFF] dark:bg-blue-400 dark:text-white">
               New Service +
@@ -168,9 +148,11 @@ const Services = () => {
                 onClick={() => handleRowClick(service)}
                 className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
               >
-                <td className="rounded-l-xl px-4 py-6">#{service._id.slice(-5)}</td>
+                <td className="rounded-l-xl px-4 py-6">
+                  {service.service_id}
+                </td>
                 <td className="px-4 py-2">{service.name}</td>
-                <td className="px-4 py-2">{getServiceNameByCategoryId(service.category_id)}</td>  
+                <td className="px-4 py-2">{service.description}</td>
                 <td className="rounded-r-xl px-4 py-2">
                   <button
                     className="text-red-500 hover:text-[#3584FA]"

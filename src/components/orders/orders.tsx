@@ -157,7 +157,7 @@ const Orders: React.FC = () => {
               onClick={() => handleRowClick(order)}
             >
               <td className="rounded-lg px-4 py-6 text-center">
-                #{order.order_id}
+                {order.order_id}
               </td>
               <td className="p-4 text-center">
                 {getCustomerName(order.customer_id) || "N/A"}

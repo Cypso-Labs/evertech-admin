@@ -11,7 +11,8 @@ import { X, Plus, Minus } from "lucide-react";
 import { useCreateOrderMutation } from "@/app/redux/features/orderApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
 import { useGetAllServicesQuery } from "@/app/redux/features/serviceApiSlice";
-import { Order, Service } from "@/types";
+import { useGetAllProductsQuery } from "@/app/redux/features/productApiSlice";
+import { Order, Service, Product } from "@/types";
 
 const NewOrder: React.FC = () => {
   const router = useRouter();
@@ -22,6 +23,7 @@ const NewOrder: React.FC = () => {
   const [quantity, setQuantity] = useState<number>(1);
   const [orderData, setOrderData] = useState<any[]>([]);
   const [customerSearch, setCustomerSearch] = useState<string>("");
+  const [productSearch, setProductSearch] = useState<string>("");
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -38,6 +40,8 @@ const NewOrder: React.FC = () => {
     useCreateOrderMutation();
   const { data: customers = [], isLoading: isCustomersLoading } =
     useGetAllCustomersQuery();
+  const { data: products = [], isLoading: isProductsLoading } =
+    useGetAllProductsQuery();
 
   // Calculated grand total
   const grandTotal = useMemo(
@@ -68,27 +72,45 @@ const NewOrder: React.FC = () => {
     [customers, customerSearch],
   );
 
-  // Handle adding a service
-  const handleAddService = () => {
-    const service = services.find((s: Service) => s._id === selectedService);
+  // Filtered product list based on search query
+  const filteredProducts = useMemo(
+    () =>
+      products.filter(
+        (product) =>
+          product.product_type
+            .toLowerCase()
+            .includes(productSearch.toLowerCase()) ||
+          product.product_id
+            .toLowerCase()
+            .includes(productSearch.toLowerCase()),
+      ),
+    [products, productSearch],
+  );
 
-    if (service) {
-      const subtotal = quantity * parseFloat(service.price);
+const handleAddService = () => {
+  const service = services.find((s: Service) => s._id === selectedService);
 
-      const newOrderItem = {
-        id: service._id,
-        name: service.name,
-        qty: quantity,
-        each: service.price,
-        subtotal: subtotal.toFixed(2),
-      };
+  if (service) {
+    // Define the price logic if price is not in the service object
+    const price = service.name ? parseFloat(service.name) : 0; // Adjust to a default price if necessary
 
-      setOrderData((prev) => [...prev, newOrderItem]);
-      setIsModalOpen(false);
-      setSelectedService("");
-      setQuantity(1);
-    }
-  };
+    const subtotal = quantity * price;
+
+    const newOrderItem = {
+      id: service._id,
+      name: service.name,
+      qty: quantity,
+      each: price.toFixed(2),
+      subtotal: subtotal.toFixed(2),
+    };
+
+    setOrderData((prev) => [...prev, newOrderItem]);
+    setIsModalOpen(false);
+    setSelectedService("");
+    setQuantity(1);
+  }
+};
+
 
   const handleSave = async () => {
   const payload = {
@@ -169,14 +191,6 @@ const NewOrder: React.FC = () => {
         </div>
 
         <div className="col-span-2 space-y-2">
-          <input
-            type="text"
-            name="order_id"
-            value={formData.order_id}
-            onChange={handleInputChange}
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
-            placeholder="Enter New Order ID"
-          />
           <div className="relative">
             <input
               type="search"
@@ -196,29 +210,55 @@ const NewOrder: React.FC = () => {
                       className="cursor-pointer p-2 hover:bg-gray-100"
                       onClick={() => {
                         setCustomerSearch(
-                          `${customer.name} - ${customer.customer_id}`,
+                          `${customer.name} ${customer.customer_id}`,
                         );
                         setFormData((prev) => ({
                           ...prev,
-                          customer_id: customer.customer_id,
+                          customer_id: customer._id,
                         }));
                       }}
                     >
-                      {customer.name} - {customer.customer_id}
+                      {customer.name} {customer.customer_id}
                     </div>
                   ))}
                 </div>
               )}
           </div>
+        
 
-          <input
-            type="text"
-            name="product_id"
-            value={formData.product_id}
-            onChange={handleInputChange}
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
-            placeholder="Enter Product ID"
-          />
+          <div className="relative">
+            <input
+              type="search"
+              id="search"
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              placeholder="Search product by name or ID"
+              className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            />
+            {productSearch &&
+              !isProductsLoading &&
+              filteredProducts.length > 0 && (
+                <div className="absolute z-10 mt-1 rounded-md border border-gray-300 bg-white">
+                  {filteredProducts.map((product) => (
+                    <div
+                      key={product._id}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setProductSearch(
+                          `${product.product_type} - ${product.product_id}`,
+                        );
+                        setFormData((prev) => ({
+                          ...prev,
+                          product_id: product.product_id,
+                        }));
+                      }}
+                    >
+                      {product.product_type} - {product.product_id}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
         </div>
       </div>
 
@@ -315,7 +355,7 @@ const NewOrder: React.FC = () => {
                 <option value="">-- Select a Service --</option>
                 {services.map((service) => (
                   <option key={service._id} value={service._id}>
-                    {service.name} - Rs.{service.price}
+                    {service.name} 
                   </option>
                 ))}
               </select>

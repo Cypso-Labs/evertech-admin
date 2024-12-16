@@ -27,9 +27,8 @@ export interface Category {
 export interface Service {
   _id: string;
   name: string;
-  price: string;
-  category_id: string;
-  opt_expire_date: Date;
+  service_id: string;
+  description: string;
   createdAt?: Date;
   updatedAt?: Date;
   isEnabled?: boolean;

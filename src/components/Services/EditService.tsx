@@ -36,7 +36,9 @@ const  EditService = () => {
   const [formData, setFormData] = useState({
     id: "",
     service: "",
-    category: "",
+    description: "",
+    service_id: "",
+
   });
 
   // Effect to initialize form data when service data changes
@@ -47,7 +49,8 @@ const  EditService = () => {
         setFormData({
           id: serviceData._id,
           service: serviceData.name,
-          category: serviceData.category_id,
+          description: serviceData.description,
+          service_id: serviceData.service_id,
         });
       }
     }
@@ -68,7 +71,7 @@ const  EditService = () => {
     const payload = {
       id: formData.id,
       name: formData.service,
-      category_id: formData.category,
+      description: formData.description
      
     };
     try {
@@ -132,7 +135,7 @@ const  EditService = () => {
           <IoIosArrowDropleft className="mr-2 h-10 w-10 cursor-pointer text-slate-600 hover:text-[#3584FA] dark:text-white" />
         </Link>
         <h1 className="font-inter text-4xl font-medium text-slate-600 dark:text-white">
-          Edit Service #{formData.id.slice(-5)}
+          Edit Service: {formData.service_id}
         </h1>
       </div>
 
@@ -144,7 +147,7 @@ const  EditService = () => {
           <input
             type="text"
             name="id"
-            value={formData.id.slice(-5)}
+            value={formData.service_id}
             disabled
             className="h-10 rounded-md border border-gray-300 bg-gray-100 p-2 dark:bg-[#1E293B] dark:text-white"
           />
@@ -165,22 +168,15 @@ const  EditService = () => {
 
         <div className="grid grid-cols-2 items-center gap-4">
           <label className="text-2xl font-medium text-gray-500 dark:text-white">
-            Category
+            Description
           </label>
-          <select
-            name="category"
-            value={formData.category}
+          <input
+            type="text"
+            name="description"
+            value={formData.description}
             onChange={handleChange}
             className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
-          >
-            <option value="">Select Category</option>
-            {categories &&
-              categories.map((category: Category) => (
-                <option key={category._id} value={category._id}>
-                  {category.name}
-                </option>
-              ))}
-          </select>
+          />
         </div>
 
         <div className="mt-8 flex justify-end space-x-4">
