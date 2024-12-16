@@ -26,15 +26,12 @@ const DataStatsOne: React.FC = () => {
   // Calculations
   const unpaidOrdersCount = isLoadingOrders
     ? 0
-    : allOrders?.filter((order) => order.status === "pending").length || 0;
+    : allOrders?.filter((order) => order.status === "Pending").length || 0;
 
-  const notExpiredServicesCount = isLoadingServices
-    ? 0
-    : allServices?.filter(
-        (service) => new Date(service.opt_expire_date) > new Date(),
-      ).length || 0;
-
+  
   const customersCount = isLoadingCustomers ? 0 : allCustomers?.length || 0;
+
+  const allServicesCount = isLoadingServices ? 0 : allServices?.length || 0;
 
   const paidPayments = isLoadingPayments
     ? []
@@ -77,7 +74,7 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#8155FF",
       title: "Total Services",
-      value: notExpiredServicesCount.toLocaleString(),
+      value: allServicesCount.toLocaleString(),
       growthRate: 2.59,
     },
     {

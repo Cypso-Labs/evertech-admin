@@ -104,7 +104,7 @@ const TablePage = () => {
                   NO
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
-                  Price
+                  Product ID
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
                   Status
@@ -122,7 +122,7 @@ const TablePage = () => {
                       {index + 1}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                      Rs.{order.unit_price}
+                      {order.product_id}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <span

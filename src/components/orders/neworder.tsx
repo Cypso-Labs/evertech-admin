@@ -5,19 +5,15 @@ import { FaTrashAlt } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdOutlineAddCircle } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { X, Plus, Minus } from "lucide-react";
-
-// Import RTK Query hooks
 import { useCreateOrderMutation } from "@/app/redux/features/orderApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
 import { useGetAllServicesQuery } from "@/app/redux/features/serviceApiSlice";
 import { useGetAllProductsQuery } from "@/app/redux/features/productApiSlice";
-import { Order, Service, Product } from "@/types";
+import { Service } from "@/types";
 
 const NewOrder: React.FC = () => {
   const router = useRouter();
 
-  // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -25,15 +21,14 @@ const NewOrder: React.FC = () => {
   const [customerSearch, setCustomerSearch] = useState<string>("");
   const [productSearch, setProductSearch] = useState<string>("");
 
-  // Form data state
   const [formData, setFormData] = useState({
     order_id: "",
     customer_id: "",
     product_id: "",
+    dilivary_status: "",
     status: "Pending",
   });
 
-  // RTK Query hooks
   const { data: services = [], isLoading: isServicesLoading } =
     useGetAllServicesQuery();
   const [createOrder, { isLoading: isCreatingOrder }] =
@@ -43,14 +38,6 @@ const NewOrder: React.FC = () => {
   const { data: products = [], isLoading: isProductsLoading } =
     useGetAllProductsQuery();
 
-  // Calculated grand total
-  const grandTotal = useMemo(
-    () =>
-      orderData.reduce((total, item) => total + parseFloat(item.subtotal), 0),
-    [orderData],
-  );
-
-  // Handle input changes for form fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -59,7 +46,6 @@ const NewOrder: React.FC = () => {
     }));
   };
 
-  // Filtered customer list based on search query
   const filteredCustomers = useMemo(
     () =>
       customers.filter(
@@ -72,7 +58,6 @@ const NewOrder: React.FC = () => {
     [customers, customerSearch],
   );
 
-  // Filtered product list based on search query
   const filteredProducts = useMemo(
     () =>
       products.filter(
@@ -87,69 +72,56 @@ const NewOrder: React.FC = () => {
     [products, productSearch],
   );
 
-const handleAddService = () => {
-  const service = services.find((s: Service) => s._id === selectedService);
+  const handleAddService = () => {
+    const service = services.find((s: Service) => s._id === selectedService);
 
-  if (service) {
-    // Define the price logic if price is not in the service object
-    const price = service.name ? parseFloat(service.name) : 0; // Adjust to a default price if necessary
+    if (service) {
+      const newOrderItem = {
+        id: service._id,
+        name: service.name,
+        description: service.description,
 
-    const subtotal = quantity * price;
+        qty: quantity,
+      };
 
-    const newOrderItem = {
-      id: service._id,
-      name: service.name,
-      qty: quantity,
-      each: price.toFixed(2),
-      subtotal: subtotal.toFixed(2),
-    };
-
-    setOrderData((prev) => [...prev, newOrderItem]);
-    setIsModalOpen(false);
-    setSelectedService("");
-    setQuantity(1);
-  }
-};
-
-
-  const handleSave = async () => {
-  const payload = {
-    order_id: formData.order_id, 
-    customer_id: formData.customer_id,
-    items: orderData,
-    total: grandTotal,
-    grand_total: grandTotal.toFixed(2),
-    status: "pending",
-    qty: orderData.reduce((acc, item) => acc + item.qty, 0),
-    sub_total: grandTotal.toFixed(2),
-    unit_price: orderData.reduce(
-      (acc, item) => acc + parseFloat(item.subtotal),
-      0,
-    ),
-    order_date: new Date(),
-    product_id: formData.product_id,
+      setOrderData((prev) => [...prev, newOrderItem]);
+      setIsModalOpen(false);
+      setSelectedService("");
+      setQuantity(1);
+    }
   };
 
-  try {
-    await createOrder(payload).unwrap();
-    Swal.fire({
-      title: "Success!",
-      text: "Order has been made",
-      icon: "success",
-      confirmButtonText: "ok",
-    }).then(() => {
-      router.push("/orders");
-    });
-  } catch (error) {
-    Swal.fire({
-      title: "Error!",
-      text: "Failed to create order",
-      icon: "error",
-    });
-  }
-};
+  const handleSave = async () => {
+    const payload = {
+      order_id: formData.order_id,
+      customer_id: formData.customer_id,
+      items: orderData,
+      qty: orderData.reduce((acc, item) => acc + item.qty, 0),
+      dilivery_status: formData.dilivary_status,
+      order_date: new Date(),
+      product_id: formData.product_id,
+      status: "Pending",
+    };
 
-  // Handle order cancellation
+    try {
+      await createOrder(payload).unwrap();
+      Swal.fire({
+        title: "Success!",
+        text: "Order has been created",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        router.push("/orders");
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to create order",
+        icon: "error",
+      });
+    }
+  };
+
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -165,14 +137,12 @@ const handleAddService = () => {
     });
   };
 
-  // Remove order item
   const removeOrderItem = (index: number) => {
     setOrderData((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <div>
-      {/* Header Section */}
       <div className="mb-12 flex items-center text-[40px] font-medium text-gray-700 dark:text-white">
         <button
           className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
@@ -183,7 +153,6 @@ const handleAddService = () => {
         New Order
       </div>
 
-      {/* Order Form */}
       <div className="grid grid-cols-4 gap-x-4">
         <div className="space-y-2 text-2xl font-semibold dark:text-white">
           <div className="h-[36px]">Customer Id</div>
@@ -224,7 +193,6 @@ const handleAddService = () => {
                 </div>
               )}
           </div>
-        
 
           <div className="relative">
             <input
@@ -280,9 +248,8 @@ const handleAddService = () => {
               <tr className="text-sm uppercase text-gray-700">
                 <th className="pb-2 text-left font-semibold">ID</th>
                 <th className="pb-2 text-left font-semibold">Service</th>
-                <th className="pb-2 text-left font-semibold">QTY</th>
-                <th className="pb-2 text-left font-semibold">Each</th>
-                <th className="pb-2 text-left font-semibold">Sub Total</th>
+                <th className="pb-2 text-left font-semibold">Description</th>
+
                 <th className="pb-2"></th>
               </tr>
             </thead>
@@ -291,8 +258,8 @@ const handleAddService = () => {
                 <tr key={index} className="text-sm text-gray-700">
                   <td className="py-2">{order.name}</td>
                   <td className="py-2">{order.qty}</td>
-                  <td className="py-2">Rs.{order.each}</td>
-                  <td className="py-2">Rs.{order.subtotal}</td>
+                  <td className="py-2">{order.description}</td>
+
                   <td className="py-2">
                     <button
                       onClick={() => removeOrderItem(index)}
@@ -305,11 +272,6 @@ const handleAddService = () => {
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <div className="text-lg font-semibold">
-            <span>Grand Total: </span> <span>Rs.{grandTotal}</span>
-          </div>
         </div>
       </div>
 
@@ -355,7 +317,7 @@ const handleAddService = () => {
                 <option value="">-- Select a Service --</option>
                 {services.map((service) => (
                   <option key={service._id} value={service._id}>
-                    {service.name} 
+                    {service.name}
                   </option>
                 ))}
               </select>

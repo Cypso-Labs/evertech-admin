@@ -57,13 +57,13 @@ const Orders: React.FC = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
-  // use customer name useing customer_id from useGetAllCustomersQuery
+  // use customer name useing customerId
   const getCustomerName = (customerId: string) => {
     const customer = customers.find(
       (customer) => customer.customer_id === customerId,
     );
     return customer ? customer.name : "N/A";
-  };
+  }
 
 
   const handleDelete = (orderId: string) => {
@@ -144,7 +144,8 @@ const Orders: React.FC = () => {
             <th className="p-4 text-center">Customer Name</th>
             <th className="p-4 text-center">Status</th>
             <th className="p-4 text-center">Product ID</th>
-            <th className="p-4 text-center">Price</th>
+            <th className="p-4 text-center">Deliverd From</th>
+            <th className="p-4 text-center"></th>
             <th className="p-4"></th>
             <th className="p-4"></th>
           </tr>
@@ -165,9 +166,9 @@ const Orders: React.FC = () => {
               <td className="p-4 text-center">
                 <span
                   className={`font-semibold ${
-                    order.status === "Paid"
-                      ? "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
-                      : "border-2 border-[#F70D1A] bg-[#FFCED1] px-3 py-1 text-[#F70D1A]"
+                    order.status === "Pending"
+                      ? "border-2 border-[#F70D1A] bg-[#FFCED1] px-3 py-1 text-[#F70D1A]"
+                      : "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
                   }`}
                 >
                   {order.status}
@@ -175,8 +176,9 @@ const Orders: React.FC = () => {
               </td>
               <td className="p-4 text-center">{order.product_id || "N/A"}</td>
               <td className="p-4 text-center">
-                Rs.{order.grand_total || "N/A"}
+                {order.dilivery_status || "N/A"}
               </td>
+
               <td className="p-4 text-center">
                 <button
                   className="text-center text-red-500 hover:text-red-700"
@@ -196,12 +198,12 @@ const Orders: React.FC = () => {
                 >
                   <FaPrint />
                 </button>
-                <button className="ml-4 text-center text-green-500 hover:text-green-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePayment(order._id);
-                }}
-                
+                <button
+                  className="ml-4 text-center text-green-500 hover:text-green-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePayment(order._id);
+                  }}
                 >
                   <FaCreditCard />
                 </button>

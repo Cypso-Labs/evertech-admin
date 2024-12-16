@@ -38,11 +38,9 @@ export interface Service {
 export interface Order {
   _id: string;
   order_id: string;
+  dilivery_status: string;
   qty: number;
   status: string;
-  sub_total: string;
-  unit_price: string;
-  grand_total: string;
   order_date: Date;
   product_id: string;
   customer_id: string;
