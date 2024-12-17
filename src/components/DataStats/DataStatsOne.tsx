@@ -35,15 +35,14 @@ const DataStatsOne: React.FC = () => {
 
   const allServicesCount = isLoadingServices ? 0 : allServices?.length || 0;
 
-  const paidPayments = isLoadingPayments
-    ? []
-    : allPayments?.filter((payment) => payment.status === "Paid") || [];
-
-  const paidPaymentsCount = paidPayments.length;
-  const paidPaymentsTotal = paidPayments.reduce(
-    (total: number, payment: Payment) => total + parseFloat(payment.amount),
-    0,
-  );
+  //all payments amount
+  const allPaymentsCount = isLoadingPayments
+    ? 0
+    : allPayments?.reduce(
+        (total: number, payment: Payment) => total + Number(payment.amount),
+        0,
+      ) || 0;
+ 
 
   const dataStatsList = [
     {
@@ -67,7 +66,6 @@ const DataStatsOne: React.FC = () => {
       title: "Completed Orders",
       value: completedOrdersCount.toLocaleString(),
       growthRate: 0.43,
-
     },
     {
       icon: (
@@ -77,7 +75,7 @@ const DataStatsOne: React.FC = () => {
       ),
       color: "#FF9C55",
       title: "Total Payment",
-      value: paidPaymentsTotal.toLocaleString(),
+      value: allPaymentsCount.toLocaleString(),
       growthRate: 4.35,
     },
     {
