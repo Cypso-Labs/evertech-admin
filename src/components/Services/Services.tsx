@@ -137,7 +137,8 @@ const Services = () => {
             <tr className="border-slate-400 py-2 text-center text-[16px] font-extrabold text-slate-600 dark:text-white">
               <th>ID</th>
               <th>SERVICE</th>
-              <th>CATEGORY</th>
+              <th>DESCRIPTION</th>
+              <th>CODE</th>
               <th>ACTION</th>
             </tr>
           </thead>
@@ -153,6 +154,7 @@ const Services = () => {
                 </td>
                 <td className="px-4 py-2">{service.name}</td>
                 <td className="px-4 py-2">{service.description}</td>
+                <td className="px-4 py-2">{service.code}</td>
                 <td className="rounded-r-xl px-4 py-2">
                   <button
                     className="text-red-500 hover:text-[#3584FA]"

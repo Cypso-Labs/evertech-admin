@@ -37,6 +37,7 @@ const  EditService = () => {
     id: "",
     service: "",
     description: "",
+    code: "",
     service_id: "",
 
   });
@@ -50,6 +51,7 @@ const  EditService = () => {
           id: serviceData._id,
           service: serviceData.name,
           description: serviceData.description,
+          code: serviceData.code,
           service_id: serviceData.service_id,
         });
       }
@@ -177,6 +179,18 @@ const  EditService = () => {
             onChange={handleChange}
             className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
           />
+        </div>
+        <div className="grid grid-cols-2 items-center gap-4">
+          <label className="text-2xl font-medium text-gray-500 dark:text-white">
+            CODE
+          </label>
+          <input
+            type="text"
+            name="code"
+            value={formData.code}
+            onChange={handleChange}
+            className="h-10 rounded-md border border-gray-300 bg-white p-2 dark:bg-[#1E293B] dark:text-white"
+          />  
         </div>
 
         <div className="mt-8 flex justify-end space-x-4">

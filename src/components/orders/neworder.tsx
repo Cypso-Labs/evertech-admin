@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useMemo } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdOutlineAddCircle } from "react-icons/md";
@@ -25,7 +24,7 @@ const NewOrder: React.FC = () => {
     order_id: "",
     customer_id: "",
     product_id: "",
-    dilivary_status: "",
+    delivery_status: "",
     status: "Pending",
   });
 
@@ -80,7 +79,6 @@ const NewOrder: React.FC = () => {
         id: service._id,
         name: service.name,
         description: service.description,
-
         qty: quantity,
       };
 
@@ -96,8 +94,7 @@ const NewOrder: React.FC = () => {
       order_id: formData.order_id,
       customer_id: formData.customer_id,
       items: orderData,
-      qty: orderData.reduce((acc, item) => acc + item.qty, 0),
-      dilivery_status: formData.dilivary_status,
+      delivery_status: formData.delivery_status,
       order_date: new Date(),
       product_id: formData.product_id,
       status: "Pending",
@@ -157,6 +154,7 @@ const NewOrder: React.FC = () => {
         <div className="space-y-2 text-2xl font-semibold dark:text-white">
           <div className="h-[36px]">Customer Id</div>
           <div className="h-[36px]">Product Id</div>
+          <div className="h-[36px]">Dilivery_status</div>
         </div>
 
         <div className="col-span-2 space-y-2">
@@ -183,7 +181,7 @@ const NewOrder: React.FC = () => {
                         );
                         setFormData((prev) => ({
                           ...prev,
-                          customer_id: customer._id,
+                          customer_id: customer.customer_id,
                         }));
                       }}
                     >
@@ -226,6 +224,24 @@ const NewOrder: React.FC = () => {
                   ))}
                 </div>
               )}
+          </div>
+
+          <div className="h-[36px]">
+            <select
+              id="dilivery_status"
+              value={formData.delivery_status} // Correct key
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  dilivery_status: e.target.value,
+                }))
+              }
+              className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            >
+              <option value="">-- Select Delivery Status --</option>
+              <option value="in Workshop">In Workshop</option>
+              <option value="out Workshop">Out Workshop</option>
+            </select>
           </div>
         </div>
       </div>
@@ -325,19 +341,6 @@ const NewOrder: React.FC = () => {
 
             {/* Quantity and Add Button */}
             <div className="flex items-center justify-between space-x-4">
-              <div className="flex-1">
-                <label className="mb-2 block text-lg font-semibold text-gray-700">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="h-12 w-full rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-green-500"
-                  min={1}
-                />
-              </div>
-
               <div className="flex-shrink-0">
                 <button
                   onClick={handleAddService}

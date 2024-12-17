@@ -1,20 +1,14 @@
-
 "use client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "../store/store";
 import { Employee } from "@/types";
+import { isTokenExpired } from "@/app/utils/tokenUtils";
 
 interface AuthState {
   employee: Employee | null;
   token: string | null;
   isAuthenticated: boolean;
 }
-
-const initialState: AuthState = {
-  employee: null,
-  token: null,
-  isAuthenticated: false,
-};
 
 const storage = {
   getItem: (key: string) => {
@@ -45,13 +39,15 @@ const storage = {
   },
 };
 
+const initialState: AuthState = {
+  employee: storage.getItem("user"),
+  token: storage.getItem("token"),
+  isAuthenticated: storage.getItem("token") !== null,
+};
+
 export const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    employee: storage.getItem("user"),
-    token: storage.getItem("token"),
-    isAuthenticated: storage.getItem("token") !== null,
-  },
+  initialState,
   reducers: {
     setCredentials: (
       state,
@@ -70,10 +66,20 @@ export const authSlice = createSlice({
       storage.removeItem("token");
       storage.removeItem("user");
     },
+    checkAuth: (state) => {
+      const token = storage.getItem("token");
+      if (!token || isTokenExpired(token)) {
+        state.employee = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        storage.removeItem("token");
+        storage.removeItem("user");
+      }
+    },
   },
 });
 
-export const { setCredentials, logout } = authSlice.actions;
+export const { setCredentials, logout, checkAuth } = authSlice.actions;
 
 export const selectAuth = (state: RootState) => state.auth;
 export const selectEmployee = (state: RootState) => state.auth.employee;

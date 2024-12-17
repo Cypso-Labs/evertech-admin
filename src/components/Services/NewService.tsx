@@ -6,23 +6,31 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { useCreateServiceMutation } from "@/app/redux/features/serviceApiSlice";
-import type { Service } from "@/types";
+
+// Dedicated type for form data
+interface FormData {
+  name: string;
+  service_id: string;
+  description: string;
+  code: string;
+}
 
 const CreateService: React.FC = () => {
   const router = useRouter();
   const [createService, { isLoading }] = useCreateServiceMutation();
 
-  const [formData, setFormData] = useState<Service>({
-    _id: "",
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     service_id: "",
     description: "",
+    code: "",
   });
 
-  const [errors, setErrors] = useState<Partial<Service>>({});
+  const [errors, setErrors] = useState<Partial<FormData>>({});
 
+  // Validate form input
   const validateForm = (): boolean => {
-    const newErrors: Partial<Service> = {};
+    const newErrors: Partial<FormData> = {};
     if (!formData.name) newErrors.name = "Service name is required.";
     if (!formData.description)
       newErrors.description = "Description is required.";
@@ -30,6 +38,7 @@ const CreateService: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  // Handle input changes
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -37,7 +46,8 @@ const CreateService: React.FC = () => {
       [name]: value,
     }));
 
-    if (errors[name as keyof Service]) {
+    // Clear errors dynamically
+    if (errors[name as keyof FormData]) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         [name]: undefined,
@@ -45,25 +55,23 @@ const CreateService: React.FC = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       await createService(formData).unwrap();
 
       await Swal.fire({
         title: "Success!",
-        text: "Service has been created successfully",
+        text: "Service has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
         confirmButtonColor: "#16a34a",
         customClass: {
           popup: "dark:bg-[#122031] dark:text-white",
-          confirmButton: "bg-green-600 text-white hover:bg-green-700",
         },
       });
 
@@ -83,6 +91,7 @@ const CreateService: React.FC = () => {
     }
   };
 
+  // Handle cancel action
   const handleCancel = () => {
     if (formData.name || formData.description) {
       Swal.fire({
@@ -98,9 +107,7 @@ const CreateService: React.FC = () => {
           popup: "dark:bg-[#122031] dark:text-white",
         },
       }).then((result) => {
-        if (result.isConfirmed) {
-          router.push("/services");
-        }
+        if (result.isConfirmed) router.push("/services");
       });
     } else {
       router.push("/services");
@@ -145,6 +152,28 @@ const CreateService: React.FC = () => {
           />
           {errors.name && (
             <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+          )}
+        </div>
+        <div className="form-group">
+          <label
+            htmlFor="code"
+            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
+          >
+            Code
+          </label>
+          <input
+            type="text"
+            id="code"
+            name="code"
+            value={formData.code}
+            onChange={handleChange}
+            placeholder="Enter service code"
+            className={`w-full rounded-md border px-3 py-2 
+              ${errors.code ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
+              dark:bg-[#122031] dark:text-white`}
+          />
+          {errors.code && (
+            <p className="mt-1 text-sm text-red-500">{errors.code}</p>
           )}
         </div>
 

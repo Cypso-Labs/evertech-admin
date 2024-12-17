@@ -12,15 +12,19 @@ import {
   useGetAllOrdersQuery,
   useDeleteOrderMutation,
 } from "@/app/redux/features/orderApiSlice";
+import { useGetAllProductsQuery } from "@/app/redux/features/productApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
-import { Order } from "@/types";
+import { Order , Product } from "@/types";
 
 const Orders: React.FC = () => {
   const router = useRouter();
   const { data: orders = [], isLoading } = useGetAllOrdersQuery();
   const [deleteOrder] = useDeleteOrderMutation();
 
-  const { data: customers = [] } = useGetAllCustomersQuery();
+ const { data: customers = [], isLoading: isCustomersLoading } =
+   useGetAllCustomersQuery();
+ const { data: products = [], isLoading: isProductsLoading } =
+   useGetAllProductsQuery();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,8 +67,23 @@ const Orders: React.FC = () => {
       (customer) => customer.customer_id === customerId,
     );
     return customer ? customer.name : "N/A";
-  }
+  };
 
+  if (isLoading || isCustomersLoading) return <div>Loading...</div>;
+
+  //use product name using productId
+  const getProductName = (productId: string) => {
+   const product = products.find(
+    (product) => product.product_id === productId,
+   );
+   return product ? (
+    product.product_type
+   ) : (
+    "N/A"
+   )
+  }
+  
+  if (isLoading || isCustomersLoading) return <div>Loading...</div>;
 
   const handleDelete = (orderId: string) => {
     Swal.fire({
@@ -144,24 +163,21 @@ const Orders: React.FC = () => {
             <th className="p-4 text-center">Customer Name</th>
             <th className="p-4 text-center">Status</th>
             <th className="p-4 text-center">Product ID</th>
+            <th className="p-4 text-center">Product Name</th>
             <th className="p-4 text-center">Deliverd From</th>
-            <th className="p-4 text-center"></th>
             <th className="p-4"></th>
             <th className="p-4"></th>
           </tr>
         </thead>
         <tbody>
           {currentOrders.map((order) => (
-            <tr
-              key={order._id}
-              className="cursor-pointer rounded-l bg-white shadow-md hover:bg-[#E0EDFF] dark:bg-dark-2 dark:text-gray-3 dark:hover:bg-dark-4"
-              onClick={() => handleRowClick(order)}
-            >
+            <tr key={order._id} className="bg-white shadow-md"
+              onClick={() => handleRowClick(order)}>
               <td className="rounded-lg px-4 py-6 text-center">
                 {order.order_id}
               </td>
               <td className="p-4 text-center">
-                {getCustomerName(order.customer_id) || "N/A"}
+                {getCustomerName(order.customer_id)}
               </td>
               <td className="p-4 text-center">
                 <span
@@ -176,7 +192,10 @@ const Orders: React.FC = () => {
               </td>
               <td className="p-4 text-center">{order.product_id || "N/A"}</td>
               <td className="p-4 text-center">
-                {order.dilivery_status || "N/A"}
+                {getProductName(order.product_id) || "N/A"}
+              </td>
+              <td className="p-4 text-center">
+                {order.delivery_status || "N/A"}
               </td>
 
               <td className="p-4 text-center">
