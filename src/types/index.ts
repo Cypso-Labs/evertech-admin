@@ -61,7 +61,7 @@ export interface Payment {
   payment_date: Date;
   status: string;
   employee_id: string;
-  transaction_id: string;
+  product_id:string;
   payment_details: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -126,13 +126,7 @@ export interface SigninCredentials {
 
 }
 
-export interface Payment {
-  id: string;
-  orderId: string;
-  customerName: string;
-  status: string;
-  amount: string;
-}
+
 
 export type Product = {
   _id: string;

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
@@ -69,9 +70,9 @@ const Payment = () => {
     }
   };
   const getStatusStyle = (status: string) => {
-    if (status === "Paid") {
+    if (status === "complete") {
       return "border-2 border-[#025826] bg-[#C3FFDA] text-[#025826] w-24 inline-block px-2 py-1";
-    } else if (status === "UnPaid") {
+    } else if (status === "pending") {
       return "border-2 border-[#FF0000] bg-[#FFC3C3] text-[#FF0000] w-24 inline-block px-2 py-1";
     }
     return "";
@@ -83,6 +84,7 @@ const Payment = () => {
         <h1 className="text-[40px] font-medium text-slate-600 dark:text-white">
           Payments
         </h1>
+       
       </div>
 
       <div className="mt-4 flex items-center p-4">
@@ -111,8 +113,9 @@ const Payment = () => {
               <th>ID</th>
               <th>ORDER ID</th>
               <th>PAYMENT DETAILS</th>
+              <th>PAYMENT METHOD</th>
               <th>STATUS</th>
-              <th>ACTION</th>
+              
             </tr>
           </thead>
           <tbody>
@@ -139,6 +142,7 @@ const Payment = () => {
                     {payment.payment_id}
                   </td>
                   <td className="px-4 py-2">{payment.order_id}</td>
+                  <td className="px-4 py-2"> {payment.payment_details}</td>
                   <td className="px-4 py-2">{payment.payment_method}</td>
                   <td className="px-4 py-2">
                     <span
@@ -149,14 +153,7 @@ const Payment = () => {
                       {payment.status}
                     </span>
                   </td>
-                  <td className="rounded-r-xl px-4 py-2">
-                    <button
-                      className="text-red-500 hover:text-[#3584FA]"
-                      onClick={(e) => handleDelete(payment.payment_id, e)}
-                    >
-                      <FaTrashAlt />
-                    </button>
-                  </td>
+                  
                 </tr>
               ))
             )}

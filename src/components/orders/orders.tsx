@@ -97,15 +97,15 @@ const Orders: React.FC = () => {
     });
   };
 
-  const handlePayment = (orderId: string ) => {
+  const handlePayment = (order: Order) => {
     const queryParams = new URLSearchParams({
-      id: orderId,
-      
+      order_id: order._id.toString(), // Assuming Order has an _id property
     }).toString();
-
-    router.push(`/payments/PaymentOrder?id=${queryParams}`);
+  
+    // Correct the query parameter construction to `?${queryParams}`
+    router.push(`/payments/createPayment?${queryParams}`);
   };
-
+  
   
 
   if (isLoading) return <div>Loading...</div>;
@@ -199,7 +199,7 @@ const Orders: React.FC = () => {
                 <button className="ml-4 text-center text-green-500 hover:text-green-700"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handlePayment(order._id);
+                  handlePayment(order);
                 }}
                 
                 >
