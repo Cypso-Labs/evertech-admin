@@ -12,15 +12,18 @@ const CreatePayment: React.FC = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
 
-  // Fetch order data
-  const { data: orders, isLoading, isError } = useGetOrderByIdQuery(orderId || "");
-  const [createPayment, { isLoading: updateLoading }] = useCreatePaymentMutation();
+  const {
+    data: orders,
+    isLoading,
+    isError,
+  } = useGetOrderByIdQuery(orderId || "");
+  const [createPayment, { isLoading: updateLoading }] =
+    useCreatePaymentMutation();
 
-  // Initialize state for form data
   const [formData, setFormData] = useState({
-    _id:"",
+    _id: "",
     payment_id: "",
-    order_id:" ",
+    order_id: " ",
     customer_id: "",
     amount: "",
     payment_method: "",
@@ -31,17 +34,16 @@ const CreatePayment: React.FC = () => {
     payment_details: "",
   });
 
-  // Populate form data when order details are fetched
   useEffect(() => {
     if (orders) {
       setFormData({
-        _id:orders._id || "",
+        _id: orders._id || "",
         payment_id: "",
         order_id: orders.order_id || "",
         customer_id: orders.customer_id || "",
         amount: "",
         payment_method: "",
-        payment_date:Date.now(),
+        payment_date: Date.now(),
         status: "",
         employee_id: "",
         product_id: orders.product_id || "",
@@ -50,9 +52,8 @@ const CreatePayment: React.FC = () => {
     }
   }, [orders]);
 
-  // Handle form input changes
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -61,20 +62,20 @@ const CreatePayment: React.FC = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const paymentData = { ...formData, payment_date: new Date(formData.payment_date) };
+      const paymentData = {
+        ...formData,
+        payment_date: new Date(formData.payment_date),
+      };
       await createPayment(paymentData);
       router.push("/payments");
     } catch (error) {
       console.error("Error creating payment:", error);
     }
-  }
+  };
 
-
-  // Handle cancel action
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -90,7 +91,6 @@ const CreatePayment: React.FC = () => {
     });
   };
 
-  // Handle loading and error states
   if (isLoading) {
     return <p>Loading...</p>;
   }
@@ -101,7 +101,6 @@ const CreatePayment: React.FC = () => {
 
   return (
     <div>
-      {/* Header Section */}
       <div className="mb-12 flex items-center text-[40px] font-medium text-gray-700 dark:text-white">
         <button
           className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
@@ -112,11 +111,16 @@ const CreatePayment: React.FC = () => {
         Create Payment
       </div>
 
-      <form onSubmit={handleSubmit} className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md">
+      <form
+        onSubmit={handleSubmit}
+        className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md"
+      >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Order ID */}
           <div className="flex flex-col space-y-2">
-            <label htmlFor="order_id" className="text-base font-medium capitalize text-gray-600">
+            <label
+              htmlFor="order_id"
+              className="text-base font-medium capitalize text-gray-600"
+            >
               Order ID
             </label>
             <input
@@ -129,9 +133,11 @@ const CreatePayment: React.FC = () => {
             />
           </div>
 
-          {/* Customer ID */}
           <div className="flex flex-col space-y-2">
-            <label htmlFor="customer_id" className="text-base font-medium capitalize text-gray-600">
+            <label
+              htmlFor="customer_id"
+              className="text-base font-medium capitalize text-gray-600"
+            >
               Customer ID
             </label>
             <input
@@ -144,9 +150,11 @@ const CreatePayment: React.FC = () => {
             />
           </div>
 
-          {/* Product ID */}
           <div className="flex flex-col space-y-2">
-            <label htmlFor="product_id" className="text-base font-medium capitalize text-gray-600">
+            <label
+              htmlFor="product_id"
+              className="text-base font-medium capitalize text-gray-600"
+            >
               Product ID
             </label>
             <input
@@ -159,9 +167,11 @@ const CreatePayment: React.FC = () => {
             />
           </div>
 
-          {/* Status */}
           <div className="flex flex-col space-y-2">
-            <label htmlFor="status" className="text-base font-medium capitalize text-gray-600">
+            <label
+              htmlFor="status"
+              className="text-base font-medium capitalize text-gray-600"
+            >
               Status
             </label>
             <select
@@ -176,9 +186,11 @@ const CreatePayment: React.FC = () => {
             </select>
           </div>
 
-          {/* Payment Method */}
           <div className="flex flex-col space-y-2">
-            <label htmlFor="payment_method" className="text-base font-medium capitalize text-gray-600">
+            <label
+              htmlFor="payment_method"
+              className="text-base font-medium capitalize text-gray-600"
+            >
               Payment Method
             </label>
             <select
@@ -195,9 +207,11 @@ const CreatePayment: React.FC = () => {
             </select>
           </div>
 
-          {/* Amount */}
           <div className="flex flex-col space-y-2">
-            <label htmlFor="amount" className="text-base font-medium capitalize text-gray-600">
+            <label
+              htmlFor="amount"
+              className="text-base font-medium capitalize text-gray-600"
+            >
               Amount
             </label>
             <input
@@ -212,17 +226,21 @@ const CreatePayment: React.FC = () => {
         </div>
 
         <div className="flex flex-col space-y-2">
-        <label htmlFor="payment_details" className="text-base font-medium capitalize text-gray-600">
-              Payment Details
-            </label>
-            <input
-              id="payment_details"
-              name="payment_details"
-              type="text"
-              value={formData.payment_details}
-              onChange={handleChange}
-              className="w-full h-[120px] rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500"
-            /></div>
+          <label
+            htmlFor="payment_details"
+            className="text-base font-medium capitalize text-gray-600"
+          >
+            Payment Details
+          </label>
+          <input
+            id="payment_details"
+            name="payment_details"
+            type="text"
+            value={formData.payment_details}
+            onChange={handleChange}
+            className="h-[120px] w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
         <div className="mt-8 flex justify-end space-x-4">
           <button
@@ -240,7 +258,6 @@ const CreatePayment: React.FC = () => {
             {updateLoading ? "Saving..." : "Save Payment"}
           </button>
         </div>
-      
       </form>
     </div>
   );
