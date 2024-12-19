@@ -10,6 +10,7 @@ export const paymentApiSlice = apiSlice.injectEndpoints({
     }),
     getPaymentById: builder.query<Payment, string>({
       query: (id) => `/payments/${id}`,
+      transformResponse: (response: { data: { payment: Payment } }) => response.data?.payment,
       providesTags: ["Payment"],
     }),
     createPayment: builder.mutation<

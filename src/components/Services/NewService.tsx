@@ -6,47 +6,48 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import { useCreateServiceMutation } from "@/app/redux/features/serviceApiSlice";
-import { useGetAllCategoriesQuery } from "@/app/redux/features/categoryApiSlice";
-import type { Service, Category } from "@/types";
 
-interface ServiceFormData {
-  id: string;
+// Dedicated type for form data
+interface FormData {
   name: string;
-  category_id: string;
+  service_id: string;
+  description: string;
+  code: string;
 }
 
 const CreateService: React.FC = () => {
   const router = useRouter();
-  const [createService, { isLoading, error }] = useCreateServiceMutation();
-  const { data: categories = [] } = useGetAllCategoriesQuery();
+  const [createService, { isLoading }] = useCreateServiceMutation();
 
-  const [formData, setFormData] = useState<ServiceFormData>({
-    id:"",
+  const [formData, setFormData] = useState<FormData>({
     name: "",
-    category_id: "",
+    service_id: "",
+    description: "",
+    code: "",
   });
 
-  const [errors, setErrors] = useState<Partial<ServiceFormData>>({});
+  const [errors, setErrors] = useState<Partial<FormData>>({});
 
+  // Validate form input
   const validateForm = (): boolean => {
-    const newErrors: Partial<ServiceFormData> = {};
+    const newErrors: Partial<FormData> = {};
     if (!formData.name) newErrors.name = "Service name is required.";
-    if (!formData.category_id) newErrors.category_id = "Category is required.";
+    if (!formData.description)
+      newErrors.description = "Description is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  // Handle input changes
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // Clear specific error when user starts typing/selecting
-    if (errors[name as keyof ServiceFormData]) {
+    // Clear errors dynamically
+    if (errors[name as keyof FormData]) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         [name]: undefined,
@@ -54,36 +55,35 @@ const CreateService: React.FC = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
+      await createService(formData).unwrap();
+
       await Swal.fire({
         title: "Success!",
-        text: "Service has been created successfully",
+        text: "Service has been created successfully.",
         icon: "success",
         confirmButtonText: "OK",
-        confirmButtonColor: "#16a34a", // Tailwind green-600
+        confirmButtonColor: "#16a34a",
         customClass: {
           popup: "dark:bg-[#122031] dark:text-white",
-          confirmButton: "bg-green-600 text-white hover:bg-green-700",
         },
       });
 
       router.push("/services");
     } catch (error: any) {
       console.error("Service creation error:", error);
-    
       Swal.fire({
         title: "Error!",
         text: error.message || "Failed to create service. Please try again.",
         icon: "error",
         confirmButtonText: "OK",
-        confirmButtonColor: "#EF4444", // Tailwind red-600
+        confirmButtonColor: "#EF4444",
         customClass: {
           popup: "dark:bg-[#122031] dark:text-white",
         },
@@ -91,11 +91,9 @@ const CreateService: React.FC = () => {
     }
   };
 
+  // Handle cancel action
   const handleCancel = () => {
-    if (
-      formData.name ||
-      formData.category_id 
-    ) {
+    if (formData.name || formData.description) {
       Swal.fire({
         title: "Are you sure?",
         text: "You'll lose all entered data!",
@@ -103,15 +101,13 @@ const CreateService: React.FC = () => {
         showCancelButton: true,
         confirmButtonText: "Yes, cancel",
         cancelButtonText: "No, keep editing",
-        confirmButtonColor: "#EF4444", // Tailwind red-600
-        cancelButtonColor: "#16a34a", // Tailwind green-600
+        confirmButtonColor: "#EF4444",
+        cancelButtonColor: "#16a34a",
         customClass: {
           popup: "dark:bg-[#122031] dark:text-white",
         },
       }).then((result) => {
-        if (result.isConfirmed) {
-          router.push("/services");
-        }
+        if (result.isConfirmed) router.push("/services");
       });
     } else {
       router.push("/services");
@@ -136,29 +132,6 @@ const CreateService: React.FC = () => {
         onSubmit={handleSubmit}
         className="mx-auto max-w-2xl space-y-6 rounded-lg bg-white p-8 shadow-md dark:bg-[#1e293b]"
       >
-         <div className="form-group">
-          <label
-            htmlFor="name"
-            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
-          >
-            Service Id
-          </label>
-          <input
-            type="text"
-            id="id"
-            name="id"
-            value={formData.id}
-            onChange={handleChange}
-            placeholder="Enter service id"
-            className={`w-full rounded-md border px-3 py-2 
-              ${errors.name ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
-              dark:bg-[#122031] dark:text-white`}
-          />
-          {errors.name && (
-            <p className="mt-1 text-sm text-red-500">{errors.id}</p>
-          )}
-        </div>
-
         <div className="form-group">
           <label
             htmlFor="name"
@@ -181,32 +154,49 @@ const CreateService: React.FC = () => {
             <p className="mt-1 text-sm text-red-500">{errors.name}</p>
           )}
         </div>
+        <div className="form-group">
+          <label
+            htmlFor="code"
+            className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
+          >
+            Code
+          </label>
+          <input
+            type="text"
+            id="code"
+            name="code"
+            value={formData.code}
+            onChange={handleChange}
+            placeholder="Enter service code"
+            className={`w-full rounded-md border px-3 py-2 
+              ${errors.code ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
+              dark:bg-[#122031] dark:text-white`}
+          />
+          {errors.code && (
+            <p className="mt-1 text-sm text-red-500">{errors.code}</p>
+          )}
+        </div>
 
         <div className="form-group">
           <label
-            htmlFor="category_id"
+            htmlFor="description"
             className="mb-2 block text-lg font-medium text-gray-700 dark:text-white"
           >
-            Category
+            Description
           </label>
-          <select
-            id="category_id"
-            name="category_id"
-            value={formData.category_id}
+          <input
+            type="text"
+            id="description"
+            name="description"
+            value={formData.description}
             onChange={handleChange}
+            placeholder="Enter service description"
             className={`w-full rounded-md border px-3 py-2 
-              ${errors.category_id ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
+              ${errors.description ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}
               dark:bg-[#122031] dark:text-white`}
-          >
-            <option value="">Select Category</option>
-            {categories.map((category: Category) => (
-              <option key={category._id} value={category._id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          {errors.category_id && (
-            <p className="mt-1 text-sm text-red-500">{errors.category_id}</p>
+          />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-500">{errors.description}</p>
           )}
         </div>
 

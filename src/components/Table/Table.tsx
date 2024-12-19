@@ -27,25 +27,20 @@ const TablePage = () => {
     isError: isEmployeesError,
   } = useGetAllEmployeesQuery();
 
- const getStatusColor = (status: string) => {
-   const statusStyles: { [key: string]: string } = {
-     placed:
-       "w-24 border-2 border-amber-500 bg-amber-50 text-amber-700 font-medium px-3 py-1 rounded-full text-center",
-     cancelled:
-       "w-24 border-2 border-red-500 bg-red-50 text-red-700 font-medium px-3 py-1 rounded-full text-center",
-     processing:
-       "w-24 border-2 border-orange-500 bg-orange-50 text-orange-700 font-medium px-3 py-1 rounded-full text-center",
-     processed:
-       "w-24 border-2 border-green-500 bg-green-50 text-green-700 font-medium px-3 py-1 rounded-full text-center",
-     delivered:
-       "w-24 border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium px-3 py-1 rounded-full text-center",
-   };
+  // Single definition for getStatusColor function
+  const getStatusColor = (status: string) => {
+    const statusStyles: { [key: string]: string } = {
+      Pending:
+        "w-24 border-2 border-amber-500 bg-amber-50 text-amber-700 font-medium px-3 py-1 rounded-full text-center text-sm md:text-base",
+      Complete:
+        "w-24 border-2 border-green-500 bg-green-50 text-green-700 font-medium px-3 py-1 rounded-full text-center text-sm md:text-base",
+    };
 
-   return (
-     statusStyles[status.toLowerCase()] ||
-     "w-24 border-2 border-gray-300 bg-gray-50 text-gray-600 font-medium px-3 py-1 rounded-full text-center"
-   );
- };
+    return (
+      statusStyles[status] ||
+      "w-24 border-2 border-gray-500 bg-gray-50 text-gray-700 font-medium px-3 py-1 rounded-full text-center text-sm md:text-base"
+    );
+  };
 
   if (isOrdersLoading || isEmployeesLoading || isRolesLoading) {
     return (
@@ -69,8 +64,8 @@ const TablePage = () => {
       </div>
     );
   }
-  
- const displayedOrders = ordersData?.slice(0, 5).reverse() || [];
+
+  const displayedOrders = ordersData?.slice(0, 5).reverse() || [];
   const displayedEmployees = Array.isArray(employeesData)
     ? employeesData.slice(0, 5)
     : [];
@@ -104,7 +99,7 @@ const TablePage = () => {
                   NO
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
-                  Price
+                  Product ID
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-gray-600 dark:text-gray-300">
                   Status
@@ -122,7 +117,7 @@ const TablePage = () => {
                       {index + 1}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                      Rs.{order.unit_price}
+                      {order.product_id}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <span
@@ -174,7 +169,7 @@ const TablePage = () => {
                     className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50"
                   >
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
-                     #{employee.employee_id}
+                      #{employee.employee_id}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">
                       {employee.name}

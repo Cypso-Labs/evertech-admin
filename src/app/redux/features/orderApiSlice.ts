@@ -35,6 +35,16 @@ export const orderApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: "Order", id: "LIST" }],
     }),
+    getOrdersByDateRange: builder.query<
+      Order[],
+      { startDate: string; endDate: string }
+    >({
+      query: ({ startDate, endDate }) =>
+        `/orders?start=${startDate}&end=${endDate}`,
+      providesTags: (result, error, { startDate, endDate }) => [
+        { type: "Order", id: `${startDate}-${endDate}` },
+      ],
+    }),
   }),
 });
 
@@ -44,4 +54,5 @@ export const {
   useCreateOrderMutation,
   useUpdateOrderMutation,
   useDeleteOrderMutation,
+  useGetOrdersByDateRangeQuery,
 } = orderApiSlice;
