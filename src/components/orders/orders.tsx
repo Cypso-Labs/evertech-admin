@@ -118,10 +118,10 @@ const Orders: React.FC = () => {
 
   const handlePayment = (order: Order) => {
     const queryParams = new URLSearchParams({
-      order_id: order._id.toString(), // Assuming Order has an _id property
+      order_id: order._id.toString(), 
     }).toString();
   
-    // Correct the query parameter construction to `?${queryParams}`
+   
     router.push(`/payments/createPayment?${queryParams}`);
   };
   
@@ -171,8 +171,11 @@ const Orders: React.FC = () => {
         </thead>
         <tbody>
           {currentOrders.map((order) => (
-            <tr key={order._id} className="bg-white shadow-md"
-              onClick={() => handleRowClick(order)}>
+            <tr
+              key={order._id}
+              className="bg-white shadow-md"
+              onClick={() => handleRowClick(order)}
+            >
               <td className="rounded-lg px-4 py-6 text-center">
                 {order.order_id}
               </td>
@@ -181,15 +184,18 @@ const Orders: React.FC = () => {
               </td>
               <td className="p-4 text-center">
                 <span
-                  className={`font-semibold ${
+                  className={`rounded-lg px-3 py-1 font-semibold ${
                     order.status === "Pending"
-                      ? "border-2 border-[#F70D1A] bg-[#FFCED1] px-3 py-1 text-[#F70D1A]"
-                      : "border-2 border-[#025826] bg-[#C3FFDA] px-6 py-1 text-[#025826]"
+                      ? "border-2 border-[#F70D1A] bg-[#FFCED1] text-[#F70D1A]" 
+                      : order.status === "In-progress"
+                        ? "border-2 border-[#E6A400] bg-[#FFF3CE] text-[#E6A400]" 
+                        : "border-2 border-[#025826] bg-[#C3FFDA] text-[#025826]" 
                   }`}
                 >
                   {order.status}
                 </span>
               </td>
+
               <td className="p-4 text-center">{order.product_id || "N/A"}</td>
               <td className="p-4 text-center">
                 {getProductName(order.product_id) || "N/A"}

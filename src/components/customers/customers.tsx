@@ -4,6 +4,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import { useRouter } from "next/navigation";
 import {
   useGetAllCustomersQuery,
@@ -45,14 +46,34 @@ const Customers = () => {
   };
 
   // Handle customer deletion
-  const handleDeleteCustomer = async (customerId: string) => {
-    try {
-      await deleteCustomer(customerId).unwrap();
-      refetchCustomers();
-    } catch (error) {
-      console.error("Failed to delete customer", error);
-    }
-  };
+
+
+ const handleDeleteCustomer = async (customerId: string) => {
+   Swal.fire({
+     title: "Are you sure?",
+     text: "This action cannot be undone!",
+     icon: "warning",
+     showCancelButton: true,
+     confirmButtonColor: "#3085d6",
+     cancelButtonColor: "#d33",
+     confirmButtonText: "Yes, delete it!",
+   }).then(async (result) => {
+     if (result.isConfirmed) {
+       try {
+         await deleteCustomer(customerId).unwrap();
+         Swal.fire("Deleted!", "Customer has been deleted.", "success");
+         refetchCustomers();
+       } catch (error) {
+         Swal.fire(
+           "Error!",
+           "Failed to delete customer. Please try again.",
+           "error",
+         );
+       }
+     }
+   });
+ };
+
  
 
 
@@ -141,15 +162,13 @@ const Customers = () => {
                 #{customers.customer_id}
               </td>
               <td className="text-center">{customers.name}</td>
-              <td className="p-4 text-center">
-                {customers.mail}
-              </td>
+              <td className="p-4 text-center">{customers.mail}</td>
               <td className="p-4 text-center">{customers.contact}</td>
               <td className="p-4 text-center">
                 <button
                   className="text-center text-[#FF0000] hover:text-[#3584FA]"
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent row click when deleting
+                    e.stopPropagation();
                     handleDeleteCustomer(customers._id);
                   }}
                 >

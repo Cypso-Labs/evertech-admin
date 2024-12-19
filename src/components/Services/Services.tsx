@@ -1,5 +1,5 @@
 "use client";
-
+ import Swal from "sweetalert2";
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiChevronDown, FiTrash2 } from "react-icons/fi";
 import Link from "next/link";
@@ -41,9 +41,31 @@ const Services = () => {
 
 
 
-  const handleDelete = (serviceId: string) => {
-    deleteService(serviceId);
-  };
+
+
+ const handleDelete = (serviceId: string) => {
+   Swal.fire({
+     title: "Are you sure?",
+     text: "You won't be able to revert this!",
+     icon: "warning",
+     showCancelButton: true,
+     confirmButtonColor: "#3085d6",
+     cancelButtonColor: "#d33",
+     confirmButtonText: "Yes, delete it!",
+   }).then((result) => {
+     if (result.isConfirmed) {
+       deleteService(serviceId)
+         .unwrap()
+         .then(() => {
+           Swal.fire("Deleted!", "Your service has been deleted.", "success");
+         })
+         .catch(() => {
+           Swal.fire("Error!", "Something went wrong. Try again.", "error");
+         });
+     }
+   });
+ };
+
 
   const filteredServices = Array.isArray(services)
     ? services.filter(
