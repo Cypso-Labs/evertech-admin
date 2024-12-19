@@ -222,7 +222,7 @@ const Orders: React.FC = () => {
                   className="ml-4 text-center text-green-500 hover:text-green-700"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handlePayment(order._id);
+                    handlePayment(order);
                   }}
                 >
                   <FaCreditCard />

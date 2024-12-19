@@ -42,9 +42,7 @@ export interface Service {
 export interface Order {
   _id: string;
   order_id: string;
-
-  dilivery_status: string;
-  qty: number;
+  delivery_status: string;
   status: string;
   order_date: String;
   product_id: string;
@@ -52,7 +50,7 @@ export interface Order {
   createdAt?: Date;
   updatedAt?: Date;
   technicianCode?: string;
-  employee_id:string;
+  employee_id?: string;
 }
 
 export interface Payment {

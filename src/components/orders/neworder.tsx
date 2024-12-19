@@ -24,7 +24,7 @@ const NewOrder: React.FC = () => {
     order_id: "",
     customer_id: "",
     product_id: "",
-    delivery_status: "",
+    delivery_status: "in_Workshop",
     status: "Pending",
   });
 
@@ -90,15 +90,15 @@ const NewOrder: React.FC = () => {
   };
 
   const handleSave = async () => {
-    const payload = {
-      order_id: formData.order_id,
-      customer_id: formData.customer_id,
-      items: orderData,
-      delivery_status: formData.delivery_status,
-      order_date: new Date(),
-      product_id: formData.product_id,
-      status: "Pending",
-    };
+  const payload = {
+    order_id: formData.order_id,
+    customer_id: formData.customer_id,
+    items: orderData,
+    delivery_status: formData.delivery_status,
+    order_date: new Date().toISOString(), 
+    product_id: formData.product_id,
+    status: "Pending",
+  };
 
     try {
       await createOrder(payload).unwrap();
@@ -228,19 +228,18 @@ const NewOrder: React.FC = () => {
 
           <div className="h-[36px]">
             <select
-              id="dilivery_status"
-              value={formData.delivery_status} // Correct key
+              id="delivery_status"
+              value={formData.delivery_status}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  dilivery_status: e.target.value,
+                  delivery_status: e.target.value, 
                 }))
               }
               className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
             >
-              <option value="">-- Select Delivery Status --</option>
-              <option value="in Workshop">In Workshop</option>
-              <option value="out Workshop">Out Workshop</option>
+              <option value="in_Workshop">In Workshop</option>
+              <option value="out_Workshop">Out Workshop</option>
             </select>
           </div>
         </div>
