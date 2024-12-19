@@ -29,7 +29,10 @@ export interface Service {
   name: string;
   service_id: string;
   description: string;
+
+
   code: string;
+
   createdAt?: Date;
   updatedAt?: Date;
   isEnabled?: boolean;
@@ -39,13 +42,17 @@ export interface Service {
 export interface Order {
   _id: string;
   order_id: string;
-  delivery_status: string;
+
+  dilivery_status: string;
+  qty: number;
   status: string;
-  order_date: Date;
+  order_date: String;
   product_id: string;
   customer_id: string;
   createdAt?: Date;
   updatedAt?: Date;
+  technicianCode?: string;
+  employee_id:string;
 }
 
 export interface Payment {
