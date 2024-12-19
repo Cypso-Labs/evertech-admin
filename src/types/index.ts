@@ -27,9 +27,9 @@ export interface Category {
 export interface Service {
   _id: string;
   name: string;
-  price: string;
-  category_id: string;
-  opt_expire_date: Date;
+  service_id: string;
+  description: string;
+  code: string;
   createdAt?: Date;
   updatedAt?: Date;
   isEnabled?: boolean;
@@ -39,11 +39,8 @@ export interface Service {
 export interface Order {
   _id: string;
   order_id: string;
-  qty: number;
+  delivery_status: string;
   status: string;
-  sub_total: string;
-  unit_price: string;
-  grand_total: string;
   order_date: Date;
   product_id: string;
   customer_id: string;

@@ -1,52 +1,42 @@
 "use client";
-
 import React, { useState, useMemo } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { MdKeyboardArrowLeft, MdOutlineAddCircle } from "react-icons/md";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-import { X, Plus, Minus } from "lucide-react";
-
-// Import RTK Query hooks
 import { useCreateOrderMutation } from "@/app/redux/features/orderApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
 import { useGetAllServicesQuery } from "@/app/redux/features/serviceApiSlice";
-import { Order, Service } from "@/types";
+import { useGetAllProductsQuery } from "@/app/redux/features/productApiSlice";
+import { Service } from "@/types";
 
 const NewOrder: React.FC = () => {
   const router = useRouter();
 
-  // State management
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [orderData, setOrderData] = useState<any[]>([]);
   const [customerSearch, setCustomerSearch] = useState<string>("");
+  const [productSearch, setProductSearch] = useState<string>("");
 
-  // Form data state
   const [formData, setFormData] = useState({
     order_id: "",
     customer_id: "",
     product_id: "",
+    delivery_status: "",
     status: "Pending",
   });
 
-  // RTK Query hooks
   const { data: services = [], isLoading: isServicesLoading } =
     useGetAllServicesQuery();
   const [createOrder, { isLoading: isCreatingOrder }] =
     useCreateOrderMutation();
   const { data: customers = [], isLoading: isCustomersLoading } =
     useGetAllCustomersQuery();
+  const { data: products = [], isLoading: isProductsLoading } =
+    useGetAllProductsQuery();
 
-  // Calculated grand total
-  const grandTotal = useMemo(
-    () =>
-      orderData.reduce((total, item) => total + parseFloat(item.subtotal), 0),
-    [orderData],
-  );
-
-  // Handle input changes for form fields
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -55,7 +45,6 @@ const NewOrder: React.FC = () => {
     }));
   };
 
-  // Filtered customer list based on search query
   const filteredCustomers = useMemo(
     () =>
       customers.filter(
@@ -68,19 +57,29 @@ const NewOrder: React.FC = () => {
     [customers, customerSearch],
   );
 
-  // Handle adding a service
+  const filteredProducts = useMemo(
+    () =>
+      products.filter(
+        (product) =>
+          product.product_type
+            .toLowerCase()
+            .includes(productSearch.toLowerCase()) ||
+          product.product_id
+            .toLowerCase()
+            .includes(productSearch.toLowerCase()),
+      ),
+    [products, productSearch],
+  );
+
   const handleAddService = () => {
     const service = services.find((s: Service) => s._id === selectedService);
 
     if (service) {
-      const subtotal = quantity * parseFloat(service.price);
-
       const newOrderItem = {
         id: service._id,
         name: service.name,
+        description: service.description,
         qty: quantity,
-        each: service.price,
-        subtotal: subtotal.toFixed(2),
       };
 
       setOrderData((prev) => [...prev, newOrderItem]);
@@ -91,43 +90,35 @@ const NewOrder: React.FC = () => {
   };
 
   const handleSave = async () => {
-  const payload = {
-    order_id: formData.order_id, 
-    customer_id: formData.customer_id,
-    items: orderData,
-    total: grandTotal,
-    grand_total: grandTotal.toFixed(2),
-    status: "pending",
-    qty: orderData.reduce((acc, item) => acc + item.qty, 0),
-    sub_total: grandTotal.toFixed(2),
-    unit_price: orderData.reduce(
-      (acc, item) => acc + parseFloat(item.subtotal),
-      0,
-    ),
-    order_date: new Date(),
-    product_id: formData.product_id,
+    const payload = {
+      order_id: formData.order_id,
+      customer_id: formData.customer_id,
+      items: orderData,
+      delivery_status: formData.delivery_status,
+      order_date: new Date(),
+      product_id: formData.product_id,
+      status: "Pending",
+    };
+
+    try {
+      await createOrder(payload).unwrap();
+      Swal.fire({
+        title: "Success!",
+        text: "Order has been created",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        router.push("/orders");
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to create order",
+        icon: "error",
+      });
+    }
   };
 
-  try {
-    await createOrder(payload).unwrap();
-    Swal.fire({
-      title: "Success!",
-      text: "Order has been made",
-      icon: "success",
-      confirmButtonText: "ok",
-    }).then(() => {
-      router.push("/orders");
-    });
-  } catch (error) {
-    Swal.fire({
-      title: "Error!",
-      text: "Failed to create order",
-      icon: "error",
-    });
-  }
-};
-
-  // Handle order cancellation
   const handleCancel = () => {
     Swal.fire({
       title: "Are you sure?",
@@ -143,14 +134,12 @@ const NewOrder: React.FC = () => {
     });
   };
 
-  // Remove order item
   const removeOrderItem = (index: number) => {
     setOrderData((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
     <div>
-      {/* Header Section */}
       <div className="mb-12 flex items-center text-[40px] font-medium text-gray-700 dark:text-white">
         <button
           className="mr-4 h-[51px] w-[51px] rounded-full text-center dark:bg-dark-2"
@@ -161,22 +150,14 @@ const NewOrder: React.FC = () => {
         New Order
       </div>
 
-      {/* Order Form */}
       <div className="grid grid-cols-4 gap-x-4">
         <div className="space-y-2 text-2xl font-semibold dark:text-white">
           <div className="h-[36px]">Customer Id</div>
           <div className="h-[36px]">Product Id</div>
+          <div className="h-[36px]">Dilivery_status</div>
         </div>
 
         <div className="col-span-2 space-y-2">
-          <input
-            type="text"
-            name="order_id"
-            value={formData.order_id}
-            onChange={handleInputChange}
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
-            placeholder="Enter New Order ID"
-          />
           <div className="relative">
             <input
               type="search"
@@ -196,7 +177,7 @@ const NewOrder: React.FC = () => {
                       className="cursor-pointer p-2 hover:bg-gray-100"
                       onClick={() => {
                         setCustomerSearch(
-                          `${customer.name} - ${customer.customer_id}`,
+                          `${customer.name} ${customer.customer_id}`,
                         );
                         setFormData((prev) => ({
                           ...prev,
@@ -204,21 +185,64 @@ const NewOrder: React.FC = () => {
                         }));
                       }}
                     >
-                      {customer.name} - {customer.customer_id}
+                      {customer.name} {customer.customer_id}
                     </div>
                   ))}
                 </div>
               )}
           </div>
 
-          <input
-            type="text"
-            name="product_id"
-            value={formData.product_id}
-            onChange={handleInputChange}
-            className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
-            placeholder="Enter Product ID"
-          />
+          <div className="relative">
+            <input
+              type="search"
+              id="search"
+              value={productSearch}
+              onChange={(e) => setProductSearch(e.target.value)}
+              placeholder="Search product by name or ID"
+              className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            />
+            {productSearch &&
+              !isProductsLoading &&
+              filteredProducts.length > 0 && (
+                <div className="absolute z-10 mt-1 rounded-md border border-gray-300 bg-white">
+                  {filteredProducts.map((product) => (
+                    <div
+                      key={product._id}
+                      className="cursor-pointer p-2 hover:bg-gray-100"
+                      onClick={() => {
+                        setProductSearch(
+                          `${product.product_type} - ${product.product_id}`,
+                        );
+                        setFormData((prev) => ({
+                          ...prev,
+                          product_id: product.product_id,
+                        }));
+                      }}
+                    >
+                      {product.product_type} - {product.product_id}
+                    </div>
+                  ))}
+                </div>
+              )}
+          </div>
+
+          <div className="h-[36px]">
+            <select
+              id="dilivery_status"
+              value={formData.delivery_status} // Correct key
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  dilivery_status: e.target.value,
+                }))
+              }
+              className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"
+            >
+              <option value="">-- Select Delivery Status --</option>
+              <option value="in Workshop">In Workshop</option>
+              <option value="out Workshop">Out Workshop</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -240,9 +264,8 @@ const NewOrder: React.FC = () => {
               <tr className="text-sm uppercase text-gray-700">
                 <th className="pb-2 text-left font-semibold">ID</th>
                 <th className="pb-2 text-left font-semibold">Service</th>
-                <th className="pb-2 text-left font-semibold">QTY</th>
-                <th className="pb-2 text-left font-semibold">Each</th>
-                <th className="pb-2 text-left font-semibold">Sub Total</th>
+                <th className="pb-2 text-left font-semibold">Description</th>
+
                 <th className="pb-2"></th>
               </tr>
             </thead>
@@ -251,8 +274,8 @@ const NewOrder: React.FC = () => {
                 <tr key={index} className="text-sm text-gray-700">
                   <td className="py-2">{order.name}</td>
                   <td className="py-2">{order.qty}</td>
-                  <td className="py-2">Rs.{order.each}</td>
-                  <td className="py-2">Rs.{order.subtotal}</td>
+                  <td className="py-2">{order.description}</td>
+
                   <td className="py-2">
                     <button
                       onClick={() => removeOrderItem(index)}
@@ -265,11 +288,6 @@ const NewOrder: React.FC = () => {
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <div className="text-lg font-semibold">
-            <span>Grand Total: </span> <span>Rs.{grandTotal}</span>
-          </div>
         </div>
       </div>
 
@@ -315,7 +333,7 @@ const NewOrder: React.FC = () => {
                 <option value="">-- Select a Service --</option>
                 {services.map((service) => (
                   <option key={service._id} value={service._id}>
-                    {service.name} - Rs.{service.price}
+                    {service.name}
                   </option>
                 ))}
               </select>
@@ -323,19 +341,6 @@ const NewOrder: React.FC = () => {
 
             {/* Quantity and Add Button */}
             <div className="flex items-center justify-between space-x-4">
-              <div className="flex-1">
-                <label className="mb-2 block text-lg font-semibold text-gray-700">
-                  Quantity
-                </label>
-                <input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(Number(e.target.value))}
-                  className="h-12 w-full rounded-md border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-green-500"
-                  min={1}
-                />
-              </div>
-
               <div className="flex-shrink-0">
                 <button
                   onClick={handleAddService}
