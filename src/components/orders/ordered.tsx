@@ -4,7 +4,6 @@ import { FaRegEdit, FaTrashAlt } from "react-icons/fa";
 import Image from "next/image";
 import { CheckCircle2, Circle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { IoIosArrowDropleft } from "react-icons/io";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import circle from "@/assets/image/circle.png";
 import { useParams } from "next/navigation";
