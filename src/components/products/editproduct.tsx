@@ -4,6 +4,7 @@ import React, {
   useEffect,
   ChangeEvent,
   FormEvent,
+  Suspense,
 } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -15,7 +16,7 @@ import {
 } from "@/app/redux/features/productApiSlice";
 import Swal from "sweetalert2";
 
-const EditProduct = () => {
+const EditProductPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const productId = searchParams.get("id");
@@ -211,6 +212,12 @@ const EditProduct = () => {
       </form>
     </div>
   );
+};
+
+const EditProduct = () => {
+  return (
+  <Suspense fallback={<div>Loading...</div>}><EditProductPage />
+  </Suspense>);
 };
 
 export default EditProduct;

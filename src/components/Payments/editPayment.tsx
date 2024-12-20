@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
+import React, { useState, ChangeEvent, FormEvent, useEffect, Suspense } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -7,7 +7,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { useUpdatePaymentMutation } from "@/app/redux/features/paymentApiSlice";
 import { useGetPaymentByIdQuery } from "@/app/redux/features/paymentApiSlice";
 
-const EditPayment = () => {
+const EditPaymentPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("id");
@@ -175,5 +175,14 @@ const EditPayment = () => {
     </div>
   );
 };
+
+const EditPayment = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <EditPaymentPage />
+    </Suspense>
+  );
+};
+
 
 export default EditPayment;

@@ -1,8 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-
-
 interface Order {
   id: string;
   customer: {
@@ -24,9 +22,7 @@ interface Order {
   replacement?: string;
 }
 
-
 const fetchOrders = async (): Promise<Order[]> => {
- 
   return [
     {
       id: "ORD-001",
@@ -223,13 +219,13 @@ const TechnicalReport: React.FC = () => {
             <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="font-semibold text-gray-700">
-                  Technician's Name:{" "}
+                  Technician&apos;s Name:{" "}
                   {selectedOrder.technician?.name || "Not Assigned"}
                 </p>
               </div>
               <div>
                 <p className="font-semibold text-gray-700">
-                  Technician's Signature: __________
+                  Technician&apos;s Signature: __________
                 </p>
               </div>
             </div>
