@@ -105,8 +105,8 @@ const Technician = () => {
       <table className="table-auto w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-100">
-            <th className="border border-gray-300 px-4 py-2">Customer Id</th>
-            <th className="border border-gray-300 px-4 py-2">Prouct Id</th>
+            <th className="border border-gray-300 px-4 py-2">Customer Name</th>
+            <th className="border border-gray-300 px-4 py-2">Prouct Name</th>
             <th className="border border-gray-300 px-4 py-2">Status</th>
             <th className="border border-gray-300 px-4 py-2">Code</th>
             <th className="border border-gray-300 px-4 py-2">Actions</th>
@@ -126,7 +126,7 @@ const Technician = () => {
                 {order.status}
               </td>
               <td className="border border-gray-300 px-4 py-2 text-center">
-                {(order.status === "Pending" && (!order.technicianCode || order.technicianCode.trim() === "")) ? (
+                {(order.status === "Pending" || order.status === "In-progress" && (!order.technicianCode || order.technicianCode.trim() === "")) ? (
                   <div className="flex items-center justify-center gap-2">
                     <input
                       type="text"
