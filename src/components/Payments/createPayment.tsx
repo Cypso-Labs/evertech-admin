@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState , Suspense } from "react";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGetOrderByIdQuery } from "@/app/redux/features/orderApiSlice";
 import { useCreatePaymentMutation } from "@/app/redux/features/paymentApiSlice";
 import Swal from "sweetalert2";
 
-const CreatePayment: React.FC = () => {
+const CreatePaymentPage: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
@@ -260,6 +260,14 @@ const CreatePayment: React.FC = () => {
         </div>
       </form>
     </div>
+  );
+};
+
+const CreatePayment = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CreatePaymentPage />
+    </Suspense>
   );
 };
 

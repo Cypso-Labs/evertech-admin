@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React , {Suspense} from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useGetPaymentByIdQuery } from "@/app/redux/features/paymentApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
 
-const PaymentOrder: React.FC = () => {
+const PaymentOrderPage: React.FC = () => {
   const searchParams = useSearchParams();
   const paymentId = searchParams.get("id");
 
@@ -94,6 +94,14 @@ const PaymentOrder: React.FC = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const PaymentOrder = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PaymentOrderPage />
+    </Suspense>
   );
 };
 

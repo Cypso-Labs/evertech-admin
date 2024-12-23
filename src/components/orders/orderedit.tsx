@@ -1,13 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { MdOutlineAddCircle } from "react-icons/md";
 import { useRouter, useParams } from "next/navigation"; 
 import Swal from "sweetalert2";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 
-const Orderedit = () => {
-  const { id, service, status, name, price } = useParams(); 
+const OrdereditPage = () => {
+  const { id, service, status, name, price } = useParams();
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -216,7 +216,6 @@ const Orderedit = () => {
         </div>
       </div>
 
-
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="h-[439px] w-[672px] rounded-lg bg-white p-10">
@@ -280,5 +279,12 @@ const Orderedit = () => {
     </div>
   );
 };
+const EditOrder = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrdereditPage />
+    </Suspense>
+  );
+};
 
-export default Orderedit;
+export default EditOrder;
