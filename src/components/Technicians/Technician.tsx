@@ -14,15 +14,10 @@ const Technician = () => {
   const { data: products = [], isLoading: isProductsLoading } =useGetAllProductsQuery();
   const employee = useSelector(selectEmployee);
   const name = employee ? employee.name : '';
-  
-  const [orders, setOrders] = useState<Order[]>([]);
- 
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [technicianCode, setTechnicianCode] = useState('');
 
+  const [orders, setOrders] = useState<Order[]>([]);
   // Add new state for temporary code input
   const [tempCode, setTempCode] = useState<{ [key: string]: string }>({});
-
   // Update orders when fetched from the API
   useEffect(() => {
     if (allorders.length > 0) {
@@ -30,8 +25,6 @@ const Technician = () => {
     }
   }, [allorders]);
 
-
-  
   const getCustomerName = (customerId: string) => {
     const customer = customers.find(
       (customer) => customer.customer_id === customerId,
@@ -52,8 +45,6 @@ const Technician = () => {
 
   
   const [updateOrder] = useUpdateOrderMutation();
-
-
 
    const handleCodeChange = (id: string, value: string) => {
     setTempCode(prev => ({
@@ -108,11 +99,6 @@ const Technician = () => {
     }
   };
 
-  // const [orders, setOrders] = useState([
-  //   { id: 1, status: "Pending", code: "" },
-  //   { id: 2, status: "Pending", code: "" },
-  //   { id: 3, status: "In Progress", code: "12345" },
-  // ]);
  return(
 <div className="max-w-4xl mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Orders Management</h1>
