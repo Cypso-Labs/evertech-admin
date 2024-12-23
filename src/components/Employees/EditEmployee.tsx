@@ -1,5 +1,12 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent, useEffect, Suspense } from "react";
+
+import React, {
+  useState,
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  Suspense,
+} from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -9,9 +16,35 @@ import {
   useUpdateEmployeeMutation,
   useGetEmployeeByIdQuery,
 } from "@/app/redux/features/employeeApiSlice";
-import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
-import { Employee } from "@/types";
-import { Role } from "@/types";
+import {
+  useGetAllRolesQuery,
+  useGetRoleByIdQuery,
+} from "@/app/redux/features/roleApiSlice";
+import { Employee, Role } from "@/types";
+
+interface FormData {
+  employeeId: string;
+  email: string;
+  name: string;
+  role: string;
+  contact: string;
+  address: string;
+  gender: string;
+  username: string;
+}
+
+const INITIAL_FORM_DATA: FormData = {
+  employeeId: "",
+  email: "",
+  name: "",
+  role: "",
+  contact: "",
+  address: "",
+  gender: "",
+  username: "",
+};
+
+const GENDER_OPTIONS = ["Male", "Female", "Other"] as const;
 
 const EditEmployee = () => {
   const router = useRouter();
@@ -22,41 +55,52 @@ const EditEmployee = () => {
     data: employee,
     isLoading,
     isError,
-  } = useGetEmployeeByIdQuery(employeeId || "");
+  } = useGetEmployeeByIdQuery(employeeId ?? "");
 
   const [updateEmployee, { isLoading: isUpdating }] =
     useUpdateEmployeeMutation();
+  const { data: roles = [] } = useGetAllRolesQuery();
 
-  const { data: roles } = useGetAllRolesQuery();
+  const [formData, setFormData] = useState<FormData>({
+    ...INITIAL_FORM_DATA,
+    employeeId: employeeId ?? "",
+  });
 
-  const [formData, setFormData] = useState({
-    employeeId: employeeId || "",
-    email: "",
-    name: "",
-    role: "",
-    contact: "",
-    address: "",
-    gender: "",
-    username: "",
+  const [privileges, setPrivileges] = useState<Record<string, boolean>>({});
+
+  const { data: roleData } = useGetRoleByIdQuery(employee?.role ?? "", {
+    skip: !employee?.role,
   });
 
   useEffect(() => {
     if (employee) {
       setFormData({
-        employeeId: employee.employee_id || "",
-        email: employee.email || "",
-        name: employee.name || "",
-        role: employee.role || "",
-        contact: employee.contact || "",
-        address: employee.address || "",
-        gender: employee.gender || "",
-        username: employee.username || "",
+        employeeId: employee.employee_id ?? "",
+        email: employee.email ?? "",
+        name: employee.name ?? "",
+        role: employee.role ?? "",
+        contact: employee.contact ?? "",
+        address: employee.address ?? "",
+        gender: employee.gender ?? "",
+        username: employee.username ?? "",
       });
     }
   }, [employee]);
 
+  useEffect(() => {
+    if (roleData?.privileges) {
+      const privilegesObject = roleData.privileges.reduce<
+        Record<string, boolean>
+      >((acc, priv) => {
+        acc[priv.id] = true;
+        return acc;
+      }, {});
+      setPrivileges(privilegesObject);
+    }
+  }, [roleData]);
+
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -69,46 +113,49 @@ const EditEmployee = () => {
     e.preventDefault();
 
     if (!employeeId) {
-      Swal.fire("Error", "Invalid employee ID", "error");
+      await Swal.fire("Error", "Invalid employee ID", "error");
       return;
     }
 
     try {
       await updateEmployee({ id: employeeId, ...formData }).unwrap();
-      Swal.fire("Success", "Employee updated successfully", "success");
+      await Swal.fire("Success", "Employee updated successfully", "success");
       router.push("/employees");
     } catch (error) {
-      Swal.fire("Error", "Failed to update employee", "error");
+      await Swal.fire("Error", "Failed to update employee", "error");
     }
   };
 
-  const handleCancel = () => {
-    Swal.fire({
+  const handleCancel = async () => {
+    const result = await Swal.fire({
       title: "Are you sure?",
       text: "You'll lose all entered data!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, cancel",
       cancelButtonText: "No, keep editing",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        router.push("/employees");
-      }
     });
+
+    if (result.isConfirmed) {
+      router.push("/employees");
+    }
   };
 
   const handleLeaveClick = () => {
     router.push(`/employees/editEmployee/leaves?id=${employeeId}`);
   };
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <p className="p-6 text-lg text-gray-600">Loading employee data...</p>
     );
-  if (isError || !employee)
+  }
+
+  if (isError || !employee) {
     return (
       <p className="p-6 text-lg text-red-600">Failed to load employee data.</p>
     );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -123,13 +170,11 @@ const EditEmployee = () => {
         </div>
 
         <button
+          type="button"
           onClick={handleLeaveClick}
           className="flex w-full items-center justify-center space-x-2 rounded-lg border 
-          border-gray-300 bg-gray-200 px-6 
-          py-3 text-base 
-          font-medium text-gray-700 
-          transition-colors duration-300 
-          hover:border-gray-400 hover:bg-gray-300 md:w-auto"
+            border-gray-300 bg-gray-200 px-6 py-3 text-base font-medium text-gray-700 
+            transition-colors duration-300 hover:border-gray-400 hover:bg-gray-300 md:w-auto"
         >
           <span>Leaves</span>
           <LuArrowRightToLine className="ml-2" size={20} />
@@ -142,33 +187,53 @@ const EditEmployee = () => {
       >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Object.entries(formData).map(([key, value]) => {
-            if (key === "role" || key === "gender") {
-              const options =
-                key === "role"
-                  ? ["Admin", "Manager", "Employee"]
-                  : ["Male", "Female", "Other"];
-
+            if (key === "role") {
               return (
                 <div key={key} className="flex flex-col space-y-2">
                   <label
                     htmlFor={key}
                     className="text-base font-medium capitalize text-gray-600"
                   >
-                    {key
-                      .replace(/([A-Z])/g, " $1")
-                      .replace(/^./, (str) => str.toUpperCase())}
+                    Role
                   </label>
                   <select
                     id={key}
                     name={key}
                     value={value}
                     onChange={handleChange}
-                    className="w-full rounded-md border 
-                    border-gray-300 px-4 py-2 
-                    transition-colors duration-300 focus:outline-none 
-                    focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-md border border-gray-300 px-4 py-2 
+                      transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    {options.map((option) => (
+                    <option value="">Select Role</option>
+                    {roles.map((role: Role) => (
+                      <option key={role._id} value={role._id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
+
+            if (key === "gender") {
+              return (
+                <div key={key} className="flex flex-col space-y-2">
+                  <label
+                    htmlFor={key}
+                    className="text-base font-medium capitalize text-gray-600"
+                  >
+                    Gender
+                  </label>
+                  <select
+                    id={key}
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full rounded-md border border-gray-300 px-4 py-2 
+                      transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Gender</option>
+                    {GENDER_OPTIONS.map((option) => (
                       <option key={option} value={option}>
                         {option}
                       </option>
@@ -194,11 +259,9 @@ const EditEmployee = () => {
                   value={value}
                   onChange={handleChange}
                   type="text"
-                  className="w-full rounded-md border 
-                  border-gray-300 px-4 py-2 
-                  transition-colors duration-300 focus:outline-none 
-                  focus:ring-2 focus:ring-blue-500"
-                  readOnly={key === "employeeId"} // Make employeeId read-only
+                  className="w-full rounded-md border border-gray-300 px-4 py-2 
+                    transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  readOnly={key === "employeeId"}
                 />
               </div>
             );
@@ -209,25 +272,17 @@ const EditEmployee = () => {
           <button
             type="button"
             onClick={handleCancel}
-            className="w-full rounded-lg border border-transparent 
-            bg-red-500 px-6 py-3 
-            font-medium 
-            text-white transition-colors 
-            duration-300 hover:bg-red-600 
-            sm:w-auto"
+            className="w-full rounded-lg border border-transparent bg-red-500 px-6 py-3 
+              font-medium text-white transition-colors duration-300 hover:bg-red-600 sm:w-auto"
           >
             Discard
           </button>
           <button
             type="submit"
             disabled={isUpdating}
-            className="w-full rounded-lg border border-transparent 
-            bg-green-500 px-6 py-3 
-            font-medium 
-            text-white transition-colors 
-            duration-300 hover:bg-green-600 
-            disabled:cursor-not-allowed
-            disabled:opacity-50 sm:w-auto"
+            className="w-full rounded-lg border border-transparent bg-green-500 px-6 py-3 
+              font-medium text-white transition-colors duration-300 hover:bg-green-600 
+              disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
           >
             {isUpdating ? "Saving..." : "Save Changes"}
           </button>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { FiSearch, FiTrash2 } from "react-icons/fi";
 import { IoIosArrowDropleft } from "react-icons/io";
@@ -10,6 +10,8 @@ import {
   useDeleteEmployeeMutation,
 } from "@/app/redux/features/employeeApiSlice";
 import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
+import { Employee } from "@/types";
+import { Role } from "@/types";
 
 const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,14 +20,14 @@ const Employees = () => {
   const router = useRouter();
 
   const {
-    data: employees,
+    data: employees = [],
     isLoading: employeesLoading,
     error: employeesError,
     refetch: refetchEmployees,
   } = useGetAllEmployeesQuery();
 
   const {
-    data: roles,
+    data: roles = [],
     isLoading: rolesLoading,
     error: rolesError,
   } = useGetAllRolesQuery();
@@ -33,31 +35,29 @@ const Employees = () => {
   const [deleteEmployee, { isLoading: isDeleting }] =
     useDeleteEmployeeMutation();
 
-  const getRoleName = (roleId: string | undefined) => {
-    const role = roles?.find((role) => role._id === roleId);
-    return role ? role.name : "Unknown";
+  const getRoleName = (roleId: string): string => {
+    const role = roles.find((role: Role) => role._id === roleId);
+    return role?.name || "N/A";
   };
 
-  const filteredEmployees = Array.isArray(employees)
-    ? employees.filter((employee) => {
-        if (!searchTerm) return true;
+  const filteredEmployees = employees.filter((employee: Employee) => {
+    if (!searchTerm) return true;
 
-        const searchTermLower = searchTerm.toLowerCase();
-        return (
-          employee.name?.toLowerCase().includes(searchTermLower) ||
-          employee.email?.toLowerCase().includes(searchTermLower) ||
-          getRoleName(employee.role).toLowerCase().includes(searchTermLower)
-        );
-      })
-    : [];
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      employee.name?.toLowerCase().includes(searchTermLower) ||
+      employee.email?.toLowerCase().includes(searchTermLower) ||
+      getRoleName(employee.role).toLowerCase().includes(searchTermLower)
+    );
+  });
 
   const indexOfLastEmployee = currentPage * itemsPerPage;
   const indexOfFirstEmployee = indexOfLastEmployee - itemsPerPage;
-  const currentEmployees = filteredEmployees?.slice(
+  const currentEmployees = filteredEmployees.slice(
     indexOfFirstEmployee,
     indexOfLastEmployee,
   );
-  const totalPages = Math.ceil((filteredEmployees?.length ?? 0) / itemsPerPage);
+  const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
 
   const handleDelete = async (employeeId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -97,42 +97,25 @@ const Employees = () => {
     }
   };
 
-  // Handle row click with type safety  use employee type
-  const handleRowClick = (employee: any) => {
-    const queryParams = new URLSearchParams({
-      id: employee._id.toString(),
-    }).toString();
-
-    router.push(`/employees/editeEmployee?${queryParams}`);
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  const handleRowClick = (employee: Employee) => {
+    router.push(`/employees/editeEmployee?id=${employee._id}`);
   };
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      refetchEmployees();
-    }, 300);
-
-    return () => {
-      clearInterval(intervalId);
-    };
+    const intervalId = setInterval(refetchEmployees, 30000); // Changed to 30 seconds
+    return () => clearInterval(intervalId);
   }, [refetchEmployees]);
 
   if (employeesLoading || rolesLoading) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent" />
       </div>
     );
   }
 
   if (employeesError || rolesError) {
+    const error = employeesError || rolesError;
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <div className="rounded-lg bg-red-50 p-6 text-center dark:bg-red-900/30">
@@ -140,8 +123,10 @@ const Employees = () => {
             Error Loading Data
           </h2>
           <p className="mt-2 text-red-600 dark:text-red-300">
-            {employeesError
-              ? `Error: ${"message" in employeesError ? employeesError.message : "Unknown error"}`
+            {error
+              ? "message" in error
+                ? error.message
+                : "Unknown error"
               : "Failed to load data"}
           </p>
         </div>
@@ -190,9 +175,7 @@ const Employees = () => {
         </div>
       </div>
 
-      {employees !== null &&
-      employees !== undefined &&
-      employees.length === 0 ? (
+      {employees.length === 0 ? (
         <div className="flex h-40 items-center justify-center">
           <p className="text-lg text-gray-500 dark:text-gray-400">
             No employees found. Add some employees to get started.
@@ -211,35 +194,35 @@ const Employees = () => {
               </tr>
             </thead>
             <tbody>
-             {currentEmployees?.map((employee) => (
-               <tr
-                 key={employee._id}
-                 className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
-                 onClick={() => handleRowClick(employee)} // Pass the employee object to handleRowClick
-               >
-                 <td className="px-6 py-4">
-                   #{employee.employee_id ?? "N/A"}
-                 </td>
-                 <td className="px-6 py-4">{employee.name ?? "N/A"}</td>
-                 <td className="px-6 py-4">{employee.email ?? "N/A"}</td>
-                 <td className="px-6 py-4">{getRoleName(employee.role)}</td>
-                 <td className="px-6 py-4 text-center">
-                   <button
-                     className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
-                       isDeleting ? "cursor-not-allowed opacity-50" : ""
-                     }`}
-                     onClick={(e) => handleDelete(employee._id, e)}
-                     disabled={isDeleting}
-                   >
-                     {isDeleting ? (
-                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
-                     ) : (
-                       <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" />
-                     )}
-                   </button>
-                 </td>
-               </tr>
-             ))}
+              {currentEmployees.map((employee: Employee) => (
+                <tr
+                  key={employee._id}
+                  className="cursor-pointer bg-white transition-all duration-200 hover:scale-[1.01] hover:transform hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700"
+                  onClick={() => handleRowClick(employee)}
+                >
+                  <td className="px-6 py-4">
+                    #{employee.employee_id || "N/A"}
+                  </td>
+                  <td className="px-6 py-4">{employee.name || "N/A"}</td>
+                  <td className="px-6 py-4">{employee.email || "N/A"}</td>
+                  <td className="px-6 py-4">{getRoleName(employee.role)}</td>
+                  <td className="px-6 py-4 text-center">
+                    <button
+                      className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
+                        isDeleting ? "cursor-not-allowed opacity-50" : ""
+                      }`}
+                      onClick={(e) => handleDelete(employee._id, e)}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? (
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />
+                      ) : (
+                        <FiTrash2 className="h-5 w-5 text-red-500 transition-colors group-hover:text-red-600 dark:text-red-400 dark:group-hover:text-red-300" />
+                      )}
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -248,17 +231,19 @@ const Employees = () => {
       <div className="mt-4 flex items-center justify-between">
         <button
           className="px-4 py-2 text-lg font-semibold text-blue-500 disabled:opacity-50"
-          onClick={handlePreviousPage}
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
         >
           Previous
         </button>
         <span className="text-lg">
-          Page {currentPage} of {totalPages}
+          Page {currentPage} of {totalPages || 1}
         </span>
         <button
           className="px-4 py-2 text-lg font-semibold text-blue-500 disabled:opacity-50"
-          onClick={handleNextPage}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+          }
           disabled={currentPage === totalPages}
         >
           Next
@@ -269,5 +254,3 @@ const Employees = () => {
 };
 
 export default Employees;
-
-

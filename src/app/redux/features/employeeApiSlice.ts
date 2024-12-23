@@ -18,9 +18,9 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
       query: (id) => `/employees/${id}`,
       transformResponse: (response: {
         status: string;
-        data: { employee: Employee }; // Should access `employee`, not `employees`
+        data: { employee: Employee };
       }) => {
-        return response.data.employee; // Return the single employee object
+        return response.data.employee;
       },
       providesTags: ["Employee"],
     }),

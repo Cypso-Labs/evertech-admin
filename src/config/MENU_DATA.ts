@@ -8,12 +8,13 @@ import product from "@/assets/images/icon/product.svg";
 
 import tech from "@/assets/images/icon/tech.svg";
 
-import ClipboardMinus  from "@/assets/images/icon/repory.png";
+import ClipboardMinus from "@/assets/images/icon/repory.png";
 
 interface MenuItem {
   icon?: string | React.ComponentType;
   label: string;
   route: string;
+  privilegeId: number;
   children?: MenuItem[];
 }
 
@@ -30,47 +31,56 @@ const MenuGroupsData: MenuGroup[] = [
         icon: dashboard,
         label: "Dashboard",
         route: "/dashboard",
+        privilegeId: 1,
       },
       {
         icon: orders,
         label: "Orders",
         route: "/orders",
+        privilegeId: 2,
       },
       {
         icon: payments,
         label: "Payments",
         route: "/payments",
+        privilegeId: 3,
       },
       {
         icon: services,
         label: "Services",
         route: "/services",
+        privilegeId: 4,
       },
       {
         icon: customers,
         label: "Customer",
         route: "/customers",
+        privilegeId: 5,
       },
       {
         icon: employees,
         label: "Employees",
         route: "/employees",
+        privilegeId: 6,
       },
       {
-        icon:product,
+        icon: product,
         label: "Products",
         route: "/products",
+        privilegeId: 7,
       },
       {
         icon: ClipboardMinus,
         label: "Reports",
         route: "/reports",
+        privilegeId: 8,
       },
       {
         icon: tech,
-        label: "Technicion",
+        label: "Technician",
         route: "/technicians",
-      }
+        privilegeId: 9,
+      },
     ],
   },
 ];
