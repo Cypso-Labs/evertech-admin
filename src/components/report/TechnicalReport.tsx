@@ -1,100 +1,125 @@
 "use client";
-import React, { useState, useEffect } from "react";
-
-
-
-interface Order {
-  id: string;
-  customer: {
-    name: string;
-    address: string;
-    contactPerson: string;
-    contactNo: string;
-  };
-  equipment: {
-    modelId: string;
-    description: string;
-    serialNo: string;
-    faultDescription: string;
-  };
-  technician?: {
-    name: string;
-  };
-  repairStatus?: string;
-  replacement?: string;
-}
-
-
-const fetchOrders = async (): Promise<Order[]> => {
- 
-  return [
-    {
-      id: "ORD-001",
-      customer: {
-        name: "John Doe",
-        address: "123 Tech Street, Colombo, Sri Lanka",
-        contactPerson: "John Doe",
-        contactNo: "+94 77 123 4567",
-      },
-      equipment: {
-        modelId: "LT-2024",
-        description: "Laptop Repair",
-        serialNo: "SN-ABC123",
-        faultDescription: "Broken Screen",
-      },
-      technician: {
-        name: "Mike Johnson",
-      },
-      repairStatus: "In Progress",
-      replacement: "Screen Replacement",
-    },
-    {
-      id: "ORD-002",
-      customer: {
-        name: "Jane Smith",
-        address: "456 Innovation Road, Kandy, Sri Lanka",
-        contactPerson: "Jane Smith",
-        contactNo: "+94 71 987 6543",
-      },
-      equipment: {
-        modelId: "PC-2023",
-        description: "Desktop Computer Repair",
-        serialNo: "SN-XYZ789",
-        faultDescription: "Power Supply Failure",
-      },
-      technician: {
-        name: "Sarah Williams",
-      },
-      repairStatus: "Completed",
-      replacement: "Power Supply Unit",
-    },
-  ];
-};
+import React, { useState, useEffect, useRef } from "react";
+import { useGetAllOrdersQuery } from "@/app/redux/features/orderApiSlice";
+import { useGetAllPaymentsQuery } from "@/app/redux/features/paymentApiSlice";
+import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
+import { useGetAllProductsQuery } from "@/app/redux/features/productApiSlice";
+import { Order } from "@/types";
+import { FaDownload } from "react-icons/fa6";
+import jsPDF from "jspdf";
 
 const TechnicalReport: React.FC = () => {
-  const [orders, setOrders] = useState<Order[]>([]);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [currentDate] = useState(new Date());
 
-  useEffect(() => {
-    const loadOrders = async () => {
-      const fetchedOrders = await fetchOrders();
-      setOrders(fetchedOrders);
-    };
+  const reportRef = useRef<HTMLDivElement>(null);
 
-    loadOrders();
-  }, []);
+  const {
+    data: orders,
+    isLoading: isOrdersLoading,
+    isError: isOrdersError,
+  } = useGetAllOrdersQuery();
+  const {
+    data: payments,
+    isLoading: isPaymentsLoading,
+    isError: isPaymentsError,
+  } = useGetAllPaymentsQuery();
+  const {
+    data: customers,
+    isLoading: isCustomersLoading,
+    isError: isCustomersError,
+  } = useGetAllCustomersQuery();
+  const {
+    data: products,
+    isLoading: isProductsLoading,
+    isError: isProductsError,
+  } = useGetAllProductsQuery();
+
+  if (isOrdersLoading || isPaymentsLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isCustomersLoading || isProductsLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isOrdersError || !orders) {
+    return <div>Error: Failed to load orders</div>;
+  }
+
+  if (isPaymentsError || !payments) {
+    return <div>Error: Failed to load payments</div>;
+  }
+
+  if (isCustomersError || !customers) {
+    return <div>Error: Failed to load customers</div>;
+  }
+
+  const getCustomerDetails = (customerId: string) => {
+    const customer = customers.find(
+      (customer) => customer.customer_id === customerId,
+    );
+    return {
+      name: customer ? customer.name : "N/A",
+      address: customer ? customer.address : "N/A",
+      contact: customer ? customer.contact : "N/A",
+      email: customer ? customer.mail : "N/A",
+    };
+  };
+
+  if (isProductsError || !products) {
+    return (
+      <div className="text-center text-red-500">
+        Error: Failed to load product details
+      </div>
+    );
+  }
+
+  const getProductDetails = (productId: string) => {
+    const product = products.find(
+      (product) => product.product_id === productId,
+    );
+    return {
+      model_number: product ? product.model_number : "N/A",
+      serial_number: product ? product.serial_number : "N/A",
+      description: product ? product.description : "N/A",
+      problem: product ? product.problem : "N/A",
+    };
+  };
 
   const handleOrderSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const orderId = event.target.value;
-    const order = orders.find((o) => o.id === orderId) || null;
+    const order = orders.find((o) => o.order_id === orderId) || null;
     setSelectedOrder(order);
+  };
+
+  // Download PDF function
+  const handleDownload = () => {
+    if (reportRef.current) {
+      const doc = new jsPDF({
+        unit: "mm",
+        format: "a4",
+        orientation: "portrait",
+      });
+
+      doc.html(reportRef.current, {
+        callback: (doc) => {
+          doc.save("technical-report.pdf");
+        },
+        margin: [10, 10, 10, 10],
+        x: 10,
+        y: 10,
+        html2canvas: {
+          scale: 0.2,
+          logging: false,
+        },
+        autoPaging: true,
+      });
+    }
   };
 
   return (
     <div className="container mx-auto max-w-4xl p-6">
       <div className="overflow-hidden rounded-lg bg-white shadow-md">
-        {/* Order Selection */}
         <div className="border-b bg-gray-100 p-6">
           <label
             htmlFor="orderSelect"
@@ -109,17 +134,15 @@ const TechnicalReport: React.FC = () => {
           >
             <option value="">Select an Order</option>
             {orders.map((order) => (
-              <option key={order.id} value={order.id}>
-                {order.id} - {order.customer.name}
+              <option key={order.order_id} value={order.order_id}>
+                {order.order_id} - {getCustomerDetails(order.customer_id).name}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Technical Report */}
         {selectedOrder && (
-          <div className="p-6">
-            {/* Header */}
+          <div ref={reportRef} className="p-6">
             <div className="mb-8 border-b pb-4 text-center">
               <h1 className="text-2xl font-bold text-gray-800">
                 EVERTECH TECHNOLOGY (PVT) LTD
@@ -132,14 +155,12 @@ const TechnicalReport: React.FC = () => {
               </p>
             </div>
 
-            {/* Report Title */}
-            <div className="mb-8 text-center">
+            <div className="mb-8 text-center ">
               <h2 className="text-lg font-bold text-gray-700 underline">
                 Technical Report
               </h2>
             </div>
 
-            {/* Details Grid */}
             <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-2">
                 <p>
@@ -152,89 +173,84 @@ const TechnicalReport: React.FC = () => {
                 </p>
                 <p>
                   <span className="font-semibold text-gray-700">Job Ref:</span>{" "}
-                  {selectedOrder.id}
+                  {selectedOrder.order_id || "N/A"}
                 </p>
               </div>
               <div className="space-y-2">
                 <p>
                   <span className="font-semibold text-gray-700">Customer:</span>{" "}
-                  {selectedOrder.customer.name}
+                  {getCustomerDetails(selectedOrder.customer_id).name}
                 </p>
                 <p>
                   <span className="font-semibold text-gray-700">Address:</span>{" "}
-                  {selectedOrder.customer.address}
+                  {getCustomerDetails(selectedOrder.customer_id).address}
                 </p>
                 <p>
-                  <span className="font-semibold text-gray-700">
-                    Contact Person:
-                  </span>{" "}
-                  {selectedOrder.customer.contactPerson}
+                  <span className="font-semibold text-gray-700">Email:</span>{" "}
+                  {getCustomerDetails(selectedOrder.customer_id).email}
                 </p>
                 <p>
                   <span className="font-semibold text-gray-700">
                     Contact No:
                   </span>{" "}
-                  {selectedOrder.customer.contactNo}
+                  {getCustomerDetails(selectedOrder.customer_id).contact}
                 </p>
               </div>
             </div>
 
-            {/* Equipment Details */}
             <div className="mb-6 space-y-2 text-sm">
               <p>
                 <span className="font-semibold text-gray-700">Model ID:</span>{" "}
-                {selectedOrder.equipment.modelId}
+                {getProductDetails(selectedOrder.product_id).model_number}
               </p>
+
               <p>
                 <span className="font-semibold text-gray-700">
                   Description:
                 </span>{" "}
-                {selectedOrder.equipment.description}
+                {getProductDetails(selectedOrder.product_id).description}
               </p>
               <p>
                 <span className="font-semibold text-gray-700">Serial No:</span>{" "}
-                {selectedOrder.equipment.serialNo}
+                {getProductDetails(selectedOrder.product_id).serial_number}
               </p>
               <p>
                 <span className="font-semibold text-gray-700">
                   Fault Description:
                 </span>{" "}
-                {selectedOrder.equipment.faultDescription}
+                {getProductDetails(selectedOrder.product_id).problem}
               </p>
             </div>
 
-            {/* Repair Status */}
             <div className="mb-6 space-y-2 text-sm">
               <p>
                 <span className="font-semibold text-gray-700">
                   Repair Status:
                 </span>{" "}
-                {selectedOrder.repairStatus || "Pending"}
+                {/*selectedOrder.repairStatus || "Pending"*/}
               </p>
               <p>
                 <span className="font-semibold text-gray-700">
                   Replacement:
                 </span>{" "}
-                {selectedOrder.replacement || "N/A"}
+                {/*selectedOrder.replacement || "N/A"*/}
               </p>
             </div>
 
-            {/* Technician Details */}
             <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="font-semibold text-gray-700">
-                  Technician's Name:{" "}
-                  {selectedOrder.technician?.name || "Not Assigned"}
+                  Technician&apos;s Name:{" "}
+                  {/*selectedOrder.technician?.name || "Not Assigned"*/}
                 </p>
               </div>
               <div>
                 <p className="font-semibold text-gray-700">
-                  Technician's Signature: __________
+                  Technician&apos;s Signature: __________
                 </p>
               </div>
             </div>
 
-            {/* Customer Comments */}
             <div className="mb-6 border-t pt-4">
               <p className="text-sm">
                 <span className="font-semibold text-gray-700">
@@ -248,7 +264,6 @@ const TechnicalReport: React.FC = () => {
               </p>
             </div>
 
-            {/* Footer */}
             <div className="border-t pt-4 text-center text-sm">
               <p className="text-gray-700">
                 Customer Name & Signature: _____________________________
@@ -256,6 +271,14 @@ const TechnicalReport: React.FC = () => {
             </div>
           </div>
         )}
+      </div>
+      <div className="flex justify-end">
+        <button
+          onClick={handleDownload}
+          className="mt-6 flex items-center rounded-md bg-green-600 px-4 py-2 text-white"
+        >
+          Download <FaDownload className="ml-2" />
+        </button>
       </div>
     </div>
   );
