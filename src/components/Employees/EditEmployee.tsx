@@ -1,5 +1,11 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent, useEffect, Suspense } from "react";
+import React, {
+  useState,
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  Suspense,
+} from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
 import Swal from "sweetalert2";
@@ -9,9 +15,8 @@ import {
   useUpdateEmployeeMutation,
   useGetEmployeeByIdQuery,
 } from "@/app/redux/features/employeeApiSlice";
-import { useGetAllRolesQuery } from "@/app/redux/features/roleApiSlice";
-import { Employee } from "@/types";
-import { Role } from "@/types";
+import { useGetAllRolesQuery, useGetRoleByIdQuery } from "@/app/redux/features/roleApiSlice";
+import { Employee, Role } from "@/types";
 
 const EditEmployee = () => {
   const router = useRouter();
@@ -27,7 +32,8 @@ const EditEmployee = () => {
   const [updateEmployee, { isLoading: isUpdating }] =
     useUpdateEmployeeMutation();
 
-  const { data: roles } = useGetAllRolesQuery();
+  const { data: roles = [] } = useGetAllRolesQuery();
+  
 
   const [formData, setFormData] = useState({
     employeeId: employeeId || "",
@@ -40,23 +46,36 @@ const EditEmployee = () => {
     username: "",
   });
 
+  const [privileges, setPrivileges] = useState<any>({}); 
+
   useEffect(() => {
     if (employee) {
       setFormData({
         employeeId: employee.employee_id || "",
         email: employee.email || "",
         name: employee.name || "",
-        role: employee.role || "",
+        role: employee.role || "", 
         contact: employee.contact || "",
         address: employee.address || "",
         gender: employee.gender || "",
         username: employee.username || "",
       });
+
+     
+    const { data: role } = useGetRoleByIdQuery(employee.role || "");
+    const privilegesObject = role?.privileges
+      ? role.privileges.reduce((acc: any, priv: any) => {
+          acc[priv.id] = true;
+          return acc;
+        }, {})
+      : {};
+
+      setPrivileges(privilegesObject); // Set the privileges as an object
     }
   }, [employee]);
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prevState) => ({
@@ -142,21 +161,14 @@ const EditEmployee = () => {
       >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Object.entries(formData).map(([key, value]) => {
-            if (key === "role" || key === "gender") {
-              const options =
-                key === "role"
-                  ? ["Admin", "Manager", "Employee"]
-                  : ["Male", "Female", "Other"];
-
+            if (key === "role") {
               return (
                 <div key={key} className="flex flex-col space-y-2">
                   <label
                     htmlFor={key}
                     className="text-base font-medium capitalize text-gray-600"
                   >
-                    {key
-                      .replace(/([A-Z])/g, " $1")
-                      .replace(/^./, (str) => str.toUpperCase())}
+                    Role
                   </label>
                   <select
                     id={key}
@@ -168,7 +180,36 @@ const EditEmployee = () => {
                     transition-colors duration-300 focus:outline-none 
                     focus:ring-2 focus:ring-blue-500"
                   >
-                    {options.map((option) => (
+                    <option value="">Select Role</option>
+                    {roles.map((role: Role) => (
+                      <option key={role._id} value={role._id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            } else if (key === "gender") {
+              return (
+                <div key={key} className="flex flex-col space-y-2">
+                  <label
+                    htmlFor={key}
+                    className="text-base font-medium capitalize text-gray-600"
+                  >
+                    Gender
+                  </label>
+                  <select
+                    id={key}
+                    name={key}
+                    value={value}
+                    onChange={handleChange}
+                    className="w-full rounded-md border 
+                    border-gray-300 px-4 py-2 
+                    transition-colors duration-300 focus:outline-none 
+                    focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select Gender</option>
+                    {["Male", "Female", "Other"].map((option) => (
                       <option key={option} value={option}>
                         {option}
                       </option>
@@ -198,7 +239,7 @@ const EditEmployee = () => {
                   border-gray-300 px-4 py-2 
                   transition-colors duration-300 focus:outline-none 
                   focus:ring-2 focus:ring-blue-500"
-                  readOnly={key === "employeeId"} // Make employeeId read-only
+                  readOnly={key === "employeeId"}
                 />
               </div>
             );

@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { IoIosArrowDropleft } from "react-icons/io";
 import Link from "next/link";
@@ -9,21 +10,25 @@ import type { Role } from "@/types";
 
 interface FormData {
   name: string;
-  access_privilege: number[];
+  privileges: number[];
 }
 
 const accessOptions = [
-  { id: 1, label: "View Dashboard" },
-  { id: 2, label: "Manage Users" },
-  { id: 3, label: "Edit Settings" },
-  { id: 4, label: "Access Reports" },
-  { id: 5, label: "Admin Privileges" },
+  { id: 1, label: "Access Dashboard" },
+  { id: 2, label: "Access Orders" },
+  { id: 3, label: "Access Payments" },
+  { id: 4, label: "Access Services" },
+  { id: 5, label: "Access Customers" },
+  { id: 6, label: "Access Employees" },
+  { id: 7, label: "Access Products" },
+  { id: 8, label: "Access Reports" },
+  { id: 9, label: "Access Technicians" },
 ];
 
 const NewRole = () => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
-    access_privilege: [],
+    privileges: [],
   });
   const [createRole, { isLoading }] = useCreateRoleMutation();
   const router = useRouter();
@@ -38,11 +43,11 @@ const NewRole = () => {
 
   const handleTogglePrivilege = (privilegeId: number) => {
     setFormData((prevState) => {
-      const updatedPrivileges = prevState.access_privilege.includes(privilegeId)
-        ? prevState.access_privilege.filter((id) => id !== privilegeId)
-        : [...prevState.access_privilege, privilegeId];
+      const updatedPrivileges = prevState.privileges.includes(privilegeId)
+        ? prevState.privileges.filter((id) => id !== privilegeId)
+        : [...prevState.privileges, privilegeId];
 
-      return { ...prevState, access_privilege: updatedPrivileges };
+      return { ...prevState, privileges: updatedPrivileges };
     });
   };
 
@@ -60,10 +65,10 @@ const NewRole = () => {
     }
 
     try {
-   const roleData = {
-     name: formData.name,
-     privileges: formData.access_privilege.map((id) => ({ id })),
-   } as unknown as Omit<Role, "_id" | "createdAt" | "updatedAt">;
+      const roleData = {
+        name: formData.name,
+        privileges: formData.privileges,
+      } as unknown as Omit<Role, "_id" | "createdAt" | "updatedAt">;
 
       await createRole(roleData).unwrap();
 
@@ -139,14 +144,14 @@ const NewRole = () => {
                   type="button"
                   onClick={() => handleTogglePrivilege(option.id)}
                   className={`flex h-8 w-14 items-center rounded-full p-1 ${
-                    formData.access_privilege.includes(option.id)
+                    formData.privileges.includes(option.id)
                       ? "bg-green-400"
                       : "bg-gray-300"
                   }`}
                 >
                   <div
                     className={`h-6 w-6 transform rounded-full bg-white shadow-md ${
-                      formData.access_privilege.includes(option.id)
+                      formData.privileges.includes(option.id)
                         ? "translate-x-6"
                         : ""
                     }`}

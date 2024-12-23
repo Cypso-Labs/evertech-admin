@@ -30,7 +30,6 @@ export interface Service {
   service_id: string;
   description: string;
 
-
   code: string;
 
   createdAt?: Date;
@@ -63,13 +62,13 @@ export interface Payment {
   payment_date: Date;
   status: string;
   employee_id: string;
-  product_id:string;
+  product_id: string;
   payment_details: string;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface Customer{
+export interface Customer {
   _id: string;
   customer_id: string;
   name: string;
@@ -83,14 +82,7 @@ export interface Customer{
 export interface Role {
   _id: string;
   name: string;
-  privileges: {
-    viewDashboard: boolean;
-    manageEmployees: boolean;
-    manageRoles: boolean;
-    viewReports: boolean;
-    manageSettings: boolean;
-    accessAuditLogs: boolean;
-  };
+  privileges: { id: string }[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -109,14 +101,12 @@ export interface LoginCredentials {
   password: string;
 }
 
-
 export interface SigninCredentials {
   email: string;
   password: string;
 }
 
-
- export interface LoginResponse {
+export interface LoginResponse {
   success: boolean;
   data?: {
     user: Employee;
@@ -125,10 +115,7 @@ export interface SigninCredentials {
   message?: string;
   token?: string;
   user?: Employee;
-
 }
-
-
 
 export type Product = {
   _id: string;
@@ -143,7 +130,6 @@ export type Product = {
   created_at: string;
   updated_at: string;
 };
-
 
 export interface RegisterCredentials
   extends Omit<Employee, "_id" | "createdAt" | "updatedAt"> {}
