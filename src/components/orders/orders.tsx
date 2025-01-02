@@ -4,7 +4,7 @@ import { FaTrashAlt } from "react-icons/fa";
 import { RiExpandUpDownFill } from "react-icons/ri";
 import { MdOutlineSearch } from "react-icons/md";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter  } from "next/navigation";
 import Swal from "sweetalert2";
 import { FaPrint } from "react-icons/fa";
 import { FaCreditCard } from "react-icons/fa6";
@@ -103,18 +103,16 @@ const Orders: React.FC = () => {
     });
   };
 
-  const handlePrint = (orderId: string) => {
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, print it!",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#2E84D3",
-      cancelButtonColor: "#D93132",
-    });
+  const handlePrint = (order: Order) => {
+    const queryParams = new URLSearchParams({
+      _id: order._id,
+      
+    }).toString();
+  
+    router.push(`/orders/orderprint?${queryParams}`);
   };
+  
+  
 
   const handlePayment = (order: Order) => {
     const queryParams = new URLSearchParams({
@@ -218,7 +216,7 @@ const Orders: React.FC = () => {
                   className="ml-4 text-center text-blue-500 hover:text-blue-700"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handlePrint(order._id);
+                    handlePrint(order);
                   }}
                 >
                   <FaPrint />
