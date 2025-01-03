@@ -30,7 +30,7 @@ const DataStatsOne: React.FC = () => {
 
   const completedOrdersCount = isLoadingOrders
     ? 0
-    : allOrders?.filter((order) => order.status === "Complete").length || 0;
+    : allOrders?.filter((order) => order.status === "Completed").length || 0;
   const customersCount = isLoadingCustomers ? 0 : allCustomers?.length || 0;
 
   const allServicesCount = isLoadingServices ? 0 : allServices?.length || 0;

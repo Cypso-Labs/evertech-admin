@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, {
   useState,
   ChangeEvent,
@@ -15,7 +16,10 @@ import {
   useUpdateEmployeeMutation,
   useGetEmployeeByIdQuery,
 } from "@/app/redux/features/employeeApiSlice";
-import { useGetAllRolesQuery, useGetRoleByIdQuery } from "@/app/redux/features/roleApiSlice";
+import {
+  useGetAllRolesQuery,
+  useGetRoleByIdQuery,
+} from "@/app/redux/features/roleApiSlice";
 import { Employee, Role } from "@/types";
 
 const EditEmployee = () => {
@@ -29,11 +33,14 @@ const EditEmployee = () => {
     isError,
   } = useGetEmployeeByIdQuery(employeeId || "");
 
+  // Move the role query to the component level
+  const { data: roleData } = useGetRoleByIdQuery(employee?.role || "", {
+    skip: !employee?.role, // Skip the query if there's no role ID
+  });
+
   const [updateEmployee, { isLoading: isUpdating }] =
     useUpdateEmployeeMutation();
-
   const { data: roles = [] } = useGetAllRolesQuery();
-  
 
   const [formData, setFormData] = useState({
     employeeId: employeeId || "",
@@ -46,33 +53,37 @@ const EditEmployee = () => {
     username: "",
   });
 
-  const [privileges, setPrivileges] = useState<any>({}); 
+  const [privileges, setPrivileges] = useState<Record<string, boolean>>({});
 
+  // Update form data when employee data is loaded
   useEffect(() => {
     if (employee) {
       setFormData({
         employeeId: employee.employee_id || "",
         email: employee.email || "",
         name: employee.name || "",
-        role: employee.role || "", 
+        role: employee.role || "",
         contact: employee.contact || "",
         address: employee.address || "",
         gender: employee.gender || "",
         username: employee.username || "",
       });
-
-     
-    const { data: role } = useGetRoleByIdQuery(employee.role || "");
-    const privilegesObject = role?.privileges
-      ? role.privileges.reduce((acc: any, priv: any) => {
-          acc[priv.id] = true;
-          return acc;
-        }, {})
-      : {};
-
-      setPrivileges(privilegesObject); // Set the privileges as an object
     }
   }, [employee]);
+
+  // Update privileges when role data changes
+  useEffect(() => {
+    if (roleData?.privileges) {
+      const privilegesObject = roleData.privileges.reduce(
+        (acc: Record<string, boolean>, priv: any) => {
+          acc[priv.id] = true;
+          return acc;
+        },
+        {},
+      );
+      setPrivileges(privilegesObject);
+    }
+  }, [roleData]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
@@ -140,19 +151,6 @@ const EditEmployee = () => {
             Edit Employee #{formData.employeeId}
           </h1>
         </div>
-
-        <button
-          onClick={handleLeaveClick}
-          className="flex w-full items-center justify-center space-x-2 rounded-lg border 
-          border-gray-300 bg-gray-200 px-6 
-          py-3 text-base 
-          font-medium text-gray-700 
-          transition-colors duration-300 
-          hover:border-gray-400 hover:bg-gray-300 md:w-auto"
-        >
-          <span>Leaves</span>
-          <LuArrowRightToLine className="ml-2" size={20} />
-        </button>
       </div>
 
       <form

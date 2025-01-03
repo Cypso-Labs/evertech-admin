@@ -174,20 +174,6 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
                 className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
               />
             </div>
-
-            <div className="flex items-center">
-              <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
-                Employe ID
-              </label>
-              <input
-                type="text"
-                name="employee_id"
-                value={formData.employee_id}
-                onChange={handleChange}
-                className="flex-1 rounded-md border border-gray-200 px-3 py-2 text-base font-normal focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-[#122031] dark:text-white"
-              />
-            </div>
-
             <div className="flex items-center">
               <label className="w-32 text-[20px] font-medium text-gray-500 dark:text-white">
                 Role

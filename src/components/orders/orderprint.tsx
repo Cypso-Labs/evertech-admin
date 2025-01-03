@@ -1,14 +1,14 @@
 "use client";
-import React, { useState, useRef } from "react";
-import { useSearchParams } from "next/navigation"; // For accessing URL parameters
-import { useGetOrderByIdQuery } from "@/app/redux/features/orderApiSlice"; // Fetch order by ID
+import React, { useState, useRef,Suspense } from "react";
+import { useSearchParams } from "next/navigation"; 
+import { useGetOrderByIdQuery } from "@/app/redux/features/orderApiSlice";
 import { useGetAllPaymentsQuery } from "@/app/redux/features/paymentApiSlice";
 import { useGetAllCustomersQuery } from "@/app/redux/features/customerApiSlice";
 import { useGetAllProductsQuery } from "@/app/redux/features/productApiSlice";
 import { FaDownload } from "react-icons/fa6";
 import jsPDF from "jspdf";
 
-const OrderPrint: React.FC = () => {
+const OrderPrints: React.FC = () => {
     const searchParams = useSearchParams(); 
     const orderId = searchParams.get("_id");  
     
@@ -147,6 +147,13 @@ const OrderPrint: React.FC = () => {
         </button>
       </div>
     </div>
+  );
+};
+const OrderPrint = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OrderPrints/>
+    </Suspense>
   );
 };
 

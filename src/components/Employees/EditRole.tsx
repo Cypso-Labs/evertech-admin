@@ -36,12 +36,12 @@ const EditRole = () => {
 
   const [privileges, setPrivileges] = useState<RolePrivileges>({});
 
-  useEffect(() => {
-    if (role) {
-      setFormData({ id: role._id, name: role.name });
-      setPrivileges(role.privileges || {}); // Ensure privileges exist in the API response
-    }
-  }, [role]);
+ useEffect(() => {
+   if (role) {
+     setFormData({ id: role._id, name: role.name });
+     setPrivileges(role.privileges.reduce((acc, privilege) => ({ ...acc, [privilege.id]: true }), {}));
+   }
+ }, [role]);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -55,18 +55,16 @@ const EditRole = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
- await updateRole({
-   id: formData.id,
-   name: formData.name,
-   privileges: privileges as {
-     viewDashboard: boolean;
-     manageEmployees: boolean;
-     manageRoles: boolean;
-     viewReports: boolean;
-     manageSettings: boolean;
-     accessAuditLogs: boolean;
-   },
- }).unwrap();
+      const privilegesArray = Object.keys(privileges).map((privilege) => ({
+        id: privilege,
+        value: privileges[privilege],
+      }));
+
+      await updateRole({
+        id: formData.id,
+        name: formData.name,
+        privileges: privilegesArray,
+      }).unwrap();
 
       Swal.fire({
         title: "Success!",

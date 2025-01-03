@@ -50,7 +50,7 @@ const Orders: React.FC = () => {
       status: order.status,
     }).toString();
 
-    router.push(`orders/ordered?${queryParams}`);
+    router.push(`orders/orderedit?${queryParams}`);
   };
 
   const handleNextPage = () => {
