@@ -31,5 +31,5 @@ jobs:
       run: npm install -g pm2
     
     - name: Start or restart PM2 process
-      run: pm2 restart 1 || pm2 start npm --name "evertech-admin-front-end" -- run start --watch
-      working-directory: /home/evertech/actions-runner/admin-front-end/_work/evertech-admin/evertech-admin
+      run: pm2 restart 4 || pm2 start npm --name "evertech-admin-front-end" -- run start --watch
+      working-directory: /root/evertech/admin-front-end/_work/evertech-admin/evertech-admin
