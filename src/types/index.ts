@@ -131,5 +131,19 @@ export type Product = {
   updated_at: string;
 };
 
+
+
+
+export interface Job {
+  _id: string;
+  title: string;
+  description: string;
+  location: string;
+  type: "Full-time" | "Part-time" | "Contract" | "Internship";
+  key_Responsibility: string;
+  qualifications: string;
+}
+
+
 export interface RegisterCredentials
   extends Omit<Employee, "_id" | "createdAt" | "updatedAt"> {}
