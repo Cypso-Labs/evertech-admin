@@ -4,11 +4,11 @@ import payments from "@/assets/images/icon/payment.svg";
 import services from "@/assets/images/icon/service.svg";
 import customers from "@/assets/images/icon/customer.svg";
 import employees from "@/assets/images/icon/employee.svg";
-import product from "@/assets/images/icon/product.svg";
+import product from "@/assets/images/icon/product1.png";
 
 import tech from "@/assets/images/icon/tech.svg";
 
-import ClipboardMinus from "@/assets/images/icon/repory.png";
+import ClipboardMinus from "@/assets/images/icon/report1.png";
 
 interface MenuItem {
   icon?: string | React.ComponentType;

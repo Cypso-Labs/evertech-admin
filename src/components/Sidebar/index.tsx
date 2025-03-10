@@ -7,7 +7,9 @@ import MenuGroupsData from "@/config/MENU_DATA";
 import { useSelector } from "react-redux";
 import { selectEmployee } from "@/app/redux/features/authSlice";
 import { useGetRoleByIdQuery } from "@/app/redux/features/roleApiSlice";
-
+import Image from "next/image";
+import black from "../../../public/images/black.png"
+import white from "../../../public/images/white.png"
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
@@ -38,13 +40,31 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
       >
         <div className="flex items-center justify-between gap-2 px-6 py-5.5">
           <Link href="/dashboard" className="block">
-            <button className="group relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-600 via-blue-500 to-green-400 p-0.5 transition-all duration-300 hover:scale-105 hover:shadow-md">
-              <div className="relative rounded-md bg-black px-4 py-1.5">
-                <h1 className="relative bg-gradient-to-r from-purple-200 via-blue-200 to-green-200 bg-clip-text text-lg font-bold text-transparent">
-                  EVERTECH.LK
-                </h1>
-              </div>
-            </button>
+          <div className=" dark:hidden  ml-18">
+              <Image
+                width={176}
+                height={32}
+                src={black}
+                alt="Logo"
+                priority
+                style={{ width: "auto", height: "auto" }}
+              />
+             
+                
+              
+            </div>
+            <div className=" hidden dark:block ml-16">
+              <Image
+                width={65}
+                height={30}
+                src={white}
+                alt="Logo"
+                
+              />
+             
+                
+              
+            </div>
           </Link>
 
           <button
