@@ -7,6 +7,7 @@ import employees from "@/assets/images/icon/employee.svg";
 import product from "@/assets/images/icon/product1.png";
 
 import tech from "@/assets/images/icon/tech.svg";
+import Jobs from "@/assets/images/icon/jobs.png";
 
 import ClipboardMinus from "@/assets/images/icon/report1.png";
 
@@ -70,16 +71,22 @@ const MenuGroupsData: MenuGroup[] = [
         privilegeId: 7,
       },
       {
+        icon: Jobs,
+        label: "Jobs",
+        route: "/jobs",
+        privilegeId: 8,
+      },
+      {
         icon: ClipboardMinus,
         label: "Reports",
         route: "/reports",
-        privilegeId: 8,
+        privilegeId: 9,
       },
       {
         icon: tech,
         label: "Technician",
         route: "/technicians",
-        privilegeId: 9,
+        privilegeId: 10,
       },
     ],
   },
