@@ -15,9 +15,12 @@ const NewJob = () => {
     location: "",
     type: "",
     description: "",
-    key_Responsibility: "",
-    qualifications: "",
+    key_Responsibility: [] as string[],
+    qualifications: [] as string[],
   });
+
+  const [newResponsibility, setNewResponsibility] = useState("");
+  const [newQualification, setNewQualification] = useState("");
 
   const [createJob, { isLoading }] = useCreateJobMutation();
 
@@ -28,6 +31,23 @@ const NewJob = () => {
     setFormData((prevState) => ({
       ...prevState,
       [name]: value,
+    }));
+  };
+
+  const addItem = (field: "key_Responsibility" | "qualifications", value: string) => {
+    if (!value.trim()) return;
+    setFormData((prevState) => ({
+      ...prevState,
+      [field]: [...prevState[field], value],
+    }));
+    if (field === "key_Responsibility") setNewResponsibility("");
+    if (field === "qualifications") setNewQualification("");
+  };
+
+  const removeItem = (field: "key_Responsibility" | "qualifications", index: number) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [field]: prevState[field].filter((_, i) => i !== index),
     }));
   };
 
@@ -91,20 +111,74 @@ const NewJob = () => {
             placeholder="Description"
             className="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white dark:border-gray-600"
           />
-          <textarea
-            name="key_Responsibility" // Fix typo in name
-            value={formData.key_Responsibility} // Update state variable to match name
-            onChange={handleChange} // This remains the same
-            placeholder="Key Responsibilities"
-            className="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white dark:border-gray-600"
-          />
-          <textarea
-            name="qualifications"
-            value={formData.qualifications}
-            onChange={handleChange}
-            placeholder="Qualifications"
-            className="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white dark:border-gray-600"
-          />
+
+          {/* Key Responsibilities */}
+          <div>
+            <h2 className="mb-2 text-lg font-medium text-slate-600 dark:text-white">Key Responsibilities</h2>
+            <div className="flex">
+              <input
+                value={newResponsibility}
+                onChange={(e) => setNewResponsibility(e.target.value)}
+                placeholder="Add responsibility"
+                className="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] text-black dark:text-white dark:border-gray-600"
+              />
+              <button
+                type="button"
+                onClick={() => addItem("key_Responsibility", newResponsibility)}
+                className="ml-2 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              >
+                Add
+              </button>
+            </div>
+            <ul className="mt-2 list-disc pl-6 text-white">
+              {formData.key_Responsibility.map((item, index) => (
+                <li key={index} className="flex justify-between text-black dark:text-white">
+                  {item}
+                  <button
+                    type="button"
+                    onClick={() => removeItem("key_Responsibility", index)}
+                    className="ml-2 text-red-500 hover:text-red-700"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Qualifications */}
+          <div>
+            <h2 className="mb-2 text-lg font-medium text-slate-600 dark:text-white">Qualifications</h2>
+            <div className="flex">
+              <input
+                value={newQualification}
+                onChange={(e) => setNewQualification(e.target.value)}
+                placeholder="Add qualification"
+                className="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white dark:border-gray-600"
+              />
+              <button
+                type="button"
+                onClick={() => addItem("qualifications", newQualification)}
+                className="ml-2 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+              >
+                Add
+              </button>
+            </div>
+            <ul className="mt-2 list-disc pl-6 text-black dark:text-white">
+              {formData.qualifications.map((item, index) => (
+                <li key={index} className="flex justify-between">
+                  {item}
+                  <button
+                    type="button"
+                    onClick={() => removeItem("qualifications", index)}
+                    className="ml-2 text-red-500 hover:text-red-700"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <div className="mt-8 flex space-x-4">

@@ -18,11 +18,13 @@ const EditJobPage = () => {
     jobId: jobId || "",
     title: "",
     location: "",
-    type: "" as "Full-time" | "Part-time" | "Contract" | "Internship", // Correct typing
+    type: "Full-time" as "Full-time" | "Part-time" | "Contract" | "Internship",
     description: "",
-    key_Responsibility: "",
-    qualifications: "",
+    key_Responsibility: [] as string[],  
+    qualifications: [] as string[],      // Same for qualifications
   });
+  
+  
 
   useEffect(() => {
     if (job) {
@@ -32,8 +34,8 @@ const EditJobPage = () => {
         location: job.location,
         type: job.type,
         description: job.description || "",
-        key_Responsibility: job.key_Responsibility || "",
-        qualifications: job.qualifications || "",
+        key_Responsibility: job.key_Responsibility || [],
+        qualifications: job.qualifications || [],
       });
     }
   }, [job]);
@@ -47,18 +49,30 @@ const EditJobPage = () => {
       [name]: value,
     }));
   };
-  
+
+  const handleArrayChange = (field: "key_Responsibility" | "qualifications", value: string) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [field]: [...prevState[field], value],
+    }));
+  };
+
+  const handleRemoveItem = (field: "key_Responsibility" | "qualifications", index: number) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [field]: prevState[field].filter((_, i) => i !== index),
+    }));
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
+
     if (!jobId) {
       Swal.fire("Error", "Invalid job ID", "error");
       return;
     }
-  
+
     try {
-      // Remove jobId from formData spread and pass it separately
       await updateJob({ ...formData, jobId }).unwrap();
       Swal.fire("Success", "Job updated successfully", "success");
       router.push("/jobs");
@@ -66,7 +80,6 @@ const EditJobPage = () => {
       Swal.fire("Error", "Failed to update job", "error");
     }
   };
-  
 
   const handleCancel = () => {
     Swal.fire({
@@ -95,9 +108,8 @@ const EditJobPage = () => {
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto bg-white dark:bg-[#122031] p-8 rounded-lg shadow-md">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div>
-            <label htmlFor="title" className="block mb-2 text-gray-700 font-medium dark:text-white">Job Title</label>
+            <label className="block mb-2 text-gray-700 font-medium dark:text-white">Job Title</label>
             <input
-              id="title"
               name="title"
               value={formData.title}
               onChange={handleChange}
@@ -107,9 +119,8 @@ const EditJobPage = () => {
           </div>
 
           <div>
-            <label htmlFor="location" className="block mb-2 text-gray-700 font-medium dark:text-white">Location</label>
+            <label className="block mb-2 text-gray-700 font-medium dark:text-white">Location</label>
             <input
-              id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
@@ -119,9 +130,8 @@ const EditJobPage = () => {
           </div>
 
           <div>
-            <label htmlFor="type" className="block mb-2 text-gray-700 font-medium dark:text-white">Job Type</label>
+            <label className="block mb-2 text-gray-700 font-medium dark:text-white">Job Type</label>
             <select
-              id="type"
               name="type"
               value={formData.type}
               onChange={handleChange}
@@ -136,9 +146,8 @@ const EditJobPage = () => {
         </div>
 
         <div className="mt-4">
-          <label htmlFor="description" className="block mb-2 text-gray-700 font-medium dark:text-white">Description</label>
+          <label className="block mb-2 text-gray-700 font-medium dark:text-white">Description</label>
           <textarea
-            id="description"
             name="description"
             value={formData.description}
             onChange={handleChange}
@@ -148,56 +157,44 @@ const EditJobPage = () => {
         </div>
 
         <div className="mt-4">
-          <label htmlFor="key_responsibility" className="block mb-2 text-gray-700 font-medium dark:text-white">Key Responsibilities</label>
-          <textarea
-            id="key_responsibility"
-            name="key_Responsibility" // Fixed typo
-            value={formData.key_Responsibility}
-            onChange={handleChange}
-            placeholder="Key Responsibilities"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white dark:border-gray-600"
+          <label className="block mb-2 text-gray-700 font-medium dark:text-white">Key Responsibilities</label>
+          {formData.key_Responsibility.map((resp, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <span className="flex-1">{resp}</span>
+              <button onClick={() => handleRemoveItem("key_Responsibility", index)} className="text-red-500">Remove</button>
+            </div>
+          ))}
+          <input
+            type="text"
+            onBlur={(e) => handleArrayChange("key_Responsibility", e.target.value)}
+            placeholder="Add Responsibility"
+            className="w-full p-3 border rounded-lg"
           />
         </div>
 
         <div className="mt-4">
-          <label htmlFor="qualifications" className="block mb-2 text-gray-700 font-medium dark:text-white">Qualifications</label>
-          <textarea
-            id="qualifications"
-            name="qualifications"
-            value={formData.qualifications}
-            onChange={handleChange}
-            placeholder="Qualifications"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-[#122031] dark:text-white dark:border-gray-600"
+          <label className="block mb-2 text-gray-700 font-medium dark:text-white">Qualifications</label>
+          {formData.qualifications.map((qual, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <span className="flex-1">{qual}</span>
+              <button onClick={() => handleRemoveItem("qualifications", index)} className="text-red-500">Remove</button>
+            </div>
+          ))}
+          <input
+            type="text"
+            onBlur={(e) => handleArrayChange("qualifications", e.target.value)}
+            placeholder="Add Qualification"
+            className="w-full p-3 border rounded-lg"
           />
         </div>
 
         <div className="mt-8 flex space-x-4">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="w-full sm:w-auto px-6 py-3 bg-red-500 text-white font-medium rounded-lg hover:bg-red-600 transition"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={isUpdating}
-            className="w-full sm:w-auto px-6 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition"
-          >
-            {isUpdating ? "Saving..." : "Save Changes"}
-          </button>
+          <button type="button" onClick={handleCancel} className="bg-red-500 text-white px-6 py-3 rounded-lg">Cancel</button>
+          <button type="submit" disabled={isUpdating} className="bg-green-500 text-white px-6 py-3 rounded-lg">{isUpdating ? "Saving..." : "Save Changes"}</button>
         </div>
       </form>
     </div>
   );
 };
 
-const EditJob = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EditJobPage />
-    </Suspense>
-  );
-};
-
-export default EditJob;
+export default EditJobPage;

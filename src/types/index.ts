@@ -140,9 +140,10 @@ export interface Job {
   description: string;
   location: string;
   type: "Full-time" | "Part-time" | "Contract" | "Internship";
-  key_Responsibility: string;
-  qualifications: string;
+  key_Responsibility: string[];  
+  qualifications: string[];      
 }
+
 
 
 export interface RegisterCredentials
