@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useGetJobByIdQuery, useUpdateJobMutation } from "@/app/redux/features/jobApiSlice";
 import Swal from "sweetalert2";
 
-const EditJobPage = () => {
+const EditJob = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const jobId = searchParams.get("id");
@@ -197,4 +197,4 @@ const EditJobPage = () => {
   );
 };
 
-export default EditJobPage;
+export default EditJob;
