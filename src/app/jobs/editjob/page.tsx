@@ -1,13 +1,16 @@
+import React, { Suspense } from 'react'
 import EditJob from '@/components/Jobs/EditJob'
 import DefaultLayout from '@/components/Layouts/DefaultLaout'
-import React from 'react'
 
-const page = () => {
+const Page = () => {
   return (
     <DefaultLayout>
-        <EditJob/>
+      {/* Wrap EditJob with Suspense */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <EditJob />
+      </Suspense>
     </DefaultLayout>
   )
 }
 
-export default page
+export default Page

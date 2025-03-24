@@ -144,6 +144,16 @@ export interface Job {
   qualifications: string[];      
 }
 
+export interface ApplyJob {
+  _id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  number: string;
+  cover_letter: string;
+  cv: string;
+
+}
 
 
 export interface RegisterCredentials

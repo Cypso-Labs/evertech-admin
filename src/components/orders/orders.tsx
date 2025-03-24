@@ -154,11 +154,11 @@ const Orders: React.FC = () => {
         </div>
       </div>
 
-      <table className="roun h-[91px] w-full table-auto border-separate border-spacing-y-3 font-bold">
-        <thead className="uppercase dark:text-white">
+      <table className="roun h-[91px] w-full table-auto  border-separate border-spacing-y-3 font-bold">
+        <thead className="uppercase dark:text-white ">
           <tr>
-            <th className="p-4 text-center">ID</th>
-            <th className="p-4 text-center">Customer Name</th>
+            <th className="p-4 text-center ">ID</th>
+            <th className="p-4 text-center ">Customer Name</th>
             <th className="p-4 text-center">Status</th>
             <th className="p-4 text-center">Product ID</th>
             <th className="p-4 text-center">Product Name</th>
@@ -167,11 +167,11 @@ const Orders: React.FC = () => {
             <th className="p-4"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody >
           {currentOrders.map((order) => (
             <tr
               key={order._id}
-              className="bg-white shadow-md"
+              className="bg-white shadow-md dark:bg-[#1F2A37]"
               onClick={() => handleRowClick(order)}
             >
               <td className="rounded-lg px-4 py-6 text-center">
@@ -180,7 +180,7 @@ const Orders: React.FC = () => {
               <td className="p-4 text-center">
                 {getCustomerName(order.customer_id)}
               </td>
-              <td className="p-4 text-center">
+              <td className="p-4 text-center ">
                 <span
                   className={`rounded-lg px-3 py-1 font-semibold ${
                     order.status === "Pending"
