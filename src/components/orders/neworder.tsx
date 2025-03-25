@@ -25,7 +25,7 @@ const NewOrder: React.FC = () => {
     customer_id: "",
     product_id: "",
     delivery_status: "in_Workshop",
-    status: "Pending",
+    status: "received",
   });
 
   const { data: services = [], isLoading: isServicesLoading } =
@@ -97,7 +97,7 @@ const NewOrder: React.FC = () => {
     delivery_status: formData.delivery_status,
     order_date: new Date().toISOString(), 
     product_id: formData.product_id,
-    status: "Pending",
+    status: "received",
   };
 
     try {

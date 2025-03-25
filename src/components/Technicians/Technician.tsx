@@ -182,7 +182,7 @@ const Technician = () => {
             </TabsTrigger>
           </TabsList>
         </Tabs>
-        <div className="rounded-lg bg-white p-6 shadow-inner">
+        <div className="rounded-lg bg-white p-6 shadow-inner  dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <Table>
             <TableHeader>
               <TableRow>
@@ -228,8 +228,8 @@ const Technician = () => {
                         ${
                           order.status === "Pending"
                             ? "bg-yellow-200 text-yellow-800"
-                            : order.status === "In-progress"
-                              ? "bg-blue-200 text-blue-800"
+                            : order.status === "In-progress" 
+                              ? "bg-blue-200 text-blue-800 "
                               : "bg-green-200 text-green-800"
                         }`}
                       >
@@ -274,7 +274,7 @@ const Technician = () => {
                         <Button
                           className={`h-9 w-20 transform transition-all duration-300 ease-in-out hover:scale-105 ${
                             !order.technicianCode
-                              ? "cursor-not-allowed bg-gray-300 text-gray-600"
+                              ? "cursor-not-allowed bg-gray-300 text-gray-600 "
                               : "bg-indigo-500 text-white hover:bg-indigo-600"
                           }`}
                           disabled={
@@ -289,7 +289,7 @@ const Technician = () => {
                       {order.status === "In-progress" && (
                         <Button
                           onClick={() => updateStatus(order._id, "Completed")}
-                          className="h-9 w-20 transform bg-green-500 text-white transition-all duration-300 ease-in-out hover:scale-105 hover:bg-green-600 "
+                          className="h-9 w-20 transform bg-green-500 text-white transition-all duration-300 ease-in-out hover:scale-105 hover:bg-green-600  "
                           size="sm"
                         >
                           Complete
@@ -315,7 +315,7 @@ const Technician = () => {
           <Button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className="flex items-center gap-2  bg-slate-950 text-white hover:bg-slate-800"
+            className="flex items-center gap-2  bg-slate-950 text-white hover:bg-slate-800 "
           >
             <ChevronLeft className="bg- h-4 w-4" /> Previous
           </Button>
@@ -334,7 +334,7 @@ const Technician = () => {
           <Button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="flex items-center gap-2 bg-slate-950 text-white hover:bg-slate-800 "
+            className="flex items-center gap-2 bg-slate-950 text-white hover:bg-slate-800   dark:border-dark-3 dark:bg-dark-2 dark:text-white"
           >
             Next <ChevronRight className="h-4 w-4" />
           </Button>
@@ -342,25 +342,25 @@ const Technician = () => {
       </CardContent>
       <CardFooter className="mt-6 flex justify-center">
         <div className="grid grid-cols-4 gap-4 text-center">
-          <div className="rounded-lg bg-white p-4 shadow-md">
+          <div className="rounded-lg bg-white p-4 shadow-md  dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             <p className="text-2xl font-bold text-indigo-600">
               {orders.length}
             </p>
             <p className="text-sm text-gray-600">Total Orders</p>
           </div>
-          <div className="rounded-lg bg-white p-4 shadow-md">
+          <div className="rounded-lg bg-white p-4 shadow-md  dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             <p className="text-2xl font-bold text-yellow-600">
               {orders.filter((o) => o.status === "Pending").length}
             </p>
             <p className="text-sm text-gray-600">Pending</p>
           </div>
-          <div className="rounded-lg bg-white p-4 shadow-md">
+          <div className="rounded-lg bg-white p-4 shadow-md  dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             <p className="text-2xl font-bold text-blue-600">
               {orders.filter((o) => o.status === "In-progress").length}
             </p>
             <p className="text-sm text-gray-600">In-progress</p>
           </div>
-          <div className="rounded-lg bg-white p-4 shadow-md">
+          <div className="rounded-lg bg-white p-4 shadow-md  dark:border-dark-3 dark:bg-dark-2 dark:text-white">
             <p className="text-2xl font-bold text-green-600">
               {orders.filter((o) => o.status === "Completed").length}
             </p>

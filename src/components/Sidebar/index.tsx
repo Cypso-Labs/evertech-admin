@@ -25,13 +25,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
   const userPrivileges = role?.privileges ? role.privileges.map(String) : [];
 
-  const filteredMenuGroups = MenuGroupsData.map((group) => ({
-    ...group,
-    menuItems: group.menuItems.filter((item) =>
-      userPrivileges.includes(String(item.privilegeId)),
-    ),
-  }));
+ const filteredMenuGroups = MenuGroupsData.map((group) => ({
+  ...group,
+  menuItems: group.menuItems.filter((item) =>
+    userPrivileges.includes(String(item.privilegeId)) || item.privilegeId === 10
+  ),
+}));
 
+
+ 
 
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>

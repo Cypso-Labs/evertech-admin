@@ -116,6 +116,7 @@ const Orders: React.FC = () => {
 
   const handlePayment = (order: Order) => {
     const queryParams = new URLSearchParams({
+      _id: order._id,
       order_id: order._id.toString(), 
     }).toString();
   

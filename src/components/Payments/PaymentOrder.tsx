@@ -71,7 +71,7 @@ const PaymentOrderPage: React.FC = () => {
         </Link>
       </div>
 
-      <div className="mx-auto grid max-w-4xl grid-cols-2 gap-4 rounded-lg bg-white p-8 shadow-md">
+      <div className="mx-auto grid max-w-4xl grid-cols-2 gap-4 rounded-lg bg-white p-8 shadow-md dark:border-dark-3 dark:bg-dark-2 dark:text-white">
         <div className="space-y-6 font-semibold">
           <div>Order ID</div>
           <div>Payment ID</div>
