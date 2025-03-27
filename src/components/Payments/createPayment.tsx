@@ -67,13 +67,13 @@ const CreatePaymentPage: React.FC = () => {
       // Create payment
       await createPayment(paymentData).unwrap()
 
-      // Update order status
-      if (orders && formData.status) {
-        await updateOrder({
-          id: orders._id,
-          status: formData.status,
-        }).unwrap()
-      }
+      // // Update order status
+      // if (orders && formData.status) {
+      //   await updateOrder({
+      //     id: orders._id,
+      //     status: formData.status,
+      //   }).unwrap()
+      // }
 
       Swal.fire({
         title: "Success!",
@@ -200,11 +200,11 @@ const CreatePaymentPage: React.FC = () => {
               className="w-full rounded-md border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 dark:border-dark-3 dark:bg-dark-2 dark:text-white"
               required
             >
-              <option value="">Select Status</option>
+              {/* <option value="">Select Status</option> */}
               <option value="received">Received</option>
-              <option value="in-progress">In Progress</option>
+              {/* <option value="in-progress">In Progress</option>
               <option value="quality-check">Quality Check</option>
-              <option value="ready">Ready</option>
+              <option value="ready">Ready</option> */}
               <option value="completed">Completed</option>
             </select>
           </div>

@@ -4,6 +4,7 @@ import DropdownUser from "./DropdownUser";
 import Image from "next/image";
 import SearchForm from "@/components/Header/SearchForm";
 import logo from "@/assets/images/logo/logo.svg";
+import NotificationDropdown from "./notification-dropdown";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
@@ -78,6 +79,8 @@ const Header = (props: {
           <ul className="flex items-center gap-2 2xsm:gap-4">
             <SearchForm />
             <DarkModeSwitcher />
+
+            <NotificationDropdown />
 
           </ul>
           <DropdownUser />

@@ -270,7 +270,7 @@ const Technician = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      {order.status === "Pending" && (
+                      {order.status === "received" && (
                         <Button
                           className={`h-9 w-20 transform transition-all duration-300 ease-in-out hover:scale-105 ${
                             !order.technicianCode
@@ -288,7 +288,7 @@ const Technician = () => {
                       )}
                       {order.status === "In-progress" && (
                         <Button
-                          onClick={() => updateStatus(order._id, "Completed")}
+                          onClick={() => updateStatus(order._id, "in-progress")}
                           className="h-9 w-20 transform bg-green-500 text-white transition-all duration-300 ease-in-out hover:scale-105 hover:bg-green-600  "
                           size="sm"
                         >

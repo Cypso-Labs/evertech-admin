@@ -155,6 +155,16 @@ export interface ApplyJob {
 
 }
 
+export interface CustomerContact{
+  _id: string;
+  name: string;
+  email: string;
+  number: string;
+  message: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 
 export interface RegisterCredentials
   extends Omit<Employee, "_id" | "createdAt" | "updatedAt"> {}

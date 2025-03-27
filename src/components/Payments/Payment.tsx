@@ -52,13 +52,22 @@ const Payments: React.FC = () => {
     }
   };
 
-  const getStatusStyle = (status: string) => {
-    if (status === "pending") {
-      return "border-2 border-[#FF0000] bg-[#FFC3C3] text-[#FF0000] w-24 inline-block px-2 py-1"; 
-    } else {
+  // const getStatusStyle = (status: string) => {
+  //   if (status === "pending") {
+  //     return "border-2 border-[#FF0000] bg-[#FFC3C3] text-[#FF0000] w-24 inline-block px-2 py-1"; 
+  //   } else {
    
-      return "border-2 border-[#025826] bg-[#C3FFDA] text-[#025826] w-24 inline-block px-2 py-1"; 
+  //     return "border-2 border-[#025826] bg-[#C3FFDA] text-[#025826] w-24 inline-block px-2 py-1"; 
+  //   }
+  // };
+
+  const getStatusStyle = (status: string) => {
+    if (status === "completed") {
+      return "border-2 border-[#025826] bg-[#C3FFDA] text-[#025826]  inline-block px-4 py-2";
+    } else if (status === "pending") {
+      return "border-2 border-[#FF0000] bg-[#FFC3C3] text-[#FF0000]  inline-block px-2 py-1";
     }
+    return "";
   };
   
 
