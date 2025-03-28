@@ -106,7 +106,7 @@ const EditPaymentPage = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md"
+        className="mx-auto max-w-4xl rounded-lg bg-white p-8 shadow-md dark:border-dark-3 dark:bg-dark-2 dark:text-white"
       >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {Object.entries(formData).map(([key, value]) => {
@@ -136,7 +136,7 @@ const EditPaymentPage = () => {
                   className="w-full rounded-md border 
                   border-gray-300 px-4 py-2 
                   transition-colors duration-300 focus:outline-none 
-                  focus:ring-2 focus:ring-blue-500"
+                  focus:ring-2 focus:ring-blue-500 dark:border-dark-3 dark:bg-dark-2 dark:text-white"
                   readOnly={isReadOnly} // Set readOnly based on condition
                 />
               </div>

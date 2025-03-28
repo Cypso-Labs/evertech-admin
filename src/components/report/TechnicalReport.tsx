@@ -119,18 +119,18 @@ const TechnicalReport: React.FC = () => {
 
   return (
     <div className="container mx-auto max-w-4xl p-6">
-      <div className="overflow-hidden rounded-lg bg-white shadow-md">
-        <div className="border-b bg-gray-100 p-6">
+      <div className="overflow-hidden rounded-lg bg-white shadow-md ">
+        <div className="border-b bg-gray-100 p-6  dark:border-dark-3 dark:bg-dark-2 dark:text-white">
           <label
             htmlFor="orderSelect"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700  dark:border-dark-3 dark:bg-dark-2 dark:text-white"
           >
             Select Order
           </label>
           <select
             id="orderSelect"
             onChange={handleOrderSelect}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500  dark:border-dark-3 dark:bg-dark-2 dark:text-white"
           >
             <option value="">Select an Order</option>
             {orders.map((order) => (

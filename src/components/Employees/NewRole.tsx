@@ -21,8 +21,9 @@ const accessOptions = [
   { id: 5, label: "Access Customers" },
   { id: 6, label: "Access Employees" },
   { id: 7, label: "Access Products" },
-  { id: 8, label: "Access Reports" },
-  { id: 9, label: "Access Technicians" },
+  { id: 8, label: "Access Jobs" },
+  { id: 9, label: "Access Reports" },
+  { id: 10, label: "Access Technicians" },
 ];
 
 const NewRole = () => {
