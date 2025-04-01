@@ -26,11 +26,11 @@ const DataStatsOne: React.FC = () => {
   // Calculations
   const unpaidOrdersCount = isLoadingOrders
     ? 0
-    : allOrders?.filter((order) => order.status === "Pending").length || 0;
+    : allOrders?.filter((order) => order.status === "received").length || 0;
 
   const completedOrdersCount = isLoadingOrders
     ? 0
-    : allOrders?.filter((order) => order.status === "Completed").length || 0;
+    : allOrders?.filter((order) => order.status === "completed").length || 0;
   const customersCount = isLoadingCustomers ? 0 : allCustomers?.length || 0;
 
   const allServicesCount = isLoadingServices ? 0 : allServices?.length || 0;
