@@ -77,6 +77,7 @@ const NewOrder: React.FC = () => {
     if (service) {
       const newOrderItem = {
         id: service._id,
+        service_id: service.service_id,
         name: service.name,
         description: service.description,
         qty: quantity,
@@ -90,18 +91,24 @@ const NewOrder: React.FC = () => {
   };
 
   const handleSave = async () => {
-  const payload = {
-    order_id: formData.order_id,
-    customer_id: formData.customer_id,
-    items: orderData,
-    delivery_status: formData.delivery_status,
-    order_date: new Date().toISOString(), 
-    product_id: formData.product_id,
-    status: "received",
-  };
+    const payload = {
+      order_id: formData.order_id,
+      customer_id: formData.customer_id,
+      services: orderData.map(service => ({
+        service_id: service.service_id,
+        name: service.name,
+        description: service.description,
+        qty: service.qty,
+      })),
+      delivery_status: formData.delivery_status,
+      order_date: new Date().toISOString(),
+      product_id: formData.product_id,
+      status: "received",
+    };
+    
 
     try {
-      await createOrder(payload).unwrap();
+      await createOrder(payload as any).unwrap();
       Swal.fire({
         title: "Success!",
         text: "Order has been created",
@@ -154,7 +161,7 @@ const NewOrder: React.FC = () => {
         <div className="space-y-2 text-2xl font-semibold dark:text-white">
           <div className="h-[36px]">Customer Id</div>
           <div className="h-[36px]">Product Id</div>
-          <div className="h-[36px]">Dilivery_status</div>
+          <div className="h-[36px]">Delivery Status</div>
         </div>
 
         <div className="col-span-2 space-y-2">
@@ -233,7 +240,7 @@ const NewOrder: React.FC = () => {
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,
-                  delivery_status: e.target.value, 
+                  delivery_status: e.target.value,
                 }))
               }
               className="h-[36px] w-[520px] border border-gray-300 bg-white p-2 text-gray-900"

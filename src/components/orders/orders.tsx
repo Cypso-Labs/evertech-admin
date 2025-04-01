@@ -47,11 +47,15 @@ const Orders: React.FC = () => {
   const handleRowClick = (order: Order) => {
     const queryParams = new URLSearchParams({
       id: order._id.toString(),
-      status: order.status,
+      order_id: order.order_id,
+      customer_id: order.customer_id,
+      product_id: order.product_id,
+      services: JSON.stringify(order.services || []), // Convert array to string
     }).toString();
-
-    router.push(`orders/orderedit?${queryParams}`);
+  
+    router.push(`/orders/orderedit?${queryParams}`);
   };
+  
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
@@ -172,16 +176,16 @@ const Orders: React.FC = () => {
           {currentOrders.map((order) => (
             <tr
               key={order._id}
-              className="bg-white shadow-md dark:bg-[#1F2A37]"
+              className="bg-white shadow-md dark:bg-[#1F2A37] cursor-pointer hover:bg-[#E0EDFF] drak:hover:bg-[#3584FA] "
               onClick={() => handleRowClick(order)}
             >
-              <td className="rounded-lg px-4 py-6 text-center">
+              <td className="rounded-lg px-4 py-6 text-center cursor-pointer">
                 {order.order_id}
               </td>
-              <td className="p-4 text-center">
+              <td className="p-4 text-center cursor-pointer">
                 {getCustomerName(order.customer_id)}
               </td>
-              <td className="p-4 text-center ">
+              <td className="p-4 text-center cursor-pointer">
                 <span
                   className={`rounded-lg px-3 py-1 font-semibold ${
                     order.status === "Pending"

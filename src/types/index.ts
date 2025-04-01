@@ -26,6 +26,7 @@ export interface Category {
 
 export interface Service {
   _id: string;
+  
   name: string;
   service_id: string;
   description: string;
@@ -40,6 +41,7 @@ export interface Service {
 
 export interface Order {
   _id: string;
+  id: string;
   order_id: string;
   delivery_status: string;
   status: string;
@@ -50,6 +52,12 @@ export interface Order {
   updatedAt?: Date;
   technicianCode?: string;
   employee_id?: string;
+  services: {
+    service_id: string;
+    name: string;
+    description: string;
+    qty: number;
+  }[];
 }
 
 export interface Payment {
@@ -168,3 +176,34 @@ export interface CustomerContact{
 
 export interface RegisterCredentials
   extends Omit<Employee, "_id" | "createdAt" | "updatedAt"> {}
+
+
+
+
+  // This is a placeholder for your types file
+// Add this to your existing types.d.ts or create a new one
+
+export interface Order1 {
+  _id: string
+  order_id: string
+  customer_id: string
+  product_id: string
+  services: {
+    service_id: string
+    name: string
+    description: string
+    qty: number
+  }[]
+  delivery_status: string
+  order_date: string
+  status: string
+}
+
+export interface Service2 {
+  _id: string
+  service_id: string
+  name: string
+  description: string
+  // Add any other properties your service has
+}
+
