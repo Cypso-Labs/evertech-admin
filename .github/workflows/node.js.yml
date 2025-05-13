@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.18.0]
+        node-version: [22.15.0]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -31,5 +31,5 @@ jobs:
       run: npm install -g pm2
     
     - name: Start or restart PM2 process
-      run: pm2 restart 0 || pm2 start npm --name "evertech-admin-front-end" -- run start --watch
-      working-directory: /root/actions-runner/evertech-admin/_work/evertech-admin/evertech-admin
+      run: pm2 restart 1 || pm2 start npm --name "evertech-admin-front-end" -- run start --watch
+      working-directory: /root/evertech/admin/_work/evertech-admin/evertech-admin
