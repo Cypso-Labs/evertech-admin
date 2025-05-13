@@ -32,4 +32,4 @@ jobs:
     
     - name: Start or restart PM2 process
       run: pm2 restart 1 || pm2 start npm --name "evertech-admin-front-end" -- run start --watch
-      working-directory: /root/evertech/admin/_work/evertech-admin/evertech-admin
+      working-directory: /root/evertech/front-end/_work/Evertech_FrontEnd_V2/Evertech_FrontEnd_V2
