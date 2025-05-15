@@ -40,6 +40,11 @@ const Employees = () => {
     return role?.name || "N/A";
   };
 
+  const isSuperAdmin = (employee: Employee): boolean => {
+    const role = roles.find((role: Role) => role._id === employee.role);
+    return role?.name?.toLowerCase() === "super admin";
+  };
+
   const filteredEmployees = employees.filter((employee: Employee) => {
     if (!searchTerm) return true;
 
@@ -59,8 +64,19 @@ const Employees = () => {
   );
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
 
-  const handleDelete = async (employeeId: string, e: React.MouseEvent) => {
+  const handleDelete = async (employee: Employee, e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // Check if the employee is a super admin
+    if (isSuperAdmin(employee)) {
+      await Swal.fire({
+        title: "Cannot Delete",
+        text: "Super Admin employees cannot be deleted.",
+        icon: "error",
+        timer: 1500,
+      });
+      return;
+    }
 
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -75,7 +91,7 @@ const Employees = () => {
 
     if (result.isConfirmed) {
       try {
-        await deleteEmployee(employeeId).unwrap();
+        await deleteEmployee(employee._id).unwrap();
         await Swal.fire({
           title: "Deleted!",
           text: "Employee has been deleted successfully.",
@@ -209,10 +225,11 @@ const Employees = () => {
                   <td className="px-6 py-4 text-center">
                     <button
                       className={`group relative rounded-full p-2 transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-900/30 ${
-                        isDeleting ? "cursor-not-allowed opacity-50" : ""
+                        isDeleting || isSuperAdmin(employee) ? "cursor-not-allowed opacity-50" : ""
                       }`}
-                      onClick={(e) => handleDelete(employee._id, e)}
-                      disabled={isDeleting}
+                      onClick={(e) => handleDelete(employee, e)}
+                      disabled={isDeleting || isSuperAdmin(employee)}
+                      title={isSuperAdmin(employee) ? "Super Admin cannot be deleted" : ""}
                     >
                       {isDeleting ? (
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-red-500 border-t-transparent" />

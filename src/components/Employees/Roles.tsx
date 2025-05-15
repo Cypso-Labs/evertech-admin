@@ -20,7 +20,6 @@ const Roles = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-
   const roleCounts = roles.reduce((acc: Record<string, number>, role) => {
     acc[role._id] = 0; 
     return acc;
@@ -35,7 +34,17 @@ const Roles = () => {
   const currentRoles = filteredRoles.slice(indexOfFirstRole, indexOfLastRole);
   const totalPages = Math.ceil(filteredRoles.length / itemsPerPage);
 
+  const isSuperAdminRole = (role: Role) => {
+    return role.name.toLowerCase() === "super admin";
+  };
+
   const handleRowClick = (role: Role) => {
+    // Prevent editing super admin role
+    if (isSuperAdminRole(role)) {
+      alert("Super Admin role cannot be edited");
+      return;
+    }
+
     const queryParams = new URLSearchParams({
       id: role._id,
       name: role.name,
@@ -44,11 +53,18 @@ const Roles = () => {
     router.push(`/employees/role/editRole?${queryParams}`);
   };
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (role: Role, e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // Prevent deletion of super admin role
+    if (isSuperAdminRole(role)) {
+      alert("Super Admin role cannot be deleted");
+      return;
+    }
+
     if (window.confirm("Are you sure you want to delete this role?")) {
       try {
-        await deleteRole(id).unwrap();
+        await deleteRole(role._id).unwrap();
       } catch (error) {
         console.error("Failed to delete role", error);
       }
@@ -116,7 +132,11 @@ const Roles = () => {
               <tr
                 key={role._id}
                 onClick={() => handleRowClick(role)}
-                className="cursor-pointer rounded-lg bg-white py-2 text-center text-[16px] font-medium text-slate-700 shadow-md hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
+                className={`cursor-pointer rounded-lg py-2 text-center text-[16px] font-medium shadow-md ${
+                  isSuperAdminRole(role)
+                    ? "bg-gray-100 text-gray-500 dark:bg-gray-800"
+                    : "bg-white text-slate-700 hover:bg-[#E0EDFF] dark:bg-[#122031] dark:text-white"
+                }`}
               >
                 <td className="rounded-l-xl px-4 py-6">
                   Role #{role._id.slice(-5)}
@@ -125,8 +145,14 @@ const Roles = () => {
                 <td className="px-4 py-2">{roleCounts[role._id] || 0}</td>
                 <td className="rounded-r-xl px-4 py-2">
                   <button
-                    className="text-red-500 hover:text-[#3584FA]"
-                    onClick={(e) => handleDelete(role._id, e)}
+                    className={`${
+                      isSuperAdminRole(role)
+                        ? "cursor-not-allowed text-gray-400"
+                        : "text-red-500 hover:text-[#3584FA]"
+                    }`}
+                    onClick={(e) => handleDelete(role, e)}
+                    disabled={isSuperAdminRole(role)}
+                    title={isSuperAdminRole(role) ? "Super Admin role cannot be modified" : ""}
                   >
                     <FaTrashAlt />
                   </button>
